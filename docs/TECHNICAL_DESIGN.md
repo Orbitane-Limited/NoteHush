@@ -37,6 +37,8 @@ Private root: the sandbox's Application Support/NoteHush/Recovery directory, res
 
 The initial store implementation may use atomic, versioned full-workspace snapshots to prove invariants; it is a correctness foundation, not the final performance design. Before M5 performance acceptance, use immutable per-tab revision blobs and a small atomic manifest so unchanged tabs are not rewritten.
 
+Issue #4 implements the initial schema-1 full snapshot: `session.json` and `session.previous.json`, each containing version, payload and SHA-256. An actor plus an advisory disk lock serializes writers. Commits reread revisions under lock, flush private temporary files, rename atomically and synchronize the directory. Damaged generations are copied to uniquely named evidence files before replacement. Unsupported schemas in either slot block writes. A 256 MiB encoded-envelope guard bounds this interim format; large-workspace efficiency and evidence retention policy must be addressed before release in M5. The storage module currently persists tab IDs, text, titles, selection and workspace revision; window/scroll/preferences metadata is added with UI integration in #5.
+
 Commit protocol for final store:
 
 1. Serialize and validate changed tab blobs. Write temporary files in the recovery directory; flush contents before publishing.
