@@ -1,0 +1,3 @@
+// Product version; increase build for each TestFlight/App Store upload.
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
