@@ -33,7 +33,7 @@ Tests protect user data and measure behavior. Passing a build is not proof of da
 - Persistence/lifecycle: all recovery tests + clean quit/relaunch + kill drill; corruption/future-schema regression.
 - Release: all layers; archive validation and real TestFlight installation. Runtime test macOS 14 and current stable macOS; Apple silicon and an Intel Mac if Intel is advertised. Cross-compilation alone is insufficient.
 
-The foundation milestone adds `scripts/check.sh` and GitHub CI with exact reproducible commands. Tests use unique temporary roots. The app's development/test bundle IDs and recovery roots must not collide with production. Never make test flags capable of deleting normal user data. Inject clocks/I/O faults where practical; do not use arbitrary sleeps to hide races.
+Run `bash scripts/check.sh` for formatting, configuration, core tests, Debug build and universal Release archive verification. Logs are written to `build/logs/`; GitHub CI retains them as artifacts. `bash scripts/archive.sh` repeats only archive validation. UI/lifecycle tests become required as their targets land. Tests use unique temporary roots. The app's development/test bundle IDs and recovery roots must not collide with production. Never make test flags capable of deleting normal user data. Inject clocks/I/O faults where practical; do not use arbitrary sleeps to hide races.
 
 ## Performance protocol
 

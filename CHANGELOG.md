@@ -8,5 +8,6 @@
 - Milestone-based GitHub delivery process.
 - Swift 6 AppKit development shell, Foundation core model and Unicode-safe validation tests.
 - Version 0.1.0/build 1, macOS 14 target, sandbox configuration and universal Release settings.
+- GitHub PR/main validation and manually dispatched unsigned archive delivery with checksums.
 
 No production release has been published.

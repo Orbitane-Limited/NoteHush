@@ -36,6 +36,8 @@ Detailed checklists and dependencies live in `roadmap.json` and the correspondin
 
 Squash-only merges, branch deletion, templates, ownership, labels, pinned Actions and update automation. Configure main protection with required CI, resolved conversations, blocked force pushes/deletions and linear history when the private repository plan supports it. This is a solo-owner repository initially: automated checks plus documented self-review do not equal an independent approval. Do not create an impossible self-approval requirement. Record a GitHub plan restriction if enforcement is unavailable.
 
+**Enforcement status, 2026-09-06:** GitHub returned HTTP 403 for main branch protection: the current plan does not support this feature for the private repository. Squash-only merge settings and automatic branch deletion are enabled. CI status reporting works independently, but required checks/PRs and blocked force pushes are procedural until a suitable plan enables enforcement. Repository visibility was not changed. Reapply protection after a plan change.
+
 ## Release scope changes
 
 Features beyond v1 (multiple workspace windows/tear-out, Markdown rendering, iCloud, AI, syntax highlighting, plugins) require new issues and PRD updates. Never add them implicitly because Windows adds a feature. Production version 1.0.0 and the GitHub release remain gated by M6; development artifacts do not close distribution issues.
