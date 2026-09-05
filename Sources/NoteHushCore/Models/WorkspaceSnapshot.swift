@@ -22,15 +22,46 @@ public struct TabSnapshot: Codable, Equatable, Identifiable, Sendable {
   public var title: String
   public var text: String
   public var selection: TextSelection
+  public var scroll: TextScrollPosition?
 
   public init(
     id: UUID = UUID(), title: String = "Untitled", text: String = "",
-    selection: TextSelection = TextSelection()
+    selection: TextSelection = TextSelection(), scroll: TextScrollPosition? = nil
   ) {
     self.id = id
     self.title = title
     self.text = text
     self.selection = selection
+    self.scroll = scroll
+  }
+}
+
+/// A UTF-16 text anchor and displacement within its line, independent of window size.
+public struct TextScrollPosition: Codable, Equatable, Sendable {
+  public var anchor: Int
+  public var offset: Double
+
+  public init(anchor: Int, offset: Double) {
+    self.anchor = anchor
+    self.offset = offset
+  }
+}
+
+public struct WindowFrame: Codable, Equatable, Sendable {
+  public var x: Double
+  public var y: Double
+  public var width: Double
+  public var height: Double
+
+  public init(x: Double, y: Double, width: Double, height: Double) {
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
+  }
+
+  public var isValid: Bool {
+    x.isFinite && y.isFinite && width.isFinite && height.isFinite && width > 0 && height > 0
   }
 }
 
@@ -46,11 +77,17 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
   public var revision: UInt64
   public var tabs: [TabSnapshot]
   public var selectedTabID: UUID
+  // Optional additions keep schema-1 snapshots written before UI integration readable.
+  public var windowFrame: WindowFrame?
 
-  public init(revision: UInt64 = 0, tabs: [TabSnapshot], selectedTabID: UUID) {
+  public init(
+    revision: UInt64 = 0, tabs: [TabSnapshot], selectedTabID: UUID,
+    windowFrame: WindowFrame? = nil
+  ) {
     self.revision = revision
     self.tabs = tabs
     self.selectedTabID = selectedTabID
+    self.windowFrame = windowFrame
   }
 
   public static func empty() -> WorkspaceSnapshot {

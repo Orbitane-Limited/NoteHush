@@ -11,16 +11,37 @@
 		1252895B931E483DC91794F8 /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = CD0700D001813D43C7F3EB2F /* NoteHushCore */; };
 		568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		6ED5542EC6113FD90CAF3EEF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F499DFAD07C813D8D803A5 /* AppDelegate.swift */; };
+		7EEB638D2A1FF633E7D2B7DE /* WorkspaceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416918B3A81DBA5F7785B624 /* WorkspaceIntegrationTests.swift */; };
+		8DC0FE5CFB8B351A71EFE20B /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25CEB671E903BEBA37E584E5 /* NoteHushCore */; };
+		A8AFDDB53D7496A0545D1121 /* EditorTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C620622CB0DE79507944B40 /* EditorTab.swift */; };
 		B636F9BD86FE2EA8C7B1FC96 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E3E5C1AF0BA9E6C3AD8755C6 /* PrivacyInfo.xcprivacy */; };
+		EF196BED4D4083F141B894C7 /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
+		F0206FE7BB2F137955541C7F /* WorkspaceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */; };
+		F4DCC850BBDEA777A405D8A6 /* EditorTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C620622CB0DE79507944B40 /* EditorTab.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D99306F72CC815F17082AC85 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E1B2DA218F20764215A0473 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF0A2F19F04AF65561AE77D6;
+			remoteInfo = NoteHush;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16956BC0F6470379F1AFFB75 /* NoteHush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoteHush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C1664A9E89B6716D6EF33DE /* notepad */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notepad; path = .; sourceTree = SOURCE_ROOT; };
 		1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceWindowController.swift; sourceTree = "<group>"; };
+		416918B3A81DBA5F7785B624 /* WorkspaceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceIntegrationTests.swift; sourceTree = "<group>"; };
 		56F499DFAD07C813D8D803A5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6A1EE66A07A6886F1B9A218E /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
+		6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceLifecycleTests.swift; sourceTree = "<group>"; };
 		6CA6C17F100961DD2E8454A2 /* NoteHushMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteHushMain.swift; sourceTree = "<group>"; };
+		8C620622CB0DE79507944B40 /* EditorTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTab.swift; sourceTree = "<group>"; };
+		8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3E5C1AF0BA9E6C3AD8755C6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -33,9 +54,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E51467EBE47412421CD5F624 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DC0FE5CFB8B351A71EFE20B /* NoteHushCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C072C0CFD1BEC010FEC21A9 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				8C620622CB0DE79507944B40 /* EditorTab.swift */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
 		2F06506BBF14D5BF743F6E49 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -52,6 +89,14 @@
 			path = Workspace;
 			sourceTree = "<group>";
 		};
+		517DF38160700B0991FC400B /* NoteHushAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				416918B3A81DBA5F7785B624 /* WorkspaceIntegrationTests.swift */,
+			);
+			path = NoteHushAppTests;
+			sourceTree = "<group>";
+		};
 		5609597DFB781F16126E3EC5 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -64,8 +109,18 @@
 			isa = PBXGroup;
 			children = (
 				16956BC0F6470379F1AFFB75 /* NoteHush.app */,
+				15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */,
+				8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		689B94E290C991B827A44338 /* NoteHushUITests */ = {
+			isa = PBXGroup;
+			children = (
+				6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */,
+			);
+			path = NoteHushUITests;
 			sourceTree = "<group>";
 		};
 		7C6259F32C01CB6515314E99 /* Application */ = {
@@ -77,12 +132,22 @@
 			path = Application;
 			sourceTree = "<group>";
 		};
+		8CACFC1DAA73AA618E22CBF5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				517DF38160700B0991FC400B /* NoteHushAppTests */,
+				689B94E290C991B827A44338 /* NoteHushUITests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		AD5622215D0328F27F913FAC = {
 			isa = PBXGroup;
 			children = (
 				D4DA9FB815C129BBE82361BE /* App */,
 				E5521D71C85DCBAB2C03266C /* Config */,
 				5609597DFB781F16126E3EC5 /* Packages */,
+				8CACFC1DAA73AA618E22CBF5 /* Tests */,
 				5962A856287F38FD1C9BEA95 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -91,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				7C6259F32C01CB6515314E99 /* Application */,
+				0C072C0CFD1BEC010FEC21A9 /* Editor */,
 				2F06506BBF14D5BF743F6E49 /* Resources */,
 				318D6FB82F99B3BFD929825C /* Workspace */,
 			);
@@ -116,6 +182,43 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3D0388D3D507A26573695C45 /* NoteHushUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C60A6AE95112FB6EECD6321A /* Build configuration list for PBXNativeTarget "NoteHushUITests" */;
+			buildPhases = (
+				BEDE991DCFE2F6DF01CA5F80 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				348EF83EFF84A88AFC07737D /* PBXTargetDependency */,
+			);
+			name = NoteHushUITests;
+			packageProductDependencies = (
+			);
+			productName = NoteHushUITests;
+			productReference = 8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		4B2795B5B7081910630E541C /* NoteHushAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA3F71164700E953FCA22576 /* Build configuration list for PBXNativeTarget "NoteHushAppTests" */;
+			buildPhases = (
+				FDA5C9CEA89B7D86B4737643 /* Sources */,
+				E51467EBE47412421CD5F624 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NoteHushAppTests;
+			packageProductDependencies = (
+				25CEB671E903BEBA37E584E5 /* NoteHushCore */,
+			);
+			productName = NoteHushAppTests;
+			productReference = 15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DF0A2F19F04AF65561AE77D6 /* NoteHush */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C7B4451C8FD9F7083A85F0A5 /* Build configuration list for PBXNativeTarget "NoteHush" */;
@@ -145,6 +248,13 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					3D0388D3D507A26573695C45 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = DF0A2F19F04AF65561AE77D6;
+					};
+					4B2795B5B7081910630E541C = {
+						ProvisioningStyle = Automatic;
+					};
 					DF0A2F19F04AF65561AE77D6 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -168,6 +278,8 @@
 			projectRoot = "";
 			targets = (
 				DF0A2F19F04AF65561AE77D6 /* NoteHush */,
+				3D0388D3D507A26573695C45 /* NoteHushUITests */,
+				4B2795B5B7081910630E541C /* NoteHushAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -189,12 +301,39 @@
 			buildActionMask = 2147483647;
 			files = (
 				6ED5542EC6113FD90CAF3EEF /* AppDelegate.swift in Sources */,
+				A8AFDDB53D7496A0545D1121 /* EditorTab.swift in Sources */,
 				09C901BAE6CE224A99A395CB /* NoteHushMain.swift in Sources */,
 				568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BEDE991DCFE2F6DF01CA5F80 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0206FE7BB2F137955541C7F /* WorkspaceLifecycleTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FDA5C9CEA89B7D86B4737643 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4DCC850BBDEA777A405D8A6 /* EditorTab.swift in Sources */,
+				7EEB638D2A1FF633E7D2B7DE /* WorkspaceIntegrationTests.swift in Sources */,
+				EF196BED4D4083F141B894C7 /* WorkspaceWindowController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		348EF83EFF84A88AFC07737D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF0A2F19F04AF65561AE77D6 /* NoteHush */;
+			targetProxy = D99306F72CC815F17082AC85 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		17738A73A54DDBA39A81C5E5 /* Release */ = {
@@ -326,6 +465,55 @@
 			};
 			name = Debug;
 		};
+		1E8BCDE7D646DAD38E72E72F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.AppTests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		79D6695139DFD0102DF04973 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.UITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = Release;
+		};
+		91DC1246856D3A5C3EA625CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.AppTests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		C8A967CCBA8F870E8C9A972B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -342,6 +530,23 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.Development;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = Debug;
+		};
+		C9AF77D96D90032FFFB51BE3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.UITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
 			};
 			name = Debug;
 		};
@@ -367,11 +572,29 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C60A6AE95112FB6EECD6321A /* Build configuration list for PBXNativeTarget "NoteHushUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C9AF77D96D90032FFFB51BE3 /* Debug */,
+				79D6695139DFD0102DF04973 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		C7B4451C8FD9F7083A85F0A5 /* Build configuration list for PBXNativeTarget "NoteHush" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C8A967CCBA8F870E8C9A972B /* Debug */,
 				F9F3786F6E6DDAA77C0736BD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DA3F71164700E953FCA22576 /* Build configuration list for PBXNativeTarget "NoteHushAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E8BCDE7D646DAD38E72E72F /* Debug */,
+				91DC1246856D3A5C3EA625CE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -395,6 +618,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		25CEB671E903BEBA37E584E5 /* NoteHushCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NoteHushCore;
+		};
 		CD0700D001813D43C7F3EB2F /* NoteHushCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NoteHushCore;

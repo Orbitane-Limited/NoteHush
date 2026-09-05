@@ -7,6 +7,9 @@ let package = Package(
   products: [.library(name: "NoteHushCore", targets: ["NoteHushCore"])],
   targets: [
     .target(name: "NoteHushCore"),
+    .executableTarget(
+      name: "RecoveryCrashHarness", dependencies: ["NoteHushCore"],
+      path: "Tests/RecoveryCrashHarness"),
     .testTarget(name: "NoteHushCoreTests", dependencies: ["NoteHushCore"]),
   ]
 )

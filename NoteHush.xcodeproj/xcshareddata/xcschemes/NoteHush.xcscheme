@@ -39,7 +39,31 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4B2795B5B7081910630E541C"
+               BuildableName = "NoteHushAppTests.xctest"
+               BlueprintName = "NoteHushAppTests"
+               ReferencedContainer = "container:NoteHush.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3D0388D3D507A26573695C45"
+               BuildableName = "NoteHushUITests.xctest"
+               BlueprintName = "NoteHushUITests"
+               ReferencedContainer = "container:NoteHush.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
