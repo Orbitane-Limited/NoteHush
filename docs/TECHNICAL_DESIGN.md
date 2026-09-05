@@ -7,13 +7,13 @@ Use AppKit for application lifecycle, native menus/windows and `NSTextView` edit
 ```
 App/NoteHush/
   Application/        App delegate, commands, composition
-  Workspace/          Window controller, tab bar, layout
+  Workspace/          Window controller, tab bar, panels and file command integration
   Editor/             NSTextView, search, status, selection
-  Files/              Panels, security scopes, coordinated I/O
   Preferences/        Display and editing preferences
   Resources/          Assets, localized strings, privacy manifest
 Sources/NoteHushCore/
   Models/             Workspace, tabs, text format, revisions
+  Files/              Strict text codecs, file identity, scoped coordinated I/O
   Recovery/           Serialized checkpoint store, schema, validation
 Tests/NoteHushCoreTests/
 Tests/NoteHushUITests/
@@ -37,7 +37,7 @@ Private root: the sandbox's Application Support/NoteHush/Recovery directory, res
 
 The initial store implementation may use atomic, versioned full-workspace snapshots to prove invariants; it is a correctness foundation, not the final performance design. Before M5 performance acceptance, use immutable per-tab revision blobs and a small atomic manifest so unchanged tabs are not rewritten.
 
-Issue #4 implements the initial schema-1 full snapshot: `session.json` and `session.previous.json`, each containing version, payload and SHA-256. An actor plus an advisory disk lock serializes writers. Commits reread revisions under lock, flush private temporary files, rename atomically and synchronize the directory. Damaged generations are copied to uniquely named evidence files before replacement. Unsupported schemas in either slot block writes. A 256 MiB encoded-envelope guard bounds this interim format; large-workspace efficiency and evidence retention policy must be addressed before release in M5. Issue #5 adds optional scroll anchors and window bounds while preserving decoding of earlier schema-1 payloads. Preferences follow in #9.
+Issue #4 implements the initial schema-1 full snapshot: `session.json` and `session.previous.json`, each containing version, payload and SHA-256. An actor plus an advisory disk lock serializes writers. Commits reread revisions under lock, flush private temporary files, rename atomically and synchronize the directory. Damaged generations are copied to uniquely named evidence files before replacement. Unsupported schemas in either slot block writes. A 256 MiB encoded-envelope guard bounds this interim format; large-workspace efficiency and evidence retention policy must be addressed before release in M5. Issue #5 adds optional scroll anchors and window bounds. Issue #6 writes schema 2 for file bindings, reads schema 1, and retains the previous raw schema-1 generation during migration. Older schema-1 builds block on the newer store instead of dropping file metadata. Preferences follow in #9.
 
 The UI now owns one `EditorTab` per tab, each with its own AppKit text system and undo manager. `CheckpointCoordinator` maintains one in-flight write and replaces a pending snapshot with the newest revision. Its 250 ms debounce and 500 ms maximum scheduling interval are independent; replacing a timer never cancels an active write. Shutdown freezes editing, commits marked text, captures the final state, drains the writer and always replies to terminate, including after a failed write. Window close routes through that same application termination path.
 
@@ -57,6 +57,12 @@ Normal termination uses `applicationShouldTerminate`: return terminateLater, flu
 Recently closed tabs are recoverable, capped at 20. Clear-history must be explicit; garbage collection may remove their content only after the new manifest commits. Provide an explicit reset/clear workflow so local persistence is understandable to users.
 
 ## External file safety
+
+Implemented in #6: `TextFileService` is an actor that balances security-scoped access, coordinates reads/replacements and captures device/inode plus SHA-256 baselines. Descriptor validation rejects special files and files over 100 MiB before coordination (which itself can block on a FIFO), and again before allocation/read. Reads check cancellation in 64 KiB chunks; the UI discards late cancelled results. Waiting inside OS file coordination is not instantly cancellable. Files over 20 MiB show a notice; layout and memory budgets remain #12 work.
+
+Open/Finder requests queue behind recovery loading. A duplicate identity or canonical path selects the existing tab without replacing its recovered text or save baseline. Save captures immutable text before awaiting I/O; edits made during the write stay dirty. Debounced off-main digest comparison clears dirty state after undo restores exact saved bytes. Save As exposes encoding choice and preserves the chosen extension. Atomic writes update file metadata only after success, reject changed/deleted source baselines, and protect other open tabs. Failure keeps the draft and baseline. Quit cancels pending opens, dismisses file panels and drains an accepted save before the final private checkpoint.
+
+File bindings persist format/identity/digests and a location for display and conflict checks. Stored paths grant no sandbox authority. In #6 only panel/Finder access survives in memory; after relaunch Save requires a panel. Persistent bookmarks, relink and inspect/reload/explicit-overwrite conflict choices remain #7. The current conflict banner offers Save As and never silently overwrites a changed source.
 
 Use NSOpenPanel/NSSavePanel, user-selected read/write entitlements, security-scoped bookmarks, balanced start/stop access and NSFileCoordinator. Bookmarks are opaque local data and are never logged. Refresh stale bookmarks after successful resolution. A revoked/missing source retains the recovery buffer and requests relink only when accessing/saving that file.
 
@@ -81,6 +87,8 @@ NSDocument would reduce native file-management code, but autosave-in-place and s
 - [Apple App Sandbox](https://developer.apple.com/documentation/security/app-sandbox)
 - [Apple NSFileCoordinator](https://developer.apple.com/documentation/foundation/nsfilecoordinator)
 - [Apple privacy manifests](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files)
+- [Apple approved required-reason API uses](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons)
 - [Apple deferred termination reply](https://developer.apple.com/documentation/appkit/nsapplication/reply(toapplicationshouldterminate:))
+- [Apple termination while a sheet is open](https://developer.apple.com/documentation/appkit/nswindow/preventsapplicationterminationwhenmodal)
 - [Apple per-text-view undo manager](https://developer.apple.com/documentation/appkit/nstextviewdelegate/undomanager(for:))
 - [Apple text view in a scroll view](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/TextUILayer/Tasks/TextInScrollView.html)

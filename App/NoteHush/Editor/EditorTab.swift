@@ -4,7 +4,13 @@ import NoteHushCore
 @MainActor
 final class EditorTab: NSObject, NSTextViewDelegate {
   let id: UUID
-  let title: String
+  private(set) var title: String
+  private(set) var file: FileBinding?
+  private(set) var isDirty: Bool
+  // In-memory panel/Finder authority. Recovered paths alone grant no access.
+  private(set) var grantedURL: URL?
+  private var dirtyCheck: Task<Void, Never>?
+  private var contentRevision: UInt64 = 0
   let editor: NSTextView
   let scrollView = NSScrollView()
   var onChange: (() -> Void)?
@@ -16,6 +22,8 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   init(snapshot: TabSnapshot) {
     id = snapshot.id
     title = snapshot.title
+    file = snapshot.file
+    isDirty = !snapshot.text.isEmpty
     savedScroll = snapshot.scroll
     let storage = NSTextStorage()
     let layout = NSLayoutManager()
@@ -55,10 +63,16 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     NotificationCenter.default.addObserver(
       self, selector: #selector(scrolled), name: NSView.boundsDidChangeNotification,
       object: scrollView.contentView)
+    refreshDirtyState()
   }
 
   func undoManager(for view: NSTextView) -> UndoManager? { history }
-  func textDidChange(_ notification: Notification) { onChange?() }
+  func textDidChange(_ notification: Notification) {
+    contentRevision &+= 1
+    isDirty = file != nil || !editor.string.isEmpty
+    refreshDirtyState()
+    onChange?()
+  }
   func textViewDidChangeSelection(_ notification: Notification) { onChange?() }
 
   func snapshot(isVisible: Bool) -> TabSnapshot {
@@ -67,7 +81,41 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     return TabSnapshot(
       id: id, title: title, text: editor.string,
       selection: TextSelection(location: range.location, length: range.length)
-        .clamped(toUTF16Length: editor.string.utf16.count), scroll: savedScroll)
+        .clamped(toUTF16Length: editor.string.utf16.count), scroll: savedScroll, file: file)
+  }
+
+  func bind(_ binding: FileBinding, grantedURL: URL) {
+    self.file = binding
+    self.grantedURL = grantedURL
+    title = binding.url.lastPathComponent
+    // This comparison runs after disk I/O, so typing during a save stays dirty.
+    refreshDirtyState(immediate: true)
+    onChange?()
+  }
+
+  func grantAccess(to url: URL) { grantedURL = url }
+
+  func waitForDirtyState() async { await dirtyCheck?.value }
+
+  private func refreshDirtyState(immediate: Bool = false) {
+    dirtyCheck?.cancel()
+    guard let file else {
+      isDirty = !editor.string.isEmpty
+      return
+    }
+    let text = editor.string
+    let revision = contentRevision
+    dirtyCheck = Task { [weak self] in
+      do {
+        if !immediate { try await Task.sleep(for: .milliseconds(250)) }
+        let digest = await Task.detached(priority: .utility) { TextDocumentCodec.textDigest(text) }
+          .value
+        try Task.checkCancellation()
+        guard let self, contentRevision == revision else { return }
+        isDirty = digest != file.textDigest
+        onChange?()
+      } catch {}
+    }
   }
 
   func restoreScroll() {

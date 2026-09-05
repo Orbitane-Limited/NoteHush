@@ -13,5 +13,8 @@
 - Native tabs with independent text storage/undo, keyboard switching, automatic draft checkpoints, and prompt-free quit/window-close restoration of tabs, selection, scroll and window bounds.
 - Persistent recovery warnings with retry and JSON export; unreadable/newer workspaces remain protected from editing and replacement.
 - Deterministic checkpoint/quit race tests, AppKit integration tests, sandboxed UI relaunch tests and child-process SIGKILL recovery drills in CI.
+- Native multi-file Open, Finder requests, Save and Save As with encoding selection and duplicate-file detection.
+- Lossless UTF-8/BOM and UTF-16 LE/BE handling, mixed-newline preservation, cancellable background reads and atomic coordinated writes with changed-file safeguards.
+- Dirty-file recovery metadata with schema-1 migration, failed-save and concurrent-edit protection, and bounded file loading.
 
 No production release has been published.

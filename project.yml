@@ -49,6 +49,11 @@ targets:
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         NSHumanReadableCopyright: "Copyright © 2026 CodeHubdotPk"
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Plain Text
+            CFBundleTypeRole: Editor
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [public.plain-text, public.source-code, public.json, public.shell-script]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush

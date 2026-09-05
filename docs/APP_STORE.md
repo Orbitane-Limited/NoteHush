@@ -25,7 +25,7 @@ Reviewed 2026-09-06. This matrix covers requirements relevant to NoteHush's plan
 - `com.apple.security.files.bookmarks.app-scope = true` when persistent file access is implemented.
 - No network client/server, microphone, camera, contacts, location, automation, app groups, iCloud or broad filesystem exception.
 
-Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected data types. Declare required-reason APIs only when used. UserDefaults for app-owned preferences generally uses reason CA92.1; verify the current approved reason against actual usage. File timestamp APIs may need their own appropriate reason if used for conflicts. Inspect the privacy report of the final archive.
+Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected data types. Issue #6 uses `fstat` for identity/type/size of user-selected files and declares `NSPrivacyAccessedAPICategoryFileTimestamp` with approved reason `3B52.1` (user-granted files); no metadata leaves the device. UserDefaults for app-owned preferences generally uses reason CA92.1; add it only when implemented and verify the approved reason against actual usage. Inspect the privacy report of the final archive.
 
 ## Store material checklist
 
@@ -51,5 +51,6 @@ Confirm registered seller/team, bundle identifier, contact/support destination, 
 - [App Sandbox](https://developer.apple.com/documentation/security/app-sandbox)
 - [Privacy manifests](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files)
 - [Required reason API categories](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitype)
+- [Approved required-reason API uses](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons)
 
 Check current requirements again before uploading; do not assume that mobile platform SDK minimums imply the same macOS deployment target. Initial local tooling: Xcode 26.6, with macOS 14 deployment target selected as a product support choice.
