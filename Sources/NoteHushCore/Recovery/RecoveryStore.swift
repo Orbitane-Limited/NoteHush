@@ -55,6 +55,18 @@ public actor RecoveryStore {
     }
   }
 
+  /// Lossless export of both on-disk generations, including unknown schemas.
+  /// Export never interprets or changes the source files.
+  public func exportGenerations() throws -> Data {
+    try files.withExclusiveAccess {
+      var generations: [String: Data] = [:]
+      for name in [Self.primaryName, Self.previousName] {
+        generations[name] = try files.read(name)
+      }
+      return try Self.encoder().encode(generations)
+    }
+  }
+
   @discardableResult
   public func commit(_ snapshot: WorkspaceSnapshot) throws -> RecoveryCommit {
     try snapshot.validate()

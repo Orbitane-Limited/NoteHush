@@ -59,6 +59,31 @@ targets:
       configs:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.Development
+  NoteHushUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [Tests/NoteHushUITests]
+    dependencies:
+      - target: NoteHush
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.UITests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: NoteHush
+  NoteHushAppTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/NoteHushAppTests
+      - App/NoteHush/Editor
+      - App/NoteHush/Workspace
+    dependencies:
+      - package: NoteHushCore
+        product: NoteHushCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.AppTests
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   NoteHush:
     build:
@@ -66,5 +91,10 @@ schemes:
         NoteHush: all
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - NoteHushAppTests
+        - NoteHushUITests
     archive:
       config: Release

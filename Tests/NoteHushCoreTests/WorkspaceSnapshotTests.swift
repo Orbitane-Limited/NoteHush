@@ -4,6 +4,31 @@ import XCTest
 @testable import NoteHushCore
 
 final class WorkspaceSnapshotTests: XCTestCase {
+  func testSchemaOneWithoutPresentationMetadataStillDecodes() throws {
+    let id = UUID().uuidString
+    let legacy = """
+      {"revision":4,"selectedTabID":"\(id)","tabs":[{"id":"\(id)","title":"Draft","text":"hello","selection":{"location":2,"length":1}}]}
+      """
+    let workspace = try JSONDecoder().decode(WorkspaceSnapshot.self, from: Data(legacy.utf8))
+    try workspace.validate()
+    XCTAssertNil(workspace.windowFrame)
+    XCTAssertNil(workspace.tabs[0].scroll)
+    XCTAssertEqual(workspace.tabs[0].selection, TextSelection(location: 2, length: 1))
+  }
+
+  func testPresentationMetadataRoundTripsAndInvalidGeometryIsDetectable() throws {
+    var workspace = WorkspaceSnapshot.empty()
+    workspace.tabs[0].text = "First\nSecond"
+    workspace.tabs[0].scroll = TextScrollPosition(anchor: 6, offset: 3.5)
+    workspace.windowFrame = WindowFrame(x: -800, y: 42, width: 900, height: 600)
+    let decoded = try JSONDecoder().decode(
+      WorkspaceSnapshot.self, from: JSONEncoder().encode(workspace))
+    XCTAssertEqual(decoded, workspace)
+    XCTAssertTrue(decoded.windowFrame?.isValid == true)
+    XCTAssertFalse(WindowFrame(x: .infinity, y: 0, width: 900, height: 600).isValid)
+    XCTAssertFalse(WindowFrame(x: 0, y: 0, width: -1, height: 600).isValid)
+  }
+
   func testFreshWorkspaceHasAnEditableSelectedTab() throws {
     let workspace = WorkspaceSnapshot.empty()
     try workspace.validate()

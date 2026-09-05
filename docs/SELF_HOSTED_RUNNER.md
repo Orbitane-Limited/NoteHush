@@ -4,7 +4,7 @@ The owner requested this Mac as NoteHush's CI host on 2026-09-06. Runner scope: 
 
 Installation directory: `~/Library/NoteHushActionsRunner` (user-only access). Job checkouts live under its `_work` directory, separate from the development checkout. The official GitHub runner 2.337.0 arm64 package was selected through GitHub's runner download API; verify its published SHA-256 before extraction. Runner auto-update remains enabled. Registration tokens are short-lived and must never be committed or pasted into issues.
 
-The per-user launchd service starts at login. The Mac must remain awake, logged in and connected; sleeping/offline pauses availability and jobs queue. No sleep settings are changed automatically. Only one job runs at a time. GitHub remains the source of run logs, status checks and retained artifacts.
+The per-user launchd service starts at login. The Mac must remain awake, logged in, unlocked and connected; sleeping/offline pauses availability and jobs queue. GUI tests require the unlocked desktop and may briefly bring NoteHush's isolated fixture window forward. No sleep settings are changed automatically. Only one job runs at a time. GitHub remains the source of run logs, status checks and retained artifacts.
 
 ## Service commands
 
