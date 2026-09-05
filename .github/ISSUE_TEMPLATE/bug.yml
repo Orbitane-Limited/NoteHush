@@ -1,0 +1,23 @@
+name: Bug report
+description: Report incorrect behavior or a regression
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Do not include private note contents or personal file paths.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: App version, macOS version and Mac architecture
+    validations:
+      required: true
