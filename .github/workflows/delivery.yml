@@ -1,0 +1,49 @@
+name: Engineering delivery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engineering-delivery
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Verify and package unsigned candidate
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - name: Check out selected main commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run all current release checks
+        run: bash scripts/check.sh
+      - name: Package artifact and checksum
+        run: |
+          tar -czf build/NoteHush-UNSIGNED.xcarchive.tar.gz -C build NoteHush-unsigned.xcarchive
+          (cd build && shasum -a 256 NoteHush-UNSIGNED.xcarchive.tar.gz > SHA256SUMS)
+          printf '%s\n' 'Unsigned engineering artifact. Not an App Store or production installer.' > build/ARTIFACT-README.txt
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: delivery-validation-${{ github.sha }}
+          path: build/logs/
+          retention-days: 14
+      - name: Upload candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NoteHush-UNSIGNED-candidate-${{ github.sha }}
+          path: |
+            build/NoteHush-UNSIGNED.xcarchive.tar.gz
+            build/SHA256SUMS
+            build/ARTIFACT-README.txt
+          retention-days: 14
+          if-no-files-found: error
