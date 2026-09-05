@@ -42,4 +42,4 @@ xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration Release -
 
 The project is committed so builds need only Xcode. When editing `project.yml`, regenerate using **XcodeGen 2.46.0** with `xcodegen generate` and commit both. Toolchain upgrades are explicit changes, not automatic switches to beta SDKs. Local running with the sandbox enabled requires a signing identity configured in Xcode; unsigned builds are for compile/CI verification.
 
-GitHub CI runs the same checks on pull requests and main. The manually dispatched **Engineering delivery** workflow produces a clearly labeled unsigned archive plus checksum. Signed TestFlight delivery and GitHub production Releases are tracked in M6.
+GitHub CI runs the same checks on pull requests and main using this Mac's repository-scoped self-hosted runner. The Mac must be awake, online and logged in for jobs to run. See [runner operations](docs/SELF_HOSTED_RUNNER.md). The manually dispatched **Engineering delivery** workflow produces a clearly labeled unsigned archive plus checksum. Signed TestFlight delivery and GitHub production Releases are tracked in M6.

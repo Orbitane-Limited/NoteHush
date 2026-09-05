@@ -3,6 +3,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p build/logs
 xcodebuild -version | tee build/logs/toolchain.log
+if [[ "$(head -n 1 build/logs/toolchain.log)" != "Xcode 26.6" ]]; then
+  echo 'Expected Xcode 26.6. Review a toolchain upgrade before changing this check.' >&2
+  exit 1
+fi
 swift --version | tee -a build/logs/toolchain.log
 python3 scripts/verify_configuration.py
 xcrun swift-format lint --strict --recursive App Sources Tests Package.swift
