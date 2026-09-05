@@ -30,7 +30,9 @@ Track delivery in [milestones](https://github.com/CodeHubdotPk/NoteHush/mileston
 
 ## Development
 
-Xcode 26.6 is the initial verified toolchain. Open `NoteHush.xcodeproj`, select the NoteHush scheme, and run. Debug uses a separate `.Development` bundle identifier. Tabs, independent undo, continuous recovery and prompt-free quit/relaunch are implemented. File open/save, tab closing/reordering, preferences and release polish remain on the roadmap.
+Xcode 26.6 is the initial verified toolchain. Open `NoteHush.xcodeproj`, select the NoteHush scheme, and run. Debug uses a separate `.Development` bundle identifier. Tabs, independent undo, continuous recovery, prompt-free quit/relaunch, native Open/Save/Save As and Finder file opening are implemented. Persistent file permissions, conflict resolution, tab closing/reordering, preferences and release polish remain on the roadmap.
+
+File operations preserve UTF-8, UTF-8 BOM, BOM-marked UTF-16 LE/BE and mixed CRLF/LF/CR newlines. Invalid encoding, binary controls, special files and files above 100 MiB are rejected; files above 20 MiB show a large-file notice. Explicit saves refuse changed/deleted sources and destinations open in another tab. After relaunch, recovered text remains authoritative; until persistent bookmarks land in issue #7, Save uses a native panel to renew file access. Performance budgets remain unmeasured.
 
 ```sh
 bash scripts/check.sh

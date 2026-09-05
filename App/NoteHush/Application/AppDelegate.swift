@@ -4,6 +4,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
   private var workspace: WorkspaceWindowController?
   private var terminationTask: Task<Void, Never>?
+  private var pendingOpenURLs: [URL] = []
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApplication.shared.mainMenu = makeMenu()
@@ -22,6 +23,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     workspace = controller
     controller.showWindow(nil)
     NSApplication.shared.activate(ignoringOtherApps: true)
+    if !pendingOpenURLs.isEmpty {
+      controller.beginOpening(pendingOpenURLs)
+      pendingOpenURLs.removeAll()
+    }
+  }
+
+  func application(_ application: NSApplication, open urls: [URL]) {
+    if let workspace {
+      workspace.beginOpening(urls)
+    } else {
+      pendingOpenURLs.append(contentsOf: urls)
+    }
   }
 
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -37,6 +50,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   @objc private func newTab(_ sender: Any?) { workspace?.newTab(sender) }
   @objc private func nextTab(_ sender: Any?) { workspace?.nextTab(sender) }
   @objc private func previousTab(_ sender: Any?) { workspace?.previousTab(sender) }
+  @objc private func openDocument(_ sender: Any?) { workspace?.openDocument(sender) }
+  @objc private func saveDocument(_ sender: Any?) { workspace?.saveDocument(sender) }
+  @objc private func saveDocumentAs(_ sender: Any?) { workspace?.saveDocumentAs(sender) }
 
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     true
@@ -66,6 +82,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let new = file.addItem(
       withTitle: String(localized: "New Tab"), action: #selector(newTab(_:)), keyEquivalent: "n")
     new.target = self
+    let open = file.addItem(
+      withTitle: String(localized: "Open…"), action: #selector(openDocument(_:)), keyEquivalent: "o"
+    )
+    open.target = self
+    let save = file.addItem(
+      withTitle: String(localized: "Save"), action: #selector(saveDocument(_:)), keyEquivalent: "s")
+    save.target = self
+    let saveAs = file.addItem(
+      withTitle: String(localized: "Save As…"), action: #selector(saveDocumentAs(_:)),
+      keyEquivalent: "s")
+    saveAs.keyEquivalentModifierMask = [.command, .shift]
+    saveAs.target = self
+    file.addItem(.separator())
     file.addItem(
       withTitle: String(localized: "Close Window"), action: #selector(NSWindow.performClose(_:)),
       keyEquivalent: "w")

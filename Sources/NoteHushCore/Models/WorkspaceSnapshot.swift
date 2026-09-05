@@ -23,16 +23,19 @@ public struct TabSnapshot: Codable, Equatable, Identifiable, Sendable {
   public var text: String
   public var selection: TextSelection
   public var scroll: TextScrollPosition?
+  public var file: FileBinding?
 
   public init(
     id: UUID = UUID(), title: String = "Untitled", text: String = "",
-    selection: TextSelection = TextSelection(), scroll: TextScrollPosition? = nil
+    selection: TextSelection = TextSelection(), scroll: TextScrollPosition? = nil,
+    file: FileBinding? = nil
   ) {
     self.id = id
     self.title = title
     self.text = text
     self.selection = selection
     self.scroll = scroll
+    self.file = file
   }
 }
 

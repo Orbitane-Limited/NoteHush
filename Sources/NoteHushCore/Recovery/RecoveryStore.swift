@@ -33,7 +33,7 @@ public enum RecoveryCommit: Sendable {
 public actor RecoveryStore {
   static let primaryName = "session.json"
   static let previousName = "session.previous.json"
-  static let formatVersion = 1
+  static let formatVersion = 2
   static let maximumEnvelopeBytes = 256 * 1024 * 1024
 
   private let files: any RecoveryFiles
@@ -133,7 +133,9 @@ public actor RecoveryStore {
         // Decode the version before the payload: a future format may not even
         // contain the same fields. It must block writes, not look like corruption.
         let version = try JSONDecoder().decode(Header.self, from: raw).version
-        guard version == Self.formatVersion else { throw RecoveryError.unsupportedSchema(version) }
+        guard (1...Self.formatVersion).contains(version) else {
+          throw RecoveryError.unsupportedSchema(version)
+        }
         let envelope = try JSONDecoder().decode(Envelope.self, from: raw)
         guard Self.digest(envelope.payload) == envelope.sha256 else {
           throw RecoveryError.corruptGenerations

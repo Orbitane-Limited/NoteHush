@@ -20,13 +20,24 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private var startupWarning: String?
   private var loadingTask: Task<Void, Never>?
   private var loading = false
+  let fileService: any TextFileAccess
+  var openingTask: Task<Void, Never>?
+  var pendingFileURLs: [URL] = []
+  var savingTask: Task<Void, Never>?
+  var filePanel: NSSavePanel?
+  private let fileBanner = NSStackView()
+  private let fileMessage = NSTextField(wrappingLabelWithString: "")
+  private let cancelOpeningButton = NSButton()
+  var canEditFiles: Bool { ready && !stopping }
+  var selectedTab: EditorTab? { tabs.first { $0.id == selectedID } }
 
   convenience init(directory: URL) {
     self.init(store: RecoveryStore(directory: directory))
   }
 
-  init(store: RecoveryStore) {
+  init(store: RecoveryStore, fileService: any TextFileAccess = TextFileService()) {
     self.store = store
+    self.fileService = fileService
     let window = NSWindow(
       contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
       styleMask: [.titled, .closable, .miniaturizable, .resizable],
@@ -48,6 +59,42 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   required init?(coder: NSCoder) { nil }
 
   func waitUntilLoaded() async { await loadingTask?.value }
+
+  func installFile(_ opened: OpenedTextFile, grantedURL: URL) {
+    guard canEditFiles else { return }
+    if let existing = tabs.first(where: {
+      $0.file?.identity == opened.binding.identity || $0.file?.url == opened.binding.url
+    }) {
+      existing.grantAccess(to: grantedURL)
+      select(existing.id)
+      return
+    }
+    let tab = makeTab(
+      TabSnapshot(
+        title: opened.binding.url.lastPathComponent,
+        text: opened.text, file: opened.binding))
+    tab.grantAccess(to: grantedURL)
+    tabs.append(tab)
+    select(tab.id)
+  }
+
+  func didSaveFile() {
+    updateTabTitles()
+    coordinator?.changed(immediate: true)
+  }
+
+  func showFileMessage(_ text: String?, opening: Bool = false) {
+    fileMessage.stringValue = text ?? ""
+    cancelOpeningButton.isHidden = !opening
+    fileBanner.isHidden = text == nil
+  }
+
+  @objc private func dismissFileMessage(_ sender: Any?) { showFileMessage(nil) }
+  @objc func cancelOpening(_ sender: Any?) {
+    pendingFileURLs.removeAll()
+    openingTask?.cancel()
+    showFileMessage(String(localized: "Opening cancelled. Existing drafts are unchanged."))
+  }
 
   private func loadWorkspace() async {
     guard !ready, !loading else { return }
@@ -179,12 +226,17 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       return
     }
     stopping = true
+    pendingFileURLs.removeAll()
+    openingTask?.cancel()
+    // Use the panel's cancellation path so its completion resumes Save As.
+    filePanel?.cancel(nil)
     newButton.isEnabled = false
     for tab in tabs {
       tab.editor.unmarkText()
       tab.editor.isEditable = false
     }
     await loadingTask?.value
+    await savingTask?.value
     await coordinator?.shutdown()
   }
 
@@ -249,6 +301,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   @objc private func exportRecovery(_ sender: Any?) {
     guard !stopping, let window else { return }
     let panel = NSSavePanel()
+    panel.preventsApplicationTerminationWhenModal = false
     panel.title = String(localized: "Export Recovery")
     panel.message =
       ready
@@ -304,10 +357,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private func updateTabTitles() {
     for (tab, view) in zip(tabs, tabStack.arrangedSubviews) {
       guard let button = view as? NSButton else { continue }
-      let hasText = !tab.editor.string.isEmpty
-      button.title = tab.title + (hasText ? " •" : "")
+      button.title = tab.title + (tab.isDirty ? " •" : "")
       button.setAccessibilityLabel(
-        tab.title + (hasText ? String(localized: ", unsaved draft") : ""))
+        tab.title + (tab.isDirty ? String(localized: ", unsaved changes") : ""))
     }
   }
 
@@ -349,7 +401,22 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     banner.addArrangedSubview(
       NSButton(
         title: String(localized: "Export…"), target: self, action: #selector(exportRecovery(_:))))
-    for view in [bar, banner, editorHost] {
+    fileBanner.orientation = .horizontal
+    fileBanner.spacing = 12
+    fileBanner.edgeInsets = NSEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+    fileMessage.setAccessibilityIdentifier("file-message")
+    fileMessage.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    cancelOpeningButton.title = String(localized: "Cancel Opening")
+    cancelOpeningButton.target = self
+    cancelOpeningButton.action = #selector(cancelOpening(_:))
+    fileBanner.addArrangedSubview(fileMessage)
+    fileBanner.addArrangedSubview(cancelOpeningButton)
+    fileBanner.addArrangedSubview(
+      NSButton(
+        title: String(localized: "Dismiss"), target: self, action: #selector(dismissFileMessage(_:))
+      ))
+    fileBanner.isHidden = true
+    for view in [bar, banner, fileBanner, editorHost] {
       root.addArrangedSubview(view)
       view.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
     }

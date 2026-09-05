@@ -6,6 +6,35 @@ import XCTest
 
 @MainActor
 final class RecoveryStoreTests: XCTestCase {
+  func testSchemaOneMigratesToTwoKeepingOriginalGenerationAndFileBinding() async throws {
+    let fixture = try RecoveryFixture()
+    let original = fixture.snapshot(revision: 1, text: "legacy draft")
+    try await fixture.store.commit(original)
+    var envelope = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
+    envelope["version"] = 1
+    let legacy = try JSONSerialization.data(withJSONObject: envelope)
+    for name in [RecoveryStore.primaryName, RecoveryStore.previousName] {
+      try legacy.write(to: fixture.directory.appending(path: name))
+    }
+    let loaded = try await fixture.store.load()
+    XCTAssertEqual(loaded.snapshot, original)
+    let document = fixture.directory.appending(path: "document.txt")
+    let binding = try await TextFileService().save(
+      "legacy draft", encoding: .utf8, to: document, expected: nil, saveAs: true)
+    var next = original
+    next.revision = 2
+    next.tabs[0].file = binding
+    try await fixture.store.commit(next)
+    let updated = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
+    XCTAssertEqual(updated["version"] as? Int, 2)
+    XCTAssertEqual(
+      try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
+    let restored = try await fixture.store.load()
+    XCTAssertEqual(restored.snapshot?.tabs[0].file, binding)
+  }
+
   func testFirstLaunchIsDistinctFromCorruption() async throws {
     let fixture = try RecoveryFixture()
     let loaded = try await fixture.store.load()
