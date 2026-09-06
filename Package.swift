@@ -16,6 +16,9 @@ let package = Package(
     .executableTarget(
       name: "TextMetricsBenchmark", dependencies: ["NoteHushCore"],
       path: "Tests/TextMetricsBenchmark"),
+    .executableTarget(
+      name: "RecoveryBenchmark", dependencies: ["NoteHushCore"],
+      path: "Tests/RecoveryBenchmark"),
     .testTarget(name: "NoteHushCoreTests", dependencies: ["NoteHushCore"]),
   ]
 )
