@@ -108,7 +108,7 @@ final class FileAccessTests: XCTestCase {
     try FileManager.default.removeItem(at: source)
     app.typeKey("s", modifierFlags: .command)
     let relink = app.sheets.buttons["Relink…"]
-    XCTAssertTrue(relink.waitForExistence(timeout: 5))
+    waitForHittable(relink)
     relink.click()
     goTo(candidate)
     app.sheets.buttons["OKButton"].firstMatch.click()
@@ -230,6 +230,11 @@ final class FileAccessTests: XCTestCase {
   }
 
   private func goTo(_ url: URL) {
+    if app.state != .runningForeground { app.activate() }
+    XCTAssertTrue(app.wait(for: .runningForeground, timeout: 5))
+    // A sheet may exist in AX before its remote file-panel controls can receive
+    // input. Establish readiness before sending the Go to Folder shortcut.
+    waitForHittable(app.sheets.buttons["CancelButton"].firstMatch)
     app.typeKey("g", modifierFlags: [.command, .shift])
     let field = app.textFields["PathTextField"]
     XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -237,6 +242,20 @@ final class FileAccessTests: XCTestCase {
     app.typeKey("a", modifierFlags: .command)
     field.typeText(url.path)
     app.typeKey(.return, modifierFlags: [])
+  }
+
+  private func waitForHittable(_ element: XCUIElement) {
+    if element.isHittable { return }
+    let ready = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "hittable == true"), object: element)
+    let result = XCTWaiter.wait(for: [ready], timeout: 5)
+    if result != .completed {
+      let snapshot = XCTAttachment(screenshot: app.windows["NoteHush"].screenshot())
+      snapshot.name = "Native file panel readiness"
+      snapshot.lifetime = .keepAlways
+      add(snapshot)
+    }
+    XCTAssertEqual(result, .completed, "The native control must be clickable before input")
   }
 
   private func replaceDraft(_ text: String) {
