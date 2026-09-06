@@ -16,6 +16,8 @@ The canonical runner API reported `NoteHush-Mac-arm64` online, idle immediately 
 
 The live command `python3 scripts/bootstrap_github.py --repo Orbitane-Limited/NoteHush --write-roadmap` completed in preview mode with empty missing-label, missing-milestone and missing-issue lists. It resolved all 16 baseline issue numbers and regenerated the local roadmap using GET requests only. Archived validation documents keep their historical links. No duplicate milestones/issues or issue-body edits were needed. The PR records the final self-hosted checks on its full head.
 
+A second read-only preview using `--repo CodeHubdotPk/NoteHush` followed the existing GET redirect, reported `Orbitane-Limited/NoteHush` as canonical, and produced the same empty missing-object lists and canonical issue URLs. No local output file was requested in this alias check.
+
 ## References
 
 - [GitHub repository metadata API](https://docs.github.com/en/rest/repos/repos#get-a-repository)
