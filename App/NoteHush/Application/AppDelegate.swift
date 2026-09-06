@@ -1,7 +1,7 @@
 import AppKit
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
   private var workspace: WorkspaceWindowController?
   private var terminationTask: Task<Void, Never>?
   private var pendingOpenURLs: [URL] = []
@@ -53,6 +53,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   @objc private func openDocument(_ sender: Any?) { workspace?.openDocument(sender) }
   @objc private func saveDocument(_ sender: Any?) { workspace?.saveDocument(sender) }
   @objc private func saveDocumentAs(_ sender: Any?) { workspace?.saveDocumentAs(sender) }
+  @objc private func performTextFinderAction(_ sender: Any?) {
+    workspace?.performFindAction(sender)
+  }
+  @objc private func goToLine(_ sender: Any?) { workspace?.goToLine(sender) }
+
+  func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    switch menuItem.action {
+    case #selector(performTextFinderAction(_:)):
+      return workspace?.validateFindAction(menuItem) ?? false
+    case #selector(goToLine(_:)), #selector(newTab(_:)), #selector(nextTab(_:)),
+      #selector(previousTab(_:)), #selector(openDocument(_:)), #selector(saveDocument(_:)),
+      #selector(saveDocumentAs(_:)):
+      return workspace?.canNavigate ?? false
+    default: return true
+    }
+  }
 
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     true
@@ -119,6 +135,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     edit.addItem(
       withTitle: String(localized: "Select All"), action: #selector(NSText.selectAll(_:)),
       keyEquivalent: "a")
+    edit.addItem(.separator())
+    let findItem = NSMenuItem(title: String(localized: "Find"), action: nil, keyEquivalent: "")
+    let find = NSMenu(title: String(localized: "Find"))
+    for (title, action, key, modifiers) in [
+      (
+        String(localized: "Find…"), NSTextFinder.Action.showFindInterface, "f",
+        NSEvent.ModifierFlags.command
+      ),
+      (String(localized: "Find and Replace…"), .showReplaceInterface, "f", [.command, .option]),
+      (String(localized: "Find Next"), .nextMatch, "g", .command),
+      (String(localized: "Find Previous"), .previousMatch, "g", [.command, .shift]),
+      (String(localized: "Use Selection for Find"), .setSearchString, "e", .command),
+    ] {
+      let item = find.addItem(
+        withTitle: title, action: #selector(performTextFinderAction(_:)),
+        keyEquivalent: key)
+      item.target = self
+      item.tag = action.rawValue
+      item.keyEquivalentModifierMask = modifiers
+    }
+    findItem.submenu = find
+    edit.addItem(findItem)
+    let goTo = edit.addItem(
+      withTitle: String(localized: "Go to Line…"),
+      action: #selector(goToLine(_:)), keyEquivalent: "l")
+    goTo.target = self
     editItem.submenu = edit
 
     let windowItem = NSMenuItem()

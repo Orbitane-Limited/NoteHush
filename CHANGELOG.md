@@ -20,5 +20,7 @@
 - Persistent app-scoped file bookmarks with lazy resolution, moved-file access, stale refresh and schema-3 recovery migration.
 - Relink/Save As for missing or inaccessible files, disk-version conflict previews, undoable reloads and explicit overwrite guarded against further external changes.
 - Quit dismisses conflict/relink sheets without saving or losing the recovered draft.
+- Native Find/Replace with case options, next/previous matches, standard shortcuts and per-tab undo.
+- Go to Line and a status bar with Unicode character/selection counts, logical line/column, encoding and newline information; cancellable background counting avoids rescanning during caret movement.
 
 No production release has been published.

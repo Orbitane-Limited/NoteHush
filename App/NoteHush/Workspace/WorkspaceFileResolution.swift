@@ -45,7 +45,7 @@ extension WorkspaceWindowController {
     ] {
       alert.addButton(withTitle: title)
     }
-    let response = await presentFileResolution(alert)
+    let response = await presentResolutionAlert(alert)
     guard canEditFiles else { return }
     switch response {
     case .alertSecondButtonReturn: await relinkFile(tab)
@@ -98,7 +98,7 @@ extension WorkspaceWindowController {
     scroll.hasVerticalScroller = true
     scroll.documentView = preview
     alert.accessoryView = scroll
-    let response = await presentFileResolution(alert)
+    let response = await presentResolutionAlert(alert)
     guard canEditFiles else { return }
     switch response {
     case .alertSecondButtonReturn: await saveCopy(tab)
@@ -162,16 +162,6 @@ extension WorkspaceWindowController {
         String(localized: "File relinked. Your draft is unchanged. Use Save to write it."))
     } catch {
       showFileMessage(String(localized: "File could not be relinked. ") + fileErrorMessage(error))
-    }
-  }
-
-  private func presentFileResolution(_ alert: NSAlert) async -> NSApplication.ModalResponse {
-    guard let window, canEditFiles else { return .abort }
-    alert.window.preventsApplicationTerminationWhenModal = false
-    resolutionAlert = alert
-    defer { resolutionAlert = nil }
-    return await withCheckedContinuation { continuation in
-      alert.beginSheetModal(for: window) { continuation.resume(returning: $0) }
     }
   }
 }

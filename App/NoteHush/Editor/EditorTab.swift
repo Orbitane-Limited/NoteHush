@@ -11,18 +11,25 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private(set) var grantedURL: URL?
   private var dirtyCheck: Task<Void, Never>?
   private var contentRevision: UInt64 = 0
+  private let analyzer: any TextAnalyzing
+  private var analysisTask: Task<Void, Never>?
+  private var statusActive = false
+  private(set) var metrics: TextMetrics?
   let editor: NSTextView
   let scrollView = NSScrollView()
   var onChange: (() -> Void)?
+  var onStatusChange: (() -> Void)?
   private let history = UndoManager()
   private var savedScroll: TextScrollPosition?
   private var restoring = false
   private var observingScroll = false
 
-  init(snapshot: TabSnapshot) {
+  init(snapshot: TabSnapshot, analyzer: any TextAnalyzing = BackgroundTextAnalyzer()) {
     id = snapshot.id
     title = snapshot.title
     file = snapshot.file
+    self.analyzer = analyzer
+    metrics = snapshot.text.isEmpty ? .empty : nil
     isDirty = !snapshot.text.isEmpty
     savedScroll = snapshot.scroll
     let storage = NSTextStorage()
@@ -37,6 +44,8 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.isRichText = false
     editor.importsGraphics = false
     editor.allowsUndo = true
+    editor.usesFindBar = true
+    editor.isIncrementalSearchingEnabled = true
     editor.isAutomaticQuoteSubstitutionEnabled = false
     editor.isAutomaticDashSubstitutionEnabled = false
     editor.isAutomaticTextReplacementEnabled = false
@@ -71,9 +80,48 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     contentRevision &+= 1
     isDirty = file != nil || !editor.string.isEmpty
     refreshDirtyState()
+    metrics = editor.string.isEmpty ? .empty : nil
+    if statusActive { scheduleAnalysis() }
+    onStatusChange?()
     onChange?()
   }
-  func textViewDidChangeSelection(_ notification: Notification) { onChange?() }
+  func textViewDidChangeSelection(_ notification: Notification) {
+    onStatusChange?()
+    onChange?()
+  }
+
+  func activateStatus() {
+    statusActive = true
+    if metrics == nil { scheduleAnalysis(immediate: true) }
+    onStatusChange?()
+  }
+
+  func deactivateStatus() {
+    statusActive = false
+    analysisTask?.cancel()
+  }
+
+  func waitForAnalysis() async { await analysisTask?.value }
+
+  private func scheduleAnalysis(immediate: Bool = false) {
+    analysisTask?.cancel()
+    guard metrics == nil else { return }
+    analysisTask = Task { [weak self] in
+      do {
+        if !immediate { try await Task.sleep(for: .milliseconds(250)) }
+        try Task.checkCancellation()
+        guard let self, statusActive else { return }
+        // Take the immutable text snapshot only after the typing debounce.
+        let revision = contentRevision
+        let text = editor.string
+        let result = try await analyzer.analyze(text)
+        try Task.checkCancellation()
+        guard statusActive, revision == contentRevision else { return }
+        metrics = result
+        onStatusChange?()
+      } catch {}
+    }
+  }
 
   func snapshot(isVisible: Bool) -> TabSnapshot {
     if isVisible && observingScroll { captureScroll() }
@@ -90,6 +138,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     title = binding.url.lastPathComponent
     // This comparison runs after disk I/O, so typing during a save stays dirty.
     refreshDirtyState(immediate: true)
+    onStatusChange?()
     onChange?()
   }
 

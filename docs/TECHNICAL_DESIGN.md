@@ -14,6 +14,7 @@ App/NoteHush/
 Sources/NoteHushCore/
   Models/             Workspace, tabs, text format, revisions
   Files/              Strict text codecs, file identity, scoped coordinated I/O
+  Editing/            Unicode text metrics and sparse navigation index
   Recovery/           Serialized checkpoint store, schema, validation
 Tests/NoteHushCoreTests/
 Tests/NoteHushUITests/
@@ -69,6 +70,18 @@ Native sheets offer Relink and Save As when resolving or reading a source fails.
 On open, record file identity and a digest of original bytes. Preserve decoded text exactly and track BOM/encoding/newlines separately. At save, coordinate access, compare current file content/identity to the baseline, and require an explicit conflict choice if changed. Atomic replacement in the same directory must retain correct sandbox authority and permissions. Error paths never clear dirty state. File/choice sheets permit application termination; Quit cancels their continuations, drains a publication already accepted, then checkpoints the final draft without a save confirmation. Recovered content is authoritative for dirty buffers; external files are not blindly reread on launch.
 
 Support UTF-8 with/without BOM and BOM-marked UTF-16 LE/BE. Reject unsupported/invalid bytes rather than substituting U+FFFD. Preserve CRLF/LF/CR including mixed input. Encoding conversion is a user operation, never a side effect of display settings. File-size guard is checked before allocation; background loading is cancellable and does not mutate a tab until valid.
+
+## Search, navigation and status
+
+Issue #8 enables `NSTextView.usesFindBar` and incremental searching. AppKit owns the native Find/Replace bar, match traversal, case options, wraparound and replace operations through the existing per-tab undo manager. Menu commands target the selected editor explicitly, including when the Find field owns keyboard focus: Cmd+F, Cmd+Option+F, Cmd+G, Cmd+Shift+G and Cmd+E. AppKit's native Find operation uses the macOS Find pasteboard, separate from the general clipboard; it is not persisted in NoteHush recovery or logged. Search contents are never sent to a service. Native incremental Find may preview a match while its field owns focus; the status reports the document selection, which AppKit commits when Find is closed.
+
+Cmd+L opens a validated Go to Line sheet. It uses logical lines and converts the selected line back to an AppKit UTF-16 offset without editing text. The shared sheet presenter permits termination; Quit cancels the sheet and checkpoints the draft. Navigation/file menu commands are unavailable while a sheet is attached or the workspace is read-only.
+
+The active tab debounces analysis for 250 ms after editing, captures immutable text, and builds a `TextMetrics` index on a cancellable utility task. Switching away cancels pending work; revision and cancellation checks reject late results. Caret movement and selection changes query the completed index without rebuilding it. Checkpoints every 512 graphemes bound ordinary local scans; both sides of unusually long combining clusters are indexed so querying inside one does not scan it on the main thread. Columns and selected counts use extended grapheme clusters, while all editor/recovery offsets remain UTF-16. CRLF counts once; LF, CR, NEL, LS and PS are also logical line breaks. The status view shows an updating state until a matching revision is ready.
+
+Index construction remains O(n) after a typing pause and retains an immutable text snapshot per analyzed tab. This change does not resolve the previously tracked initial full-layout and full-workspace recovery costs. `swift run -c release TextMetricsBenchmark` measures generated fixtures in isolation; M5 still owns whole-app latency, memory, energy and many-tab acceptance.
+
+References reviewed 2026-09-06: [Apple NSTextFinder](https://developer.apple.com/documentation/appkit/nstextfinder), [incremental searching](https://developer.apple.com/documentation/appkit/nstextview/isincrementalsearchingenabled), [native Find options](https://support.apple.com/guide/textedit/find-and-replace-text-txtef6cfde1a/mac).
 
 ## Security, privacy and distribution
 
