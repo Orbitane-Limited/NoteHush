@@ -30,6 +30,8 @@ Swift 6; native AppKit; macOS 14 and newer; universal arm64/x86_64 builds. Engli
 
 ## Persistence behavior matrix
 
+NH-10 counting semantics: characters and columns use extended grapheme clusters (an emoji or composed character counts once), including whitespace and line breaks. CRLF counts as one character and one logical line break. Recognize LF, CR, CRLF, NEL, line separator and paragraph separator; wrapping does not create logical lines. Line/column describe the start of the selection, use one-based numbering, and an empty document has line 1/column 1. The status counts characters touched by a nonempty selection; encoding describes the current file binding (UTF-8 for an untitled draft). Mixed endings remain unchanged. Show an updating state instead of stale counts while background analysis is pending.
+
 | Event | User-visible behavior | Disk effect |
 | --- | --- | --- |
 | Typing | Immediate editing | Schedule private checkpoint, no original-file write |

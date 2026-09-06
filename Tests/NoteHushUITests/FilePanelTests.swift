@@ -33,14 +33,18 @@ final class FilePanelTests: XCTestCase {
     app.typeKey(.return, modifierFlags: [])
   }
 
-  func testFinderStyleRequestOpensFileOnColdLaunch() async throws {
+  func testFinderStyleRequestOpensFileInIsolatedWorkspace() async throws {
+    app.launch()
+    XCTAssertTrue(editor.waitForExistence(timeout: 10))
     let source = root.appending(path: "finder.txt")
     try Data("Finder launch fixture".utf8).write(to: source)
     let applicationURL = Bundle.main.bundleURL.deletingLastPathComponent().appending(
       path: "NoteHush.app")
     XCTAssertTrue(FileManager.default.fileExists(atPath: applicationURL.path))
     let configuration = NSWorkspace.OpenConfiguration()
-    configuration.environment = app.launchEnvironment
+    // Start through XCTest first: a sandboxed LaunchServices caller cannot
+    // reliably pass test-isolation arguments/environment on a cold launch.
+    configuration.allowsRunningApplicationSubstitution = false
     try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
       NSWorkspace.shared.open(
         [source], withApplicationAt: applicationURL, configuration: configuration
@@ -52,6 +56,8 @@ final class FilePanelTests: XCTestCase {
     let loaded = XCTNSPredicateExpectation(
       predicate: NSPredicate(format: "value == %@", "Finder launch fixture"), object: editor)
     await fulfillment(of: [loaded], timeout: 10)
+    XCTAssertEqual(
+      app.radioButtons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "tab-")).count, 2)
   }
 
   func testNativeOpenAndSaveAsPreserveMixedNewlinesAndChosenExtension() throws {

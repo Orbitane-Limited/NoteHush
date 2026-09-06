@@ -10,6 +10,9 @@ let package = Package(
     .executableTarget(
       name: "RecoveryCrashHarness", dependencies: ["NoteHushCore"],
       path: "Tests/RecoveryCrashHarness"),
+    .executableTarget(
+      name: "TextMetricsBenchmark", dependencies: ["NoteHushCore"],
+      path: "Tests/TextMetricsBenchmark"),
     .testTarget(name: "NoteHushCoreTests", dependencies: ["NoteHushCore"]),
   ]
 )

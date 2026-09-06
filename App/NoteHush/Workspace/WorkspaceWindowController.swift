@@ -26,6 +26,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   var savingTask: Task<Void, Never>?
   var filePanel: NSSavePanel?
   var resolutionAlert: NSAlert?
+  var navigationSheet: GoToLineSheet?
+  var navigationTask: Task<Void, Never>?
+  private let statusView = EditorStatusView()
   private let fileBanner = NSStackView()
   private let fileMessage = NSTextField(wrappingLabelWithString: "")
   private let cancelOpeningButton = NSButton()
@@ -172,6 +175,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     if let old = tabs.first(where: { $0.id == selectedID }) {
       _ = old.snapshot(isVisible: true)
       old.suspendScrollObservation()
+      old.deactivateStatus()
       old.editor.breakUndoCoalescing()
     }
     selectedID = id
@@ -186,6 +190,11 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       guard let self, ready, !stopping else { return }
       updateTabTitles()
       coordinator?.changed()
+    }
+    tab.onStatusChange = { [weak self, id = tab.id] in
+      guard let self, selectedID == id else { return }
+      statusView.render(selectedTab)
+      navigationSheet?.update(lineCount: selectedTab?.metrics?.lineCount)
     }
     return tab
   }
@@ -204,6 +213,8 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     window?.contentView?.layoutSubtreeIfNeeded()
     window?.makeFirstResponder(tab.editor)
     tab.restoreScroll()
+    tab.activateStatus()
+    statusView.render(tab)
     if let button = tabStack.arrangedSubviews.first(where: {
       $0.identifier?.rawValue == tab.id.uuidString
     }) {
@@ -234,12 +245,27 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     if let resolutionAlert { window?.endSheet(resolutionAlert.window, returnCode: .abort) }
     newButton.isEnabled = false
     for tab in tabs {
+      tab.deactivateStatus()
       tab.editor.unmarkText()
       tab.editor.isEditable = false
     }
     await loadingTask?.value
     await savingTask?.value
+    await navigationTask?.value
     await coordinator?.shutdown()
+  }
+
+  func presentResolutionAlert(_ alert: NSAlert, initialResponder: NSResponder? = nil) async
+    -> NSApplication.ModalResponse
+  {
+    guard let window, canEditFiles, window.attachedSheet == nil else { return .abort }
+    alert.window.preventsApplicationTerminationWhenModal = false
+    resolutionAlert = alert
+    defer { resolutionAlert = nil }
+    return await withCheckedContinuation { continuation in
+      alert.beginSheetModal(for: window) { continuation.resume(returning: $0) }
+      if let initialResponder { alert.window.makeFirstResponder(initialResponder) }
+    }
   }
 
   func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -418,7 +444,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
         title: String(localized: "Dismiss"), target: self, action: #selector(dismissFileMessage(_:))
       ))
     fileBanner.isHidden = true
-    for view in [bar, banner, fileBanner, editorHost] {
+    for view in [bar, banner, fileBanner, editorHost, statusView] {
       root.addArrangedSubview(view)
       view.widthAnchor.constraint(equalTo: root.widthAnchor).isActive = true
     }
