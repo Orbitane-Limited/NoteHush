@@ -226,9 +226,13 @@ final class EditingTests: XCTestCase {
   func testFindInOneMiBDocumentKeepsTabsAndNavigationUsable() async throws {
     let text = String(repeating: "alpha beta text\n", count: 70_000) + "needle"
     try await launch(text: text, assertsCompleteText: false)
+    try activateForKeyboardInput()
     app.typeKey("f", modifierFlags: .command)
     let search = app.searchFields.firstMatch
-    XCTAssertTrue(search.waitForExistence(timeout: 5))
+    guard search.waitForExistence(timeout: 5) else {
+      attachTabTransitionFailure()
+      throw EditingTestFailure.expectedValueWasNotObserved
+    }
     search.click()
     app.typeKey("a", modifierFlags: .command)
     search.typeText("needle")
@@ -243,8 +247,14 @@ final class EditingTests: XCTestCase {
     app.typeKey("n", modifierFlags: .command)
     editor.typeText("Still responsive")
     try await expect(editor, value: "Still responsive")
+    try activateForKeyboardInput()
     app.typeKey(.tab, modifierFlags: [.control, .shift])
-    try await expect(app.staticTexts["status-position"], value: "Ln \(70_001.formatted()), Col 1")
+    do {
+      try await expect(app.staticTexts["status-position"], value: "Ln \(70_001.formatted()), Col 1")
+    } catch {
+      attachTabTransitionFailure()
+      throw error
+    }
     app.typeKey("l", modifierFlags: .command)
     let field = app.textFields["go-to-line-number"]
     XCTAssertTrue(field.waitForExistence(timeout: 5))
@@ -253,6 +263,29 @@ final class EditingTests: XCTestCase {
     app.sheets.buttons["Go"].click()
     try await expect(app.staticTexts["status-position"], value: "Ln 1, Col 1")
   }
+
+  private func activateForKeyboardInput() throws {
+    app.activate()
+    guard app.wait(for: .runningForeground, timeout: 5) else {
+      throw EditingTestFailure.appDidNotBecomeForeground
+    }
+  }
+
+  private func attachTabTransitionFailure() {
+    // No desktop, shared Find pasteboard, or non-fixture text in diagnostics.
+    let position = app.staticTexts["status-position"].value as? String ?? "missing"
+    let length = (editor.value as? String)?.utf16.count ?? -1
+    let detail = XCTAttachment(string: "Position: \(position); editor UTF-16 length: \(length)")
+    detail.name = "Large Find keyboard transition"
+    detail.lifetime = .keepAlways
+    add(detail)
+    let snapshot = XCTAttachment(screenshot: app.windows["NoteHush"].screenshot())
+    snapshot.name = "Large Find keyboard transition"
+    snapshot.lifetime = .keepAlways
+    add(snapshot)
+  }
 }
 
-private enum EditingTestFailure: Error { case expectedValueWasNotObserved }
+private enum EditingTestFailure: Error {
+  case expectedValueWasNotObserved, appDidNotBecomeForeground
+}
