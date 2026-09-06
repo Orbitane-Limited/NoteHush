@@ -144,6 +144,7 @@ final class ClosedTabRecoveryTests: XCTestCase {
 }
 
 private struct HistoryFailureFiles: RecoveryFiles {
+  func synchronizeDirectory() throws { try base.synchronizeDirectory() }
   let base: DiskRecoveryFiles
   let afterPrimary: Bool
   func read(_ name: String) throws -> Data? { try base.read(name) }

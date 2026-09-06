@@ -42,7 +42,7 @@ public actor RecoveryStore {
     files = DiskRecoveryFiles(directory: directory)
   }
 
-  init(files: any RecoveryFiles) {
+  package init(files: any RecoveryFiles) {
     self.files = files
   }
 
@@ -90,7 +90,13 @@ public actor RecoveryStore {
         if snapshot.revision == current.snapshot.revision {
           guard payload == current.canonicalPayload else { throw RecoveryError.conflictingRevision }
           // Retry interrupted post-commit cleanup even if the primary is already current.
-          if needsPruning { try files.writeAtomically(encoded, named: Self.previousName) }
+          if needsPruning {
+            try files.writeAtomically(encoded, named: Self.previousName)
+          } else {
+            // A prior attempt may have renamed this revision before directory
+            // synchronization failed. Visibility alone is not a durable commit.
+            try files.synchronizeDirectory()
+          }
           return .unchanged
         }
       }

@@ -15,6 +15,7 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
   private let spelling = NSButton(
     checkboxWithTitle: String(localized: "Check spelling while typing"), target: nil, action: nil)
   private var faceNames: [String] = []
+  private var publishingChange = false
 
   init(preferences: EditorPreferences, onChange: @escaping (EditorPreferences) -> Void) {
     self.preferences = preferences
@@ -41,6 +42,7 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
   }
 
   func refresh(_ value: EditorPreferences) {
+    guard !publishingChange else { return }
     preferences = value.normalized
     window?.appearance = preferences.appKitAppearance
     let selectedFamily =
@@ -91,6 +93,7 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
       : NSFontManager.shared.font(
         withFamily: family.titleOfSelectedItem ?? "", traits: [], weight: 5,
         size: preferences.fontSize)?.fontName
+    rebuildFaces()
     commit()
   }
 
@@ -102,10 +105,12 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
 
   func controlTextDidEndEditing(_ notification: Notification) {
     guard let number = size.objectValue as? NSNumber else {
-      refresh(preferences)
+      size.doubleValue = preferences.fontSize
       return
     }
     preferences.fontSize = number.doubleValue
+    preferences = preferences.normalized
+    size.doubleValue = preferences.fontSize
     commit()
   }
 
@@ -133,8 +138,13 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
 
   private func commit() {
     preferences = preferences.normalized
+    // Finishing a field edit can precede a popup's action. A full refresh here
+    // would reset the popup's pending selection (including through onChange).
+    // User actions update their own controls; external changes still use refresh.
+    publishingChange = true
     onChange(preferences)
-    refresh(preferences)
+    publishingChange = false
+    window?.appearance = preferences.appKitAppearance
   }
 
   private func buildInterface() {

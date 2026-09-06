@@ -343,4 +343,6 @@ private struct FaultingFiles: RecoveryFiles {
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
   }
+
+  func synchronizeDirectory() throws { try base.synchronizeDirectory() }
 }

@@ -48,6 +48,8 @@ def main():
         for key, value in expected.items():
             if info.get(key) != value:
                 raise ValueError(f"Archive {key} differs from the declared product configuration")
+        if info.get("NoteHushRequiresTestWorkspace") != "NO":
+            raise ValueError("The release archive must not require a test workspace")
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")
     print(f"Configuration valid: NoteHush {version[1]} ({build[1]})")

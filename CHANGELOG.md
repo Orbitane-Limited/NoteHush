@@ -31,3 +31,15 @@
 - Cmd+W tab closure, Cmd+Shift+T recovery of the 20 newest closed drafts, explicit history clearing, and schema-5 post-commit backup pruning. Closing the last tab leaves an empty scratchpad; red window close and Quit still restore the workspace.
 
 No production release has been published.
+
+### Fixed
+
+- Continuous-input checkpoint timer crash exposed by the linked Swift test harness; scheduling intervals remain unchanged.
+- Same-revision recovery retries now verify directory synchronization before acknowledging a previously renamed checkpoint.
+- Committing a font-size field no longer resets a pending Appearance or Zoom menu choice.
+
+### Validation
+
+- 37 force-kill scenarios in both Debug and Release, covering real publication phases, continuous input and closed-history cleanup.
+- Isolated cold LaunchServices tests with a dedicated sandboxed test app; missing or malformed test workspace IDs stop startup.
+- App recovery-warning/Retry tests and native Print/Page Setup cancellation followed by red-window closure.

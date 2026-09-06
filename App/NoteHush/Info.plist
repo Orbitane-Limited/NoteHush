@@ -46,5 +46,7 @@
 	<string>Copyright © 2026 CodeHubdotPk</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NoteHushRequiresTestWorkspace</key>
+	<string>$(NOTEHUSH_TEST_WORKSPACE_REQUIRED)</string>
 </dict>
 </plist>

@@ -12,6 +12,7 @@ python3 scripts/verify_configuration.py
 xcrun swift-format lint --strict --recursive App Sources Tests Package.swift
 swift test --enable-code-coverage 2>&1 | tee build/logs/core-tests.log
 python3 scripts/test_crash_recovery.py 2>&1 | tee build/logs/crash-tests.log
+python3 scripts/test_crash_recovery.py --configuration release 2>&1 | tee -a build/logs/crash-tests.log
 bash scripts/test_app.sh
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration Debug \
   -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
