@@ -137,6 +137,9 @@ private struct FailedPublication: TextFilePublishing {
 
 private actor GatedFileAccess: TextFileAccess {
   private let real = TextFileService()
+  func locate(_ binding: FileBinding, grantedURL: URL?) async throws -> LocatedTextFile {
+    try await real.locate(binding, grantedURL: grantedURL)
+  }
   private var gate: CheckedContinuation<Void, Never>?
   private var observer: CheckedContinuation<Void, Never>?
   func open(_ url: URL) async throws -> OpenedTextFile { try await real.open(url) }
@@ -165,6 +168,9 @@ private actor GatedFileAccess: TextFileAccess {
 
 private actor DelayedFileRead: TextFileAccess {
   private let real = TextFileService()
+  func locate(_ binding: FileBinding, grantedURL: URL?) async throws -> LocatedTextFile {
+    try await real.locate(binding, grantedURL: grantedURL)
+  }
   private var gate: CheckedContinuation<Void, Never>?
   private var observer: CheckedContinuation<Void, Never>?
   func open(_ url: URL) async throws -> OpenedTextFile {

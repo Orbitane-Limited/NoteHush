@@ -125,6 +125,20 @@ public struct FileBinding: Codable, Equatable, Sendable {
   public let encoding: TextFileEncoding
   public let fileDigest: String
   public let textDigest: String
+  public let bookmark: Data?
+
+  /// Refresh authority/location without accepting the current on-disk content.
+  public func relocating(to url: URL, bookmark: Data?) -> FileBinding {
+    FileBinding(
+      url: url, identity: identity, encoding: encoding, fileDigest: fileDigest,
+      textDigest: textDigest, bookmark: bookmark)
+  }
+}
+
+public struct LocatedTextFile: Sendable {
+  // Retain the resolved URL itself: reconstructing it from a path loses scope.
+  public let scopedURL: URL
+  public let binding: FileBinding
 }
 
 public struct OpenedTextFile: Sendable {

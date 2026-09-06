@@ -16,6 +16,7 @@ public struct AtomicTextFilePublisher: TextFilePublishing {
 
 public protocol TextFileAccess: Sendable {
   func open(_ url: URL) async throws -> OpenedTextFile
+  func locate(_ binding: FileBinding, grantedURL: URL?) async throws -> LocatedTextFile
   func save(
     _ text: String, encoding: TextFileEncoding, to url: URL, expected: FileBinding?,
     saveAs: Bool, protectedFiles: [FileBinding]
@@ -24,15 +25,49 @@ public protocol TextFileAccess: Sendable {
 
 public actor TextFileService: TextFileAccess {
   private let publisher: any TextFilePublishing
+  private let bookmarks: any FileBookmarking
 
-  public init(publisher: any TextFilePublishing = AtomicTextFilePublisher()) {
+  public init(
+    publisher: any TextFilePublishing = AtomicTextFilePublisher(),
+    bookmarks: any FileBookmarking = SecurityScopedFileBookmarks()
+  ) {
     self.publisher = publisher
+    self.bookmarks = bookmarks
+  }
+
+  /// Resolve only on an explicit file action; recovered text needs no disk access.
+  public func locate(_ binding: FileBinding, grantedURL: URL?) throws -> LocatedTextFile {
+    try Task.checkCancellation()
+    let url: URL
+    let stale: Bool
+    if let bookmark = binding.bookmark {
+      let resolved = try bookmarks.resolve(bookmark)
+      url = resolved.url
+      stale = resolved.isStale
+    } else if let grantedURL {
+      url = grantedURL
+      stale = true
+    } else {
+      throw TextFileError.unavailable
+    }
+    let scoped = bookmarks.startAccessing(url)
+    defer { if scoped { bookmarks.stopAccessing(url) } }
+    // A recovered bookmark must provide authority. A live panel grant may have
+    // implicit access (including files within our own container).
+    guard scoped || binding.bookmark == nil else { throw TextFileError.unavailable }
+    _ = try Self.identity(url)
+    let refreshed = stale ? (try? bookmarks.create(for: url)) : binding.bookmark
+    return LocatedTextFile(
+      scopedURL: url,
+      binding: binding.relocating(
+        to: url.resolvingSymlinksInPath().standardizedFileURL,
+        bookmark: refreshed ?? binding.bookmark))
   }
 
   public func open(_ url: URL) throws -> OpenedTextFile {
     try Task.checkCancellation()
-    let scoped = url.startAccessingSecurityScopedResource()
-    defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+    let scoped = bookmarks.startAccessing(url)
+    defer { if scoped { bookmarks.stopAccessing(url) } }
     // File coordination itself can wait on special files. Reject them before
     // entering coordination, then validate the opened descriptor again inside.
     _ = try Self.identity(url)
@@ -46,7 +81,8 @@ public actor TextFileService: TextFileAccess {
           url: location.resolvingSymlinksInPath().standardizedFileURL, identity: raw.identity,
           encoding: decoded.encoding,
           fileDigest: TextDocumentCodec.digest(raw.data),
-          textDigest: TextDocumentCodec.textDigest(decoded.text)), byteCount: raw.data.count)
+          textDigest: TextDocumentCodec.textDigest(decoded.text),
+          bookmark: try? bookmarks.create(for: url)), byteCount: raw.data.count)
     }
   }
 
@@ -58,8 +94,8 @@ public actor TextFileService: TextFileAccess {
   ) throws -> FileBinding {
     try Task.checkCancellation()
     let data = try TextDocumentCodec.encode(text, as: encoding)
-    let scoped = url.startAccessingSecurityScopedResource()
-    defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+    let scoped = bookmarks.startAccessing(url)
+    defer { if scoped { bookmarks.stopAccessing(url) } }
     if FileManager.default.fileExists(atPath: url.path) { _ = try Self.identity(url) }
     let coordinator = NSFileCoordinator()
     var coordinationError: NSError?
@@ -92,7 +128,9 @@ public actor TextFileService: TextFileAccess {
         let identity = try Self.identity(location)
         return FileBinding(
           url: location.standardizedFileURL, identity: identity, encoding: encoding,
-          fileDigest: TextDocumentCodec.digest(data), textDigest: TextDocumentCodec.textDigest(text)
+          fileDigest: TextDocumentCodec.digest(data),
+          textDigest: TextDocumentCodec.textDigest(text),
+          bookmark: try? bookmarks.create(for: url)
         )
       }
     }
