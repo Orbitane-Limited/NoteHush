@@ -26,7 +26,7 @@ A fast, native macOS notepad written in Swift. Open a tab, write, close the app,
 - [AI context](AGENTS.md)
 - [Changelog](CHANGELOG.md)
 
-Track delivery in [milestones](https://github.com/CodeHubdotPk/NoteHush/milestones) and [issues](https://github.com/CodeHubdotPk/NoteHush/issues). Each issue uses a separate branch and pull request; `main` is the integration branch.
+Track delivery in [milestones](https://github.com/Orbitane-Limited/NoteHush/milestones) and [issues](https://github.com/Orbitane-Limited/NoteHush/issues). Each issue uses a separate branch and pull request; `main` is the integration branch.
 
 ## Development
 

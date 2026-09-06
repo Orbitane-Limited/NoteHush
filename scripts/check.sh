@@ -9,6 +9,7 @@ if [[ "$(head -n 1 build/logs/toolchain.log)" != "Xcode 26.6" ]]; then
 fi
 swift --version | tee -a build/logs/toolchain.log
 python3 scripts/verify_configuration.py
+python3 -m unittest discover -s Tests/RepositoryAutomationTests -v 2>&1 | tee build/logs/repository-tests.log
 xcrun swift-format lint --strict --recursive App Sources Tests Package.swift
 swift test --enable-code-coverage 2>&1 | tee build/logs/core-tests.log
 python3 scripts/test_crash_recovery.py 2>&1 | tee build/logs/crash-tests.log

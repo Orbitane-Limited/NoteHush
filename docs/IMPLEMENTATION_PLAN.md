@@ -22,7 +22,18 @@ M5 performance work uses a measured baseline before the storage migration: [#30]
 
 ## Issue acceptance and traceability
 
-Detailed checklists and dependencies live in `roadmap.json` and the corresponding [GitHub issues](https://github.com/CodeHubdotPk/NoteHush/issues). `scripts/bootstrap_github.py` creates missing labels, milestones and issues without duplicating existing titles. It writes `GITHUB_ROADMAP.md` with actual links. Rerunning does not replace edited issue bodies.
+Detailed baseline checklists and dependencies live in `roadmap.json` and the corresponding [GitHub issues](https://github.com/Orbitane-Limited/NoteHush/issues). GitHub retains later implementation follow-ups and edited acceptance criteria. `scripts/bootstrap_github.py` requires an explicit repository, resolves its canonical identity before mutations and reads every page of labels/milestones/issues. The default mode previews missing objects using GET requests only. `--apply` creates missing objects, matching existing ones by title and rejecting ambiguous matches; it never edits existing issue bodies. If a roadmap title changes, update the local roadmap to match before applying the preview.
+
+```sh
+# Read-only GitHub preview; no local file changes:
+python3 scripts/bootstrap_github.py --repo Orbitane-Limited/NoteHush
+# Refresh local links using existing remote objects, with no API mutations:
+python3 scripts/bootstrap_github.py --repo Orbitane-Limited/NoteHush --write-roadmap
+# Create missing objects after reviewing the preview:
+python3 scripts/bootstrap_github.py --repo Orbitane-Limited/NoteHush --apply --write-roadmap
+```
+
+Local `docs/GITHUB_ROADMAP.md` is regenerated only when explicitly requested and all mapped objects exist. A failed listing or incomplete preview leaves it untouched. Run one `--apply` invocation at a time; matching is title-based. Current-operation links use the canonical owner; archived validation links remain as recorded.
 
 | Requirements | Issues |
 | --- | --- |
@@ -39,6 +50,8 @@ Detailed checklists and dependencies live in `roadmap.json` and the correspondin
 Squash-only merges, branch deletion, templates, ownership, labels, pinned Actions and update automation. Configure main protection with required CI, resolved conversations, blocked force pushes/deletions and linear history when the private repository plan supports it. This is a solo-owner repository initially: automated checks plus documented self-review do not equal an independent approval. Do not create an impossible self-approval requirement. Record a GitHub plan restriction if enforcement is unavailable.
 
 **Enforcement status, 2026-09-06:** GitHub returned HTTP 403 for main branch protection: the current plan does not support this feature for the private repository. Squash-only merge settings and automatic branch deletion are enabled. CI status reporting works independently, but required checks/PRs and blocked force pushes are procedural until a suitable plan enables enforcement. Repository visibility was not changed. Reapply protection after a plan change.
+
+Rechecked under Orbitane-Limited on 2026-09-07: the same HTTP 403 restriction remains. The transferred repository's existing self-hosted runner is online; see [transfer verification](validation/2026-09-07-repository-transfer.md).
 
 ## Release scope changes
 
