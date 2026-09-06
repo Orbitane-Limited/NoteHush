@@ -190,7 +190,10 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   func snapshot(isVisible: Bool) -> TabSnapshot {
     if isVisible && observingScroll { captureScroll() }
     let range = editor.selectedRange()
-    if textCaptureInvalidated {
+    // A caller can capture inside beginEditing/endEditing before the storage
+    // notification is delivered. Its pending character mask must invalidate too.
+    if textCaptureInvalidated || editor.textStorage?.editedMask.contains(.editedCharacters) == true
+    {
       capturedSnapshot.text = editor.string
       textCaptureInvalidated = false
     }

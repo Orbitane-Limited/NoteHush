@@ -33,12 +33,22 @@ final class EditorSnapshotTests: XCTestCase {
     let replaced = tab.snapshot(isVisible: false)
     XCTAssertEqual(replaced.text, "programmatic replacement")
     XCTAssertNotEqual(replaced.textIdentity, edited.textIdentity)
+    storage.beginEditing()
+    storage.replaceCharacters(
+      in: NSRange(location: 0, length: storage.length), with: "batched change")
+    let batched = tab.snapshot(isVisible: false)
+    storage.endEditing()
+    XCTAssertEqual(batched.text, "batched change")
   }
 
   func testMarkedTextCommitAndUndoAreCapturedExactly() throws {
     _ = NSApplication.shared
     let tab = EditorTab(snapshot: TabSnapshot(text: "start "))
     let original = tab.snapshot(isVisible: false)
+    let history = try XCTUnwrap(tab.undoManager(for: tab.editor))
+    // There is no run-loop event boundary in this synchronous fixture.
+    history.groupsByEvent = false
+    history.beginUndoGrouping()
     tab.editor.setMarkedText(
       "にほん", selectedRange: NSRange(location: 3, length: 0),
       replacementRange: NSRange(location: 6, length: 0))
@@ -46,10 +56,10 @@ final class EditorSnapshotTests: XCTestCase {
     XCTAssertEqual(marked.text, "start にほん")
     XCTAssertNotEqual(marked.textIdentity, original.textIdentity)
     tab.editor.insertText("日本", replacementRange: NSRange(location: NSNotFound, length: 0))
+    history.endUndoGrouping()
     let committed = tab.snapshot(isVisible: false)
     XCTAssertEqual(committed.text, "start 日本")
     XCTAssertNotEqual(committed.textIdentity, marked.textIdentity)
-    let history = try XCTUnwrap(tab.undoManager(for: tab.editor))
     tab.editor.breakUndoCoalescing()
     history.beginUndoGrouping()
     tab.editor.insertText(
