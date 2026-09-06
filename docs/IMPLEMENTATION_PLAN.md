@@ -22,7 +22,7 @@ M5 performance work uses a measured baseline before the storage migration: [#30]
 
 ## Issue acceptance and traceability
 
-Detailed baseline checklists and dependencies live in `roadmap.json` and the corresponding [GitHub issues](https://github.com/Orbitane-Limited/NoteHush/issues). GitHub retains later implementation follow-ups and edited acceptance criteria. `scripts/bootstrap_github.py` requires an explicit repository, resolves its canonical identity before mutations and reads every page of labels/milestones/issues. The default mode previews missing objects using GET requests only. `--apply` creates missing objects, matching existing ones by title and rejecting ambiguous matches; it never edits existing issue bodies. If a roadmap title changes, update the local roadmap to match before applying the preview.
+Detailed baseline checklists and dependencies live in `roadmap.json` and the corresponding [GitHub issues](https://github.com/Orbitane-Limited/NoteHush/issues). GitHub retains later implementation follow-ups and edited acceptance criteria. `scripts/bootstrap_github.py` requires an explicit repository, resolves its canonical identity before mutations and reads every page of labels/milestones/issues. The default mode previews missing objects using GET requests only. `--apply` creates missing objects, matching existing ones by title and rejecting ambiguous matches; it never edits existing issue bodies. After renaming an existing GitHub issue or milestone, update its roadmap.json title before applying the preview.
 
 ```sh
 # Read-only GitHub preview; no local file changes:
