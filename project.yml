@@ -8,10 +8,12 @@ options:
 configs:
   Debug: debug
   DebugUITesting: debug
+  ReleasePerformance: release
   Release: release
 configFiles:
   Debug: Config/Version.xcconfig
   DebugUITesting: Config/Version.xcconfig
+  ReleasePerformance: Config/Version.xcconfig
   Release: Config/Version.xcconfig
 settings:
   base:
@@ -20,6 +22,7 @@ settings:
     CLANG_ENABLE_MODULES: YES
     ENABLE_USER_SCRIPT_SANDBOXING: YES
     NOTEHUSH_TEST_WORKSPACE_REQUIRED: NO
+    NOTEHUSH_PERFORMANCE_BUILD: NO
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     CODE_SIGN_STYLE: Automatic
   configs:
@@ -33,6 +36,13 @@ settings:
       ONLY_ACTIVE_ARCH: NO
       ARCHS: "arm64 x86_64"
       SWIFT_COMPILATION_MODE: wholemodule
+    ReleasePerformance:
+      ONLY_ACTIVE_ARCH: YES
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) NOTEHUSH_REQUIRE_TEST_WORKSPACE NOTEHUSH_PERFORMANCE_TESTING"
+      NOTEHUSH_TEST_WORKSPACE_REQUIRED: YES
+      NOTEHUSH_PERFORMANCE_BUILD: YES
 packages:
   NoteHushCore:
     path: .
@@ -56,6 +66,7 @@ targets:
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         NoteHushRequiresTestWorkspace: "$(NOTEHUSH_TEST_WORKSPACE_REQUIRED)"
+        NoteHushPerformanceBuild: "$(NOTEHUSH_PERFORMANCE_BUILD)"
         NSHumanReadableCopyright: "Copyright © 2026 CodeHubdotPk"
         CFBundleDocumentTypes:
           - CFBundleTypeName: Plain Text
@@ -74,6 +85,21 @@ targets:
           PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.Development
         DebugUITesting:
           PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.UITesting
+        ReleasePerformance:
+          PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.PerformanceTesting
+  NoteHushPerformanceTests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources: [Tests/NoteHushPerformanceTests]
+    dependencies:
+      - target: NoteHush
+      - package: NoteHushCore
+        product: NoteHushCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.PerformanceTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: NoteHush
   NoteHushUITests:
     type: bundle.ui-testing
     platform: macOS
@@ -102,6 +128,30 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.AppTests
         GENERATE_INFOPLIST_FILE: YES
 schemes:
+  NoteHushPerformance:
+    build:
+      targets:
+        NoteHush: all
+    run:
+      config: ReleasePerformance
+      debugEnabled: false
+    profile:
+      config: ReleasePerformance
+    archive:
+      config: ReleasePerformance
+    analyze:
+      config: ReleasePerformance
+    test:
+      config: ReleasePerformance
+      debugEnabled: false
+      disableMainThreadChecker: true
+      enableGPUFrameCaptureMode: disabled
+      enableGPUValidationMode: false
+      captureScreenshotsAutomatically: false
+      environmentVariables:
+        NOTEHUSH_PERFORMANCE_APP: "$(BUILT_PRODUCTS_DIR)/NoteHush.app"
+      targets:
+        - NoteHushPerformanceTests
   NoteHush:
     build:
       targets:

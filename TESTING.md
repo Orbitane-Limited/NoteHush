@@ -73,3 +73,7 @@ Use PRD budgets, Release optimization, no debugger. Record hardware, OS, power s
 - Store privacy answers match app behavior; no outgoing network activity; no draft text in logs.
 
 Store dated evidence under `docs/validation/` with commit/build numbers, commands, pass/fail and limitations. Redact user data. Do not check the manual boxes based on code review alone. A release-blocking data-loss defect stays open regardless of code coverage percentage.
+
+## Optimized app performance suite
+
+Issue #35 adds the separate `NoteHushPerformance` scheme and `bash scripts/test_performance.sh`; follow [the protocol](docs/PERFORMANCE.md). The harness is still under validation. Its app uses a distinct bundle ID, mandatory UUID workspace and exact product sandbox entitlements. Resolved optimization/isolation flags and scheme actions are checked before launch. Sample extraction rejects missing scenarios/intervals, retries, nonfinite values and fewer than 20 samples; raw units and slow observations are preserved. This opt-in suite must run after functional CI and exclusive-input preparation. Its longer per-case duration allowance accommodates 20 launches without changing functional CI timeouts. No app-performance result or minimum-hardware claim has been recorded yet.

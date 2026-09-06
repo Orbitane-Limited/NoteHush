@@ -46,6 +46,8 @@
 	<string>Copyright © 2026 CodeHubdotPk</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NoteHushPerformanceBuild</key>
+	<string>$(NOTEHUSH_PERFORMANCE_BUILD)</string>
 	<key>NoteHushRequiresTestWorkspace</key>
 	<string>$(NOTEHUSH_TEST_WORKSPACE_REQUIRED)</string>
 </dict>

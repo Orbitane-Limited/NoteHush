@@ -1,8 +1,8 @@
 # NoteHush
 
-A fast, native macOS notepad written in Swift. Open a tab, write, close the app, and continue where you left off.
+A native macOS notepad written in Swift. Open a tab, write, close the app, and continue where you left off.
 
-**Status:** pre-release development, starting at `0.1.0`. Not yet ready for App Store submission. The repository is private; no open-source license has been granted.
+**Status:** pre-release development, starting at `0.1.0`. Whole-app performance is being measured; see [the measurement protocol](docs/PERFORMANCE.md). Not yet ready for App Store submission. The repository is private; no open-source license has been granted.
 
 ## Product contract
 

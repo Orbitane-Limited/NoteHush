@@ -143,6 +143,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       rebuildTabs()
       showWarning(startupWarning)
       presentSelectedTab()
+      #if NOTEHUSH_PERFORMANCE_TESTING
+        WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
+      #endif
       coordinator?.changed(immediate: true)
     } catch {
       guard !stopping else { return }
