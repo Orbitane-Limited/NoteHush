@@ -1,6 +1,6 @@
 # Self-hosted runner operations
 
-The owner requested this Mac as NoteHush's CI host on 2026-09-06. Runner scope: **CodeHubdotPk/NoteHush only**. Name: `NoteHush-Mac-arm64`. Labels: `self-hosted`, `macOS`, `ARM64`, `notehush`, `xcode-26.6`.
+The owner requested this Mac as NoteHush's CI host on 2026-09-06. Current runner scope: **Orbitane-Limited/NoteHush only**, following the repository transfer from CodeHubdotPk. Name: `NoteHush-Mac-arm64`. Labels: `self-hosted`, `macOS`, `ARM64`, `notehush`, `xcode-26.6`.
 
 Installation directory: `~/Library/NoteHushActionsRunner` (user-only access). Job checkouts live under its `_work` directory, separate from the development checkout. The official GitHub runner 2.337.0 arm64 package was selected through GitHub's runner download API; verify its published SHA-256 before extraction. Runner auto-update remains enabled. Registration tokens are short-lived and must never be committed or pasted into issues.
 
@@ -24,6 +24,14 @@ Xcode: `/Applications/Xcode.app`, initially 26.6 (17F113). `scripts/check.sh` ve
 This is a persistent runner executing as the logged-in Mac user, not a disposable VM. Keep the repository private and grant push/workflow access only to trusted collaborators. The workflow skips PRs from forks; that guard is not a security boundary against someone permitted to edit workflow files. Do not enable untrusted fork workflows or use `pull_request_target` to execute PR code. Signed delivery gets a separate environment in M6; current jobs receive no signing secrets. Checkout does not persist GitHub credentials.
 
 Branch protection is unavailable under the current private-repository plan, so observing checks and reviewing workflow changes remains procedural. Monitor disk use in `_work` and artifact retention. Do not remove a work directory while the runner reports `busy: true`.
+
+Verified on 2026-09-07: the canonical repository API reports the existing runner online and serving CI. Its service registration and credentials were retained. The new owner's branch-protection endpoint still returns HTTP 403 with the private-plan upgrade requirement. Keep requiring green checks and resolved review before manual squash merges; do not change repository visibility or add an impossible self-approval rule to simulate enforcement.
+
+Check current availability through the canonical scope:
+
+```sh
+gh api repos/Orbitane-Limited/NoteHush/actions/runners --jq '.runners[] | {name,status,busy}'
+```
 
 ## References
 

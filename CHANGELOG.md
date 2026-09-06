@@ -46,3 +46,4 @@ No production release has been published.
 - 83 force-kill scenarios in both Debug and Release, covering real manifest/blob publication phases, continuous input, legacy migration, damaged evidence and closed-history reclamation.
 - Isolated cold LaunchServices tests with a dedicated sandboxed test app; missing or malformed test workspace IDs stop startup.
 - App recovery-warning/Retry tests and native Print/Page Setup cancellation followed by red-window closure.
+- Repository bootstrap resolves the canonical GitHub owner, reads every result page and defaults to a read-only preview; offline tests protect existing issue bodies and prevent mutations after failed preflight reads.
