@@ -2,6 +2,8 @@
 
 Tests protect user data and measure behavior. Passing a build is not proof of data recovery, performance, accessibility or App Store readiness. Record executed commands, toolchain, commit and hardware with results.
 
+The self-hosted CI job allows 30 minutes for validation plus artifact transfer. A measured run used 9m52s for validation and 11m27s for its 137 MB verification upload, exceeding the former 20-minute job budget despite successful tests. This transfer allowance does not change Xcode's 30-second default/60-second maximum test-case limits or any assertions.
+
 ## Layers
 
 | Layer | Required coverage | Where |
