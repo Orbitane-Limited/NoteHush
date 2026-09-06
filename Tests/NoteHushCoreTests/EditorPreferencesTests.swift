@@ -71,6 +71,6 @@ final class EditorPreferencesTests: XCTestCase {
       try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
     let current = try XCTUnwrap(
       JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    XCTAssertEqual(current["version"] as? Int, 4)
+    XCTAssertEqual(current["version"] as? Int, 5)
   }
 }

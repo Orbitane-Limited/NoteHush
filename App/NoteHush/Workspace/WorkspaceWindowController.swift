@@ -12,8 +12,8 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private let store: RecoveryStore
   private var coordinator: CheckpointCoordinator?
   private let editorHost = NSView()
-  private let tabStack = NSStackView()
-  private let tabScroll = NSScrollView()
+  let tabBar = TabBarView()
+  private(set) var closedTabs: [ClosedTabSnapshot] = []
   private let banner = NSStackView()
   private let message = NSTextField(wrappingLabelWithString: "")
   private let newButton = NSButton()
@@ -23,7 +23,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   let fileService: any TextFileAccess
   var openingTask: Task<Void, Never>?
   var pendingFileURLs: [URL] = []
-  var savingTask: Task<Void, Never>?
+  var savingTask: Task<Void, Never>? {
+    didSet { if ready { updateTabTitles() } }
+  }
   var filePanel: NSSavePanel?
   var resolutionAlert: NSAlert?
   var navigationSheet: GoToLineSheet?
@@ -36,6 +38,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private let fileMessage = NSTextField(wrappingLabelWithString: "")
   private let cancelOpeningButton = NSButton()
   var canEditFiles: Bool { ready && !stopping }
+  var canManageTabs: Bool { canNavigate && savingTask == nil }
   var selectedTab: EditorTab? { tabs.first { $0.id == selectedID } }
 
   convenience init(directory: URL) {
@@ -123,6 +126,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       preferences = (snapshot.preferences ?? EditorPreferences()).normalized
       window?.appearance = preferences.appKitAppearance
       tabs = snapshot.tabs.map { makeTab($0) }
+      closedTabs = snapshot.closedTabs ?? []
       selectedID = snapshot.selectedTabID
       restoreWindowFrame(snapshot.windowFrame)
       ready = true
@@ -159,7 +163,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   }
 
   @objc func newTab(_ sender: Any?) {
-    guard ready, !stopping else { return }
+    guard canNavigate else { return }
     let tab = makeTab(TabSnapshot(title: String(localized: "Untitled \(tabs.count + 1)")))
     tabs.append(tab)
     select(tab.id)
@@ -169,21 +173,21 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   @objc func previousTab(_ sender: Any?) { stepTab(-1) }
 
   private func stepTab(_ delta: Int) {
-    guard let index = tabs.firstIndex(where: { $0.id == selectedID }), tabs.count > 1 else {
+    guard canNavigate, let index = tabs.firstIndex(where: { $0.id == selectedID }), tabs.count > 1
+    else {
       return
     }
     select(tabs[(index + delta + tabs.count) % tabs.count].id)
   }
 
-  @objc private func tabClicked(_ sender: NSButton) {
-    guard let identifier = sender.identifier, let id = UUID(uuidString: identifier.rawValue) else {
+  private func select(_ id: UUID) {
+    guard canEditFiles, tabs.contains(where: { $0.id == id }) else { return }
+    if selectedID == id {
+      updateTabTitles()
+      window?.makeFirstResponder(selectedTab?.editor)
+      tabBar.reveal(id)
       return
     }
-    select(id)
-  }
-
-  private func select(_ id: UUID) {
-    guard ready, !stopping else { return }
     if let old = tabs.first(where: { $0.id == selectedID }) {
       _ = old.snapshot(isVisible: true)
       old.suspendScrollObservation()
@@ -227,11 +231,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     tab.restoreScroll()
     tab.activateStatus()
     statusView.render(tab)
-    if let button = tabStack.arrangedSubviews.first(where: {
-      $0.identifier?.rawValue == tab.id.uuidString
-    }) {
-      tabStack.scrollToVisible(button.frame)
-    }
+    tabBar.reveal(tab.id)
   }
 
   private func captureSnapshot() -> WorkspaceSnapshot {
@@ -242,7 +242,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       selectedTabID: selectedID ?? tabs[0].id,
       windowFrame: WindowFrame(
         x: frame.minX, y: frame.minY, width: frame.width, height: frame.height),
-      preferences: preferences)
+      preferences: preferences, closedTabs: closedTabs)
   }
 
   func showPreferences() {
@@ -371,7 +371,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     panel.title = String(localized: "Export Recovery")
     panel.message =
       ready
-      ? String(localized: "Export all open drafts, including their text, as a JSON recovery file.")
+      ? String(
+        localized:
+          "Export open and recently closed drafts, including their text, as a JSON recovery file.")
       : String(localized: "Export the original recovery generations without changing them.")
     panel.nameFieldStringValue = ready ? "NoteHush-Drafts.json" : "NoteHush-Recovery.json"
     panel.allowedContentTypes = [.json]
@@ -401,32 +403,82 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     }
   }
 
-  private func rebuildTabs() {
-    for view in tabStack.arrangedSubviews {
-      tabStack.removeArrangedSubview(view)
-      view.removeFromSuperview()
+  private func rebuildTabs() { tabBar.update(tabs, selectedID: selectedID) }
+
+  private func updateTabTitles() { tabBar.update(tabs, selectedID: selectedID) }
+
+  func closeTab(_ id: UUID) {
+    guard canManageTabs, let index = tabs.firstIndex(where: { $0.id == id }) else { return }
+    let tab = tabs[index]
+    tab.editor.unmarkText()
+    let snapshot = tab.snapshot(isVisible: id == selectedID)
+    tab.prepareForClose()
+    closedTabs.insert(ClosedTabSnapshot(tab: snapshot, originalIndex: index), at: 0)
+    closedTabs = Array(closedTabs.prefix(ClosedTabSnapshot.limit))
+    tabs.remove(at: index)
+    if tabs.isEmpty { tabs.append(makeTab(TabSnapshot())) }
+    if selectedID == id {
+      selectedID = tabs[min(index, tabs.count - 1)].id
+      rebuildTabs()
+      presentSelectedTab()
+    } else {
+      rebuildTabs()
+      if let selectedID { tabBar.reveal(selectedID) }
     }
-    for tab in tabs {
-      let button = NSButton(title: tab.title, target: self, action: #selector(tabClicked(_:)))
-      button.setButtonType(.pushOnPushOff)
-      button.bezelStyle = .recessed
-      button.identifier = NSUserInterfaceItemIdentifier(tab.id.uuidString)
-      button.setAccessibilityIdentifier("tab-\(tab.id.uuidString)")
-      button.setAccessibilityRole(.radioButton)
-      button.setAccessibilityRoleDescription(String(localized: "tab"))
-      button.state = tab.id == selectedID ? .on : .off
-      tabStack.addArrangedSubview(button)
-    }
-    updateTabTitles()
+    coordinator?.changed(immediate: true)
   }
 
-  private func updateTabTitles() {
-    for (tab, view) in zip(tabs, tabStack.arrangedSubviews) {
-      guard let button = view as? NSButton else { continue }
-      button.title = tab.title + (tab.isDirty ? " •" : "")
-      button.setAccessibilityLabel(
-        tab.title + (tab.isDirty ? String(localized: ", unsaved changes") : ""))
+  func closeSelectedTab() {
+    if let selectedID { closeTab(selectedID) }
+  }
+
+  func reopenClosedTab() {
+    guard canManageTabs, !closedTabs.isEmpty else { return }
+    var record = closedTabs.removeFirst()
+    if let file = record.tab.file,
+      tabs.contains(where: { $0.file?.identity == file.identity || $0.file?.url == file.url })
+    {
+      // Preserve the closed text as an independent draft; never replace the open buffer.
+      record.tab.file = nil
+      showFileMessage(
+        String(
+          localized:
+            "This file is already open. The closed version was reopened as a separate draft; use Save As to keep it."
+        ))
     }
+    let tab = makeTab(record.tab)
+    tabs.insert(tab, at: min(record.originalIndex, tabs.count))
+    select(tab.id)
+  }
+
+  func clearClosedTabs() {
+    guard canManageTabs, !closedTabs.isEmpty else { return }
+    closedTabs.removeAll()
+    coordinator?.changed(immediate: true)
+  }
+
+  func moveTab(_ id: UUID, to index: Int) {
+    guard canManageTabs, let old = tabs.firstIndex(where: { $0.id == id }),
+      tabs.indices.contains(index), old != index
+    else { return }
+    tabs.insert(tabs.remove(at: old), at: index)
+    rebuildTabs()
+    if let selectedID { tabBar.reveal(selectedID) }
+    coordinator?.changed(immediate: true)
+  }
+
+  func canMoveSelectedTab(by delta: Int) -> Bool {
+    guard canManageTabs, let index = tabs.firstIndex(where: { $0.id == selectedID }) else {
+      return false
+    }
+    return tabs.indices.contains(index + delta)
+  }
+
+  func moveSelectedTab(by delta: Int) {
+    guard canMoveSelectedTab(by: delta),
+      let index = tabs.firstIndex(where: { $0.id == selectedID })
+    else { return }
+    moveTab(tabs[index].id, to: index + delta)
   }
 
   private func buildInterface() {
@@ -438,13 +490,17 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     let bar = NSStackView()
     bar.spacing = 8
     bar.edgeInsets = NSEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)
-    tabStack.orientation = .horizontal
-    tabStack.spacing = 4
-    tabStack.translatesAutoresizingMaskIntoConstraints = false
-    tabScroll.drawsBackground = false
-    tabScroll.hasHorizontalScroller = true
-    tabScroll.autohidesScrollers = true
-    tabScroll.documentView = tabStack
+    tabBar.onSelect = { [weak self] id in
+      guard let self else { return }
+      guard canNavigate else {
+        updateTabTitles()
+        return
+      }
+      select(id)
+    }
+    tabBar.onClose = { [weak self] id in self?.closeTab(id) }
+    tabBar.onMove = { [weak self] id, index in self?.moveTab(id, to: index) }
+    tabBar.canManage = { [weak self] in self?.canManageTabs == true }
     newButton.title = "+"
     newButton.bezelStyle = .texturedRounded
     newButton.target = self
@@ -452,7 +508,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     newButton.toolTip = String(localized: "New Tab (⌘N)")
     newButton.setAccessibilityLabel(String(localized: "New Tab"))
     newButton.setAccessibilityIdentifier("new-tab")
-    bar.addArrangedSubview(tabScroll)
+    bar.addArrangedSubview(tabBar)
     bar.addArrangedSubview(newButton)
     banner.orientation = .horizontal
     banner.spacing = 12
@@ -488,10 +544,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     }
     NSLayoutConstraint.activate([
       bar.heightAnchor.constraint(equalToConstant: 42),
-      tabScroll.heightAnchor.constraint(equalToConstant: 34),
-      tabStack.leadingAnchor.constraint(equalTo: tabScroll.contentView.leadingAnchor),
-      tabStack.topAnchor.constraint(equalTo: tabScroll.contentView.topAnchor),
-      tabStack.heightAnchor.constraint(equalToConstant: 30),
+      tabBar.heightAnchor.constraint(equalToConstant: 34),
       newButton.widthAnchor.constraint(equalToConstant: 32),
     ])
   }

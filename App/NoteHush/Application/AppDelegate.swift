@@ -69,9 +69,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
   @objc private func printSelection(_ sender: Any?) {
     workspace?.printDocument(selectionOnly: true)
   }
+  @objc private func closeTab(_ sender: Any?) {
+    if let key = NSApp.keyWindow, key !== workspace?.window {
+      key.performClose(sender)
+    } else {
+      workspace?.closeSelectedTab()
+    }
+  }
+  @objc private func reopenClosedTab(_ sender: Any?) { workspace?.reopenClosedTab() }
+  @objc private func clearClosedTabs(_ sender: Any?) { workspace?.clearClosedTabs() }
+  @objc private func moveTabLeft(_ sender: Any?) { workspace?.moveSelectedTab(by: -1) }
+  @objc private func moveTabRight(_ sender: Any?) { workspace?.moveSelectedTab(by: 1) }
+  @objc private func showAllTabs(_ sender: Any?) { workspace?.tabBar.showAllTabs(sender) }
 
   func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
     switch menuItem.action {
+    case #selector(closeTab(_:)):
+      let auxiliary = NSApp.keyWindow != nil && NSApp.keyWindow !== workspace?.window
+      menuItem.title =
+        auxiliary ? String(localized: "Close Window") : String(localized: "Close Tab")
+      return auxiliary
+        ? NSApp.keyWindow?.styleMask.contains(.closable) == true
+        : workspace?.canManageTabs == true
+    case #selector(reopenClosedTab(_:)), #selector(clearClosedTabs(_:)):
+      return workspace?.canManageTabs == true && workspace?.closedTabs.isEmpty == false
+    case #selector(moveTabLeft(_:)): return workspace?.canMoveSelectedTab(by: -1) == true
+    case #selector(moveTabRight(_:)): return workspace?.canMoveSelectedTab(by: 1) == true
+    case #selector(showAllTabs(_:)): return workspace?.canNavigate == true
     case #selector(zoomIn(_:)):
       return workspace?.canNavigate == true && (workspace?.preferences.zoomPercent ?? 300) < 300
     case #selector(zoomOut(_:)):
@@ -148,8 +172,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
     file.addItem(.separator())
     file.addItem(
+      withTitle: String(localized: "Close Tab"), action: #selector(closeTab(_:)),
+      keyEquivalent: "w"
+    ).target = self
+    let closeWindow = file.addItem(
       withTitle: String(localized: "Close Window"), action: #selector(NSWindow.performClose(_:)),
       keyEquivalent: "w")
+    closeWindow.keyEquivalentModifierMask = [.command, .shift]
+    let reopen = file.addItem(
+      withTitle: String(localized: "Reopen Closed Tab"), action: #selector(reopenClosedTab(_:)),
+      keyEquivalent: "t")
+    reopen.target = self
+    reopen.keyEquivalentModifierMask = [.command, .shift]
+    let clear = file.addItem(
+      withTitle: String(localized: "Clear Recently Closed Tabs"),
+      action: #selector(clearClosedTabs(_:)),
+      keyEquivalent: "")
+    clear.target = self
+    clear.toolTip = String(
+      localized:
+        "Remove the 20 most recent closed drafts. Open drafts and damaged recovery evidence are kept."
+    )
     fileItem.submenu = file
 
     let editItem = NSMenuItem()
@@ -224,6 +267,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
       keyEquivalent: "\t")
     previous.keyEquivalentModifierMask = [.control, .shift]
     previous.target = self
+    windowMenu.addItem(.separator())
+    for (title, action, key) in [
+      (String(localized: "Move Tab Left"), #selector(moveTabLeft(_:)), "["),
+      (String(localized: "Move Tab Right"), #selector(moveTabRight(_:)), "]"),
+    ] {
+      let item = windowMenu.addItem(withTitle: title, action: action, keyEquivalent: key)
+      item.target = self
+      item.keyEquivalentModifierMask = [.command, .control, .shift]
+    }
+    let allTabs = windowMenu.addItem(
+      withTitle: String(localized: "All Tabs"), action: #selector(showAllTabs(_:)),
+      keyEquivalent: "t")
+    allTabs.target = self
+    allTabs.keyEquivalentModifierMask = [.command, .shift, .option]
     windowItem.submenu = windowMenu
     return main
   }

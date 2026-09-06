@@ -33,7 +33,7 @@ public enum RecoveryCommit: Sendable {
 public actor RecoveryStore {
   static let primaryName = "session.json"
   static let previousName = "session.previous.json"
-  static let formatVersion = 4
+  static let formatVersion = 5
   static let maximumEnvelopeBytes = 256 * 1024 * 1024
 
   private let files: any RecoveryFiles
@@ -77,12 +77,20 @@ public actor RecoveryStore {
 
     return try files.withExclusiveAccess {
       let inspection = try inspect()
+      let retained = Set(snapshot.tabs.map(\.id) + (snapshot.closedTabs ?? []).map { $0.tab.id })
+      let needsPruning = inspection.candidates.contains { candidate in
+        let previousTabs =
+          candidate.snapshot.tabs + (candidate.snapshot.closedTabs ?? []).map(\.tab)
+        return previousTabs.contains { !retained.contains($0.id) }
+      }
       if let current = inspection.current {
         guard snapshot.revision >= current.snapshot.revision else {
           throw RecoveryError.staleRevision
         }
         if snapshot.revision == current.snapshot.revision {
           guard payload == current.canonicalPayload else { throw RecoveryError.conflictingRevision }
+          // Retry interrupted post-commit cleanup even if the primary is already current.
+          if needsPruning { try files.writeAtomically(encoded, named: Self.previousName) }
           return .unchanged
         }
       }
@@ -96,6 +104,10 @@ public actor RecoveryStore {
       // The first checkpoint also gets a duplicate so it has a recovery fallback.
       try files.writeAtomically(inspection.current?.raw ?? encoded, named: Self.previousName)
       try files.writeAtomically(encoded, named: Self.primaryName)
+      // Only after publication may an evicted/cleared draft leave the backup.
+      // An interrupted cleanup still leaves the newer, complete primary authoritative.
+      // Damaged evidence files are deliberately never erased by history clearing.
+      if needsPruning { try files.writeAtomically(encoded, named: Self.previousName) }
       return .saved
     }
   }
@@ -119,6 +131,7 @@ public actor RecoveryStore {
     let current: Candidate?
     let source: RecoverySource
     let damaged: [(String, Data)]
+    let candidates: [Candidate]
   }
 
   private func inspect() throws -> Inspection {
@@ -155,7 +168,7 @@ public actor RecoveryStore {
     }
     guard var current = candidates.first else {
       guard damaged.isEmpty else { throw RecoveryError.corruptGenerations }
-      return Inspection(current: nil, source: .newWorkspace, damaged: [])
+      return Inspection(current: nil, source: .newWorkspace, damaged: [], candidates: [])
     }
     for candidate in candidates.dropFirst() {
       if candidate.snapshot.revision == current.snapshot.revision,
@@ -165,7 +178,8 @@ public actor RecoveryStore {
       }
       if candidate.snapshot.revision > current.snapshot.revision { current = candidate }
     }
-    return Inspection(current: current, source: current.source, damaged: damaged)
+    return Inspection(
+      current: current, source: current.source, damaged: damaged, candidates: candidates)
   }
 
   private static func encoder() -> JSONEncoder {

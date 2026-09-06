@@ -42,6 +42,10 @@ NH-10 counting semantics: characters and columns use extended grapheme clusters 
 | File moved/deleted externally | Draft remains editable | Relink/Save As; never silently recreate deleted source |
 | Disk full/denied | Nonmodal recovery warning | Preserve previous checkpoint; record failure state without text logs |
 
+Tab commands: Cmd+W closes the active tab; Cmd+Shift+W or the red window control closes the workspace and quits. Cmd+W in Settings closes Settings. Closing the last tab creates one empty tab. Cmd+Shift+T reopens the newest closed tab at its former position (clamped to the current tab count). Closing a background tab keeps the active tab; closing the active tab selects the next tab, or the previous one at the end. The File menu explicitly clears recent history. History holds snapshots for up to 20 tabs, including selection, scroll and file metadata; undo stacks end when a tab closes. If that file is already open when its closed version is reopened, preserve the closed text as a separate unbound draft for Save As. Never replace either buffer.
+
+Drag a tab title to reorder it; Window → Move Tab Left/Right also provides Cmd+Control+Shift+[ / ]. Ctrl+Tab and Ctrl+Shift+Tab switch tabs, while the All Tabs button or Cmd+Option+Shift+T exposes every tab in a native menu. Selected tabs scroll into view. Tab management waits for an accepted Save to finish so closed history includes its final binding and any later edits; Quit continues to drain accepted saves without a confirmation.
+
 ## Performance targets
 
 Measure optimized builds on a recorded baseline (minimum M1/8 GB, macOS 14 or later, local SSD). Use medians and p95 over at least 20 runs; budgets are targets until measured.

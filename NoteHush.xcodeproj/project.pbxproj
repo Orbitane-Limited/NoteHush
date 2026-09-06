@@ -14,9 +14,11 @@
 		1252895B931E483DC91794F8 /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = CD0700D001813D43C7F3EB2F /* NoteHushCore */; };
 		159F14997145375F752A2B78 /* EditorPreferences+AppKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64806345D19229EAF0DF9FFF /* EditorPreferences+AppKit.swift */; };
 		198187624E9BF8482512A2F0 /* WorkspaceFileResolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */; };
+		203C5328C43B0B564B01F2B3 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0138E69BDE06082791FC37 /* TabBarView.swift */; };
 		35514349B6D8DA3C0511E8B8 /* WorkspacePrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB03280CD7B09201257121 /* WorkspacePrinter.swift */; };
 		44643BD5EA82FFDBB140F1A5 /* WorkspaceNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */; };
 		4F941A1619AE96289A7D4D09 /* EditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDBE1C4A6674DEA8F3E24E /* EditingTests.swift */; };
+		545603B96531480A46EEC8F7 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0138E69BDE06082791FC37 /* TabBarView.swift */; };
 		568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		56DAB19F9FF20D0A724C59BF /* WorkspaceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */; };
 		5C2B03118993D43B145A12AA /* EditorStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AA70104208E5E1822F071E /* EditorStatusView.swift */; };
@@ -34,6 +36,7 @@
 		9E44BB993385A9511041182F /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65173C96BFDC350A50758EE5 /* PreferencesWindowController.swift */; };
 		A74052B568AC518C8DCC337E /* FilePanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAEB076A27E4634EBBE783B7 /* FilePanelTests.swift */; };
 		A8AFDDB53D7496A0545D1121 /* EditorTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C620622CB0DE79507944B40 /* EditorTab.swift */; };
+		AD1388EB9D28F43A94B04DD2 /* TabManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6B25D7DD0C8DD9F78F9F97 /* TabManagementTests.swift */; };
 		AD4BE3EE2B314A4F28E28263 /* GoToLineSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EAD7381D6FA34EDDB14578 /* GoToLineSheet.swift */; };
 		B1800E0F0D5D1E4898CAE29E /* WorkspaceNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */; };
 		B43D00B4914ADBE86C9AD6BC /* WorkspaceFileResolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */; };
@@ -42,6 +45,7 @@
 		CC351674B5C1429625387A67 /* PrintDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */; };
 		E457BA65E5DE0C60AE5FAAF2 /* EditorStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AA70104208E5E1822F071E /* EditorStatusView.swift */; };
 		E4885FC473115E2383C944E0 /* EditorNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641B0BAAB841EBA1AEF7C3B6 /* EditorNavigationTests.swift */; };
+		E9E44259C381CD3B8A46EA99 /* TabManagementUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C815C550D70B7E143C6C656 /* TabManagementUITests.swift */; };
 		EC4788823FB19A20C9CD6BB6 /* WorkspacePrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB03280CD7B09201257121 /* WorkspacePrinter.swift */; };
 		EF196BED4D4083F141B894C7 /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		F0206FE7BB2F137955541C7F /* WorkspaceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */; };
@@ -65,9 +69,11 @@
 		1C1664A9E89B6716D6EF33DE /* notepad */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notepad; path = .; sourceTree = SOURCE_ROOT; };
 		1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceWindowController.swift; sourceTree = "<group>"; };
 		2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceNavigation.swift; sourceTree = "<group>"; };
+		2C6B25D7DD0C8DD9F78F9F97 /* TabManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagementTests.swift; sourceTree = "<group>"; };
 		36FB03280CD7B09201257121 /* WorkspacePrinter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacePrinter.swift; sourceTree = "<group>"; };
 		416918B3A81DBA5F7785B624 /* WorkspaceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceIntegrationTests.swift; sourceTree = "<group>"; };
 		56F499DFAD07C813D8D803A5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		5C815C550D70B7E143C6C656 /* TabManagementUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagementUITests.swift; sourceTree = "<group>"; };
 		61AA70104208E5E1822F071E /* EditorStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorStatusView.swift; sourceTree = "<group>"; };
 		61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFiles.swift; sourceTree = "<group>"; };
 		641B0BAAB841EBA1AEF7C3B6 /* EditorNavigationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorNavigationTests.swift; sourceTree = "<group>"; };
@@ -88,6 +94,7 @@
 		D6FDBE1C4A6674DEA8F3E24E /* EditingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingTests.swift; sourceTree = "<group>"; };
 		DAEB076A27E4634EBBE783B7 /* FilePanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePanelTests.swift; sourceTree = "<group>"; };
 		E3E5C1AF0BA9E6C3AD8755C6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FC0138E69BDE06082791FC37 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		FEB6DABD246B4788EB3F9FB9 /* WorkspacePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacePreferences.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,6 +139,7 @@
 		318D6FB82F99B3BFD929825C /* Workspace */ = {
 			isa = PBXGroup;
 			children = (
+				FC0138E69BDE06082791FC37 /* TabBarView.swift */,
 				A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */,
 				61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */,
 				2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */,
@@ -157,6 +165,7 @@
 				CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */,
 				0F7EF74D0EC9AD8C79B81A40 /* FileWorkspaceTests.swift */,
 				916A239972126C756C35492B /* PreferencesTests.swift */,
+				2C6B25D7DD0C8DD9F78F9F97 /* TabManagementTests.swift */,
 				416918B3A81DBA5F7785B624 /* WorkspaceIntegrationTests.swift */,
 			);
 			path = NoteHushAppTests;
@@ -196,6 +205,7 @@
 				6505663F6B91725492B1F6C3 /* FileAccessTests.swift */,
 				DAEB076A27E4634EBBE783B7 /* FilePanelTests.swift */,
 				C539EC3106341E358550D819 /* PreferencesUITests.swift */,
+				5C815C550D70B7E143C6C656 /* TabManagementUITests.swift */,
 				6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */,
 			);
 			path = NoteHushUITests;
@@ -388,6 +398,7 @@
 				09C901BAE6CE224A99A395CB /* NoteHushMain.swift in Sources */,
 				8F07EDF9881CD3052272CBEF /* PreferencesWindowController.swift in Sources */,
 				933986CB4BFE478ED3A8CF2D /* PrintDocumentView.swift in Sources */,
+				203C5328C43B0B564B01F2B3 /* TabBarView.swift in Sources */,
 				B43D00B4914ADBE86C9AD6BC /* WorkspaceFileResolution.swift in Sources */,
 				56DAB19F9FF20D0A724C59BF /* WorkspaceFiles.swift in Sources */,
 				B1800E0F0D5D1E4898CAE29E /* WorkspaceNavigation.swift in Sources */,
@@ -405,6 +416,7 @@
 				B6E8501CE20FD5AA0D338557 /* FileAccessTests.swift in Sources */,
 				A74052B568AC518C8DCC337E /* FilePanelTests.swift in Sources */,
 				860BFA4DF6F78F49E4C15B99 /* PreferencesUITests.swift in Sources */,
+				E9E44259C381CD3B8A46EA99 /* TabManagementUITests.swift in Sources */,
 				F0206FE7BB2F137955541C7F /* WorkspaceLifecycleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -423,6 +435,8 @@
 				640C2E9E9AC1D5EFA3D40D6D /* PreferencesTests.swift in Sources */,
 				9E44BB993385A9511041182F /* PreferencesWindowController.swift in Sources */,
 				CC351674B5C1429625387A67 /* PrintDocumentView.swift in Sources */,
+				545603B96531480A46EEC8F7 /* TabBarView.swift in Sources */,
+				AD1388EB9D28F43A94B04DD2 /* TabManagementTests.swift in Sources */,
 				198187624E9BF8482512A2F0 /* WorkspaceFileResolution.swift in Sources */,
 				04423B17DF11EEA777F80B77 /* WorkspaceFiles.swift in Sources */,
 				7EEB638D2A1FF633E7D2B7DE /* WorkspaceIntegrationTests.swift in Sources */,

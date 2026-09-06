@@ -75,6 +75,19 @@ public enum WorkspaceValidationError: Error, Equatable, Sendable {
   case duplicateTabID
   case missingSelectedTab
   case invalidSelection(UUID)
+  case invalidClosedTabs
+}
+
+/// Newest first. Store values, not live text systems or undo stacks.
+public struct ClosedTabSnapshot: Codable, Equatable, Sendable {
+  public static let limit = 20
+  public var tab: TabSnapshot
+  public var originalIndex: Int
+
+  public init(tab: TabSnapshot, originalIndex: Int) {
+    self.tab = tab
+    self.originalIndex = originalIndex
+  }
 }
 
 /// Value snapshot passed across the UI/storage concurrency boundary.
@@ -85,16 +98,19 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
   // Optional additions keep schema-1 snapshots written before UI integration readable.
   public var windowFrame: WindowFrame?
   public var preferences: EditorPreferences?
+  public var closedTabs: [ClosedTabSnapshot]?
 
   public init(
     revision: UInt64 = 0, tabs: [TabSnapshot], selectedTabID: UUID,
-    windowFrame: WindowFrame? = nil, preferences: EditorPreferences? = nil
+    windowFrame: WindowFrame? = nil, preferences: EditorPreferences? = nil,
+    closedTabs: [ClosedTabSnapshot]? = nil
   ) {
     self.revision = revision
     self.tabs = tabs
     self.selectedTabID = selectedTabID
     self.windowFrame = windowFrame
     self.preferences = preferences
+    self.closedTabs = closedTabs
   }
 
   public static func empty() -> WorkspaceSnapshot {
@@ -110,7 +126,13 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
     guard tabs.contains(where: { $0.id == selectedTabID }) else {
       throw WorkspaceValidationError.missingSelectedTab
     }
-    for tab in tabs {
+    let closed = closedTabs ?? []
+    let allTabs = tabs + closed.map(\.tab)
+    guard closed.count <= ClosedTabSnapshot.limit,
+      closed.allSatisfy({ $0.originalIndex >= 0 }),
+      Set(allTabs.map(\.id)).count == allTabs.count
+    else { throw WorkspaceValidationError.invalidClosedTabs }
+    for tab in allTabs {
       guard tab.selection == tab.selection.clamped(toUTF16Length: tab.text.utf16.count) else {
         throw WorkspaceValidationError.invalidSelection(tab.id)
       }
