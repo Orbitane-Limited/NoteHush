@@ -142,6 +142,15 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     analysisTask?.cancel()
   }
 
+  func prepareForClose() {
+    suspendScrollObservation()
+    deactivateStatus()
+    dirtyCheck?.cancel()
+    onChange = nil
+    onStatusChange = nil
+    editor.breakUndoCoalescing()
+  }
+
   func waitForAnalysis() async { await analysisTask?.value }
 
   private func scheduleAnalysis(immediate: Bool = false) {

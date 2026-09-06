@@ -135,7 +135,7 @@ private struct FailedPublication: TextFilePublishing {
   func publish(_ data: Data, to url: URL) throws { throw TextFileError.unavailable }
 }
 
-private actor GatedFileAccess: TextFileAccess {
+actor GatedFileAccess: TextFileAccess {
   private let real = TextFileService()
   func locate(_ binding: FileBinding, grantedURL: URL?) async throws -> LocatedTextFile {
     try await real.locate(binding, grantedURL: grantedURL)

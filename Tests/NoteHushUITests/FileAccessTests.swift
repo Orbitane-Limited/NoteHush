@@ -223,8 +223,10 @@ final class FileAccessTests: XCTestCase {
     goTo(url)
     app.sheets.buttons["OKButton"].firstMatch.click()
     XCTAssertTrue(
-      app.radioButtons.matching(NSPredicate(format: "label == %@", url.lastPathComponent))
-        .firstMatch.waitForExistence(timeout: 10))
+      app.radioButtons.matching(
+        NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
+      )
+      .firstMatch.waitForExistence(timeout: 10))
   }
 
   private func goTo(_ url: URL) {

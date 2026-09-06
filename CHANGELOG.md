@@ -27,4 +27,7 @@
 - Zoom shortcuts and reset, unchanged text/encoding/undo during display changes, and marked-text composition preservation.
 - Native Page Setup, Print and Print Selection using independent paginated snapshots at base font size, with PDF output and sandbox printing entitlement.
 
+- Pointer and keyboard tab reordering with stable editor selection, accessible close controls and an All Tabs overflow menu.
+- Cmd+W tab closure, Cmd+Shift+T recovery of the 20 newest closed drafts, explicit history clearing, and schema-5 post-commit backup pruning. Closing the last tab leaves an empty scratchpad; red window close and Quit still restore the workspace.
+
 No production release has been published.
