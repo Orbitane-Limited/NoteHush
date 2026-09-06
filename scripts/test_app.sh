@@ -44,4 +44,4 @@ PY
 # The test app is signed for local execution. Verify the actual binary remains sandboxed.
 codesign -d --entitlements :- build/UITestDerivedData/Build/Products/Debug/NoteHush.app \
   > build/logs/test-app-entitlements.plist 2> build/logs/test-app-signature.log
-python3 -c 'import plistlib; p=plistlib.load(open("build/logs/test-app-entitlements.plist", "rb")); assert all(p.get(k) is True for k in ("com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write", "com.apple.security.files.bookmarks.app-scope"))'
+python3 -c 'import plistlib; p=plistlib.load(open("build/logs/test-app-entitlements.plist", "rb")); assert all(p.get(k) is True for k in ("com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write", "com.apple.security.files.bookmarks.app-scope", "com.apple.security.print"))'

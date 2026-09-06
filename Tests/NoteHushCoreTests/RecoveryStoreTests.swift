@@ -28,7 +28,7 @@ final class RecoveryStoreTests: XCTestCase {
     try await fixture.store.commit(next)
     let updated = try XCTUnwrap(
       JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    XCTAssertEqual(updated["version"] as? Int, 3)
+    XCTAssertEqual(updated["version"] as? Int, 4)
     XCTAssertEqual(
       try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
     let restored = try await fixture.store.load()
@@ -304,7 +304,7 @@ final class RecoveryStoreTests: XCTestCase {
   }
 }
 
-private final class RecoveryFixture {
+final class RecoveryFixture {
   let directory: URL
   let store: RecoveryStore
   private let tabID = UUID()

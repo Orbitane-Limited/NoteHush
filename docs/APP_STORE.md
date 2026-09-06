@@ -23,6 +23,7 @@ Reviewed 2026-09-06. This matrix covers requirements relevant to NoteHush's plan
 - `com.apple.security.app-sandbox = true` from first build.
 - `com.apple.security.files.user-selected.read-write = true` for native panels.
 - `com.apple.security.files.bookmarks.app-scope = true` for persistent file access (implemented in #7).
+- `com.apple.security.print = true` for user-initiated native printing and PDF output (implemented in #9).
 - No network client/server, microphone, camera, contacts, location, automation, app groups, iCloud or broad filesystem exception.
 
 Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected data types. Issue #6 uses `fstat` for identity/type/size of user-selected files and declares `NSPrivacyAccessedAPICategoryFileTimestamp` with approved reason `3B52.1` (user-granted files); no metadata leaves the device. UserDefaults for app-owned preferences generally uses reason CA92.1; add it only when implemented and verify the approved reason against actual usage. Inspect the privacy report of the final archive.

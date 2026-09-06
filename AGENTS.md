@@ -8,7 +8,7 @@ Read `docs/PRD.md`, `docs/TECHNICAL_DESIGN.md`, and `TESTING.md` before changing
 2. Tabs are first-class. Window close and Quit never show an unsaved-file confirmation. Private session checkpoints are separate from explicit file saves.
 3. Preserve unsaved text, tab order, selected tab, caret/selection, scroll, and window geometry across a normal restart. Never reload the external file over a recovered dirty buffer.
 4. Never silently discard malformed recovery data, overwrite an externally changed file, replace undecodable bytes, or claim successful persistence after a failed write.
-5. Keep App Sandbox enabled. Request only user-selected read/write access and app-scoped bookmarks when implemented. Do not request Full Disk Access.
+5. Keep App Sandbox enabled. For files, request only user-selected read/write access and app-scoped bookmarks. User-initiated printing uses the narrow printing entitlement. Do not request Full Disk Access.
 6. Text stays local. Never log user text, paths, bookmarks, or clipboard contents. UI automation uses isolated fixtures.
 
 ## Structure and implementation

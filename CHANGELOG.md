@@ -23,4 +23,8 @@
 - Native Find/Replace with case options, next/previous matches, standard shortcuts and per-tab undo.
 - Go to Line and a status bar with Unicode character/selection counts, logical line/column, encoding and newline information; cancellable background counting avoids rescanning during caret movement.
 
+- Native Settings with font family/face/size, appearance, wrapping, zoom and optional spelling shared by all tabs and restored with schema-4 recovery; unwrapped horizontal scroll also restores.
+- Zoom shortcuts and reset, unchanged text/encoding/undo during display changes, and marked-text composition preservation.
+- Native Page Setup, Print and Print Selection using independent paginated snapshots at base font size, with PDF output and sandbox printing entitlement.
+
 No production release has been published.

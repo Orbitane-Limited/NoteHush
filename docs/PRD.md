@@ -24,7 +24,7 @@ Swift 6; native AppKit; macOS 14 and newer; universal arm64/x86_64 builds. Engli
 | NH-08 | Detect external modifications before overwriting. Offer inspect/reload, Save As, or explicit overwrite only during a save operation. Atomic coordinated writes. Failed writes keep the dirty buffer and recovery copy. |
 | NH-09 | Native cut/copy/paste/select all and per-tab undo/redo. Plain-text paste. Unicode, emoji, RTL and IME composition work. Automatic quote/dash/text replacement disabled by default. |
 | NH-10 | Find next/previous and replace one/all with case option and wrap; go to line; status shows line/column, selection/character counts, encoding and newline style. UI remains responsive for large files. |
-| NH-11 | Font family/face/size, word wrap, zoom/reset, light/dark/system appearance. Preferences survive restart and never alter text bytes. Optional spell checking. Native print/page setup. |
+| NH-11 | Workspace-wide font family/face/size, word wrap, zoom/reset, light/dark/system appearance. Preferences survive restart and never alter text bytes. Optional spell checking. Native print/page setup. Print the active tab or selected text at base font size, wrapped to paper with black text on white; screen zoom/wrap do not change output. |
 | NH-12 | Keyboard-operable tabs, named accessibility controls, visible focus, sufficient contrast, reduced-motion support. Follow native system interactions and editable text semantics. |
 | NH-13 | Privacy policy and support accessible from app/store listing. No developer data collection; local recovery storage is explained. Never send notes in logs, crash attachments, or support requests automatically. |
 
