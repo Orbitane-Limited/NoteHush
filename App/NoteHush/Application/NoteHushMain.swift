@@ -4,6 +4,13 @@ import AppKit
 @MainActor
 enum NoteHushMain {
   static func main() {
+    #if NOTEHUSH_REQUIRE_TEST_WORKSPACE
+      // The dedicated UI-test app must never fall back to normal recovery.
+      // Check before creating NSApplication or any workspace/window.
+      guard let value = ProcessInfo.processInfo.environment["NOTEHUSH_TEST_WORKSPACE"],
+        UUID(uuidString: value) != nil
+      else { exit(EX_CONFIG) }
+    #endif
     let application = NSApplication.shared
     let delegate = AppDelegate()
     application.delegate = delegate

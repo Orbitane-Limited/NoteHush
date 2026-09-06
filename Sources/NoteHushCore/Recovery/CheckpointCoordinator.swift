@@ -15,7 +15,7 @@ public final class CheckpointCoordinator {
   private let store: any RecoveryWriting
   private let snapshot: @MainActor () -> WorkspaceSnapshot
   private let report: @MainActor (RecoveryError?) -> Void
-  private let sleep: @Sendable (Duration) async throws -> Void
+  private let sleep: (@Sendable (Duration) async throws -> Void)?
   private var debounce: Task<Void, Never>?
   private var maximumDelay: Task<Void, Never>?
   private var writer: Task<Void, Never>?
@@ -26,9 +26,7 @@ public final class CheckpointCoordinator {
     store: any RecoveryWriting,
     snapshot: @escaping @MainActor () -> WorkspaceSnapshot,
     report: @escaping @MainActor (RecoveryError?) -> Void,
-    sleep: @escaping @Sendable (Duration) async throws -> Void = {
-      try await Task.sleep(for: $0)
-    }
+    sleep: (@Sendable (Duration) async throws -> Void)? = nil
   ) {
     self.store = store
     self.snapshot = snapshot
@@ -65,7 +63,14 @@ public final class CheckpointCoordinator {
   private func timer(after duration: Duration) -> Task<Void, Never> {
     Task { [weak self, sleep] in
       do {
-        try await sleep(duration)
+        if let sleep {
+          try await sleep(duration)
+        } else {
+          // Keep the real timer here: invoking an async default-argument
+          // closure from a linked client crashes on the supported toolchain.
+          // The continuous-input child harness exercises this production path.
+          try await Task.sleep(for: duration)
+        }
         try Task.checkCancellation()
         self?.checkpoint()
       } catch {

@@ -119,6 +119,7 @@ final class WorkspaceIntegrationTests: XCTestCase {
 }
 
 private struct UnwritableRecoveryFiles: RecoveryFiles {
+  func synchronizeDirectory() throws { throw RecoveryError.storageUnavailable }
   let base: DiskRecoveryFiles
 
   func read(_ name: String) throws -> Data? { try base.read(name) }

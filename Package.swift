@@ -11,6 +11,9 @@ let package = Package(
       name: "RecoveryCrashHarness", dependencies: ["NoteHushCore"],
       path: "Tests/RecoveryCrashHarness"),
     .executableTarget(
+      name: "ColdLaunchHarness", dependencies: ["NoteHushCore"],
+      path: "Tests/ColdLaunchHarness"),
+    .executableTarget(
       name: "TextMetricsBenchmark", dependencies: ["NoteHushCore"],
       path: "Tests/TextMetricsBenchmark"),
     .testTarget(name: "NoteHushCoreTests", dependencies: ["NoteHushCore"]),

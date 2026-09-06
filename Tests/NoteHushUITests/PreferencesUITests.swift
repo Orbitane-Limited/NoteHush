@@ -22,16 +22,24 @@ final class PreferencesUITests: XCTestCase {
     XCTAssertTrue(settings.waitForExistence(timeout: 5))
   }
 
-  private func choose(_ identifier: String, _ title: String) {
-    settings.popUpButtons[identifier].click()
+  private func choose(_ identifier: String, _ title: String) async throws {
+    let control = settings.popUpButtons[identifier]
+    control.click()
     app.menuItems[title].click()
+    try await expect(control, value: title)
   }
 
   private func expect(_ element: XCUIElement, value: String) async throws {
+    if element.value as? String == value { return }
     let expectation = XCTNSPredicateExpectation(
       predicate: NSPredicate(format: "value == %@", value), object: element)
     guard await XCTWaiter.fulfillment(of: [expectation], timeout: 8) == .completed else {
-      throw PreferencesUIFailure.expectedValueWasNotObserved
+      let window = settings.exists ? settings : app.windows["NoteHush"]
+      let attachment = XCTAttachment(screenshot: window.screenshot())
+      attachment.name = "Preference verification: \(element.identifier)"
+      attachment.lifetime = .keepAlways
+      add(attachment)
+      throw PreferencesUIFailure.expectedValueWasNotObserved(element.identifier)
     }
   }
 
@@ -39,15 +47,15 @@ final class PreferencesUITests: XCTestCase {
     let text = "literal \"quotes\" -- stay plain\nsecond line"
     editor.typeText(text)
     openSettings()
-    choose("font-family", "Menlo")
-    choose("font-face", "Bold")
+    try await choose("font-family", "Menlo")
+    try await choose("font-face", "Bold")
     let size = settings.textFields["font-size"]
     size.click()
     app.typeKey("a", modifierFlags: .command)
     size.typeText("18")
     app.typeKey(.return, modifierFlags: [])
-    choose("appearance", "Dark")
-    choose("zoom", "150%")
+    try await choose("appearance", "Dark")
+    try await choose("zoom", "150%")
     settings.checkBoxes["word-wrap"].click()
     settings.checkBoxes["check-spelling"].click()
     let preview = XCTAttachment(screenshot: settings.screenshot())
@@ -58,6 +66,7 @@ final class PreferencesUITests: XCTestCase {
     size.click()
     app.typeKey("a", modifierFlags: .command)
     size.typeText("19")
+    try await expect(settings.popUpButtons["appearance"], value: "Dark")
     app.typeKey("q", modifierFlags: .command)
     guard app.wait(for: .notRunning, timeout: 10) else { throw PreferencesUIFailure.didNotQuit }
     app.launch()
@@ -83,12 +92,12 @@ final class PreferencesUITests: XCTestCase {
     app.typeKey("=", modifierFlags: .command)
     openSettings()
     try await expect(settings.popUpButtons["zoom"], value: "110%")
-    choose("appearance", "Light")
+    try await choose("appearance", "Light")
     app.typeKey("w", modifierFlags: .command)
     app.typeKey("-", modifierFlags: .command)
     openSettings()
     try await expect(settings.popUpButtons["zoom"], value: "100%")
-    choose("appearance", "System")
+    try await choose("appearance", "System")
     app.typeKey("w", modifierFlags: .command)
     try await expect(editor, value: text)
   }
@@ -132,6 +141,39 @@ final class PreferencesUITests: XCTestCase {
     try await expect(editor, value: text)
     XCTAssertFalse(app.sheets.firstMatch.exists)
   }
+
+  func testCancelNativePrintThenRedCloseRestoresDraft() async throws {
+    try await cancelSheetThenCloseWorkspace(printing: true)
+  }
+
+  func testCancelNativePageSetupThenRedCloseRestoresDraft() async throws {
+    try await cancelSheetThenCloseWorkspace(printing: false)
+  }
+
+  private func cancelSheetThenCloseWorkspace(printing: Bool) async throws {
+    let text = printing ? "Cancel print and close draft" : "Cancel page setup and close draft"
+    editor.typeText(text)
+    if printing {
+      app.typeKey("p", modifierFlags: .command)
+    } else {
+      app.menuBarItems["File"].click()
+      app.menuItems["Page Setup…"].click()
+    }
+    let cancel = app.sheets.buttons["Cancel"].firstMatch
+    XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+    cancel.click()
+    XCTAssertFalse(app.sheets.firstMatch.exists)
+    try await expect(editor, value: text)
+    app.windows["NoteHush"].buttons[XCUIIdentifierCloseWindow].click()
+    guard app.wait(for: .notRunning, timeout: 10) else { throw PreferencesUIFailure.didNotQuit }
+    app.launch()
+    XCTAssertTrue(editor.waitForExistence(timeout: 10))
+    try await expect(editor, value: text)
+    XCTAssertFalse(app.sheets.firstMatch.exists)
+  }
 }
 
-private enum PreferencesUIFailure: Error { case expectedValueWasNotObserved, didNotQuit }
+private enum PreferencesUIFailure: Error {
+  case expectedValueWasNotObserved(String)
+  case didNotQuit
+}
