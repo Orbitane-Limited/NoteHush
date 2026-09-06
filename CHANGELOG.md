@@ -34,6 +34,8 @@ No production release has been published.
 
 ### Fixed
 
+- Recovery schema 6 stores immutable tab text with small atomic manifests, preserves legacy generations and damaged evidence, and avoids rewriting unchanged tabs.
+
 - Continuous-input checkpoint timer crash exposed by the linked Swift test harness; scheduling intervals remain unchanged.
 - Same-revision recovery retries now verify directory synchronization before acknowledging a previously renamed checkpoint.
 - Committing a font-size field no longer resets a pending Appearance or Zoom menu choice.
@@ -41,6 +43,6 @@ No production release has been published.
 ### Validation
 
 - Isolated 20-sample Release recovery benchmark with raw latency and logical I/O measurements for 5 MiB and 30 MiB workspaces; whole-app performance remains unverified.
-- 37 force-kill scenarios in both Debug and Release, covering real publication phases, continuous input and closed-history cleanup.
+- 83 force-kill scenarios in both Debug and Release, covering real manifest/blob publication phases, continuous input, legacy migration, damaged evidence and closed-history reclamation.
 - Isolated cold LaunchServices tests with a dedicated sandboxed test app; missing or malformed test workspace IDs stop startup.
 - App recovery-warning/Retry tests and native Print/Page Setup cancellation followed by red-window closure.

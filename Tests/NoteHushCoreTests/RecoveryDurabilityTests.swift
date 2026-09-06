@@ -81,6 +81,12 @@ private struct UnsynchronizedFiles: RecoveryFiles {
     try base.writeAtomically(data, named: name)
   }
   func synchronizeDirectory() throws { throw RecoveryError.storageUnavailable }
+  func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+    try base.fingerprint(name)
+  }
+  func names() throws -> [String] { try base.names() }
+  func remove(_ name: String) throws { try base.remove(name) }
+
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
   }

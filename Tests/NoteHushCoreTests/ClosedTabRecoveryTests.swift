@@ -8,11 +8,7 @@ final class ClosedTabRecoveryTests: XCTestCase {
   func testSchemaFourMigratesHistoryAndPreservesRawBackup() async throws {
     let fixture = try RecoveryFixture()
     let original = fixture.snapshot(revision: 1, text: "open\r\n👩🏽‍💻")
-    try await fixture.store.commit(original)
-    var envelope = try XCTUnwrap(
-      JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    envelope["version"] = 4
-    let legacy = try JSONSerialization.data(withJSONObject: envelope)
+    let legacy = try legacyRecoveryEnvelope(original, version: 4)
     for name in [RecoveryStore.primaryName, RecoveryStore.previousName] {
       try legacy.write(to: fixture.directory.appending(path: name))
     }
@@ -148,6 +144,12 @@ private struct HistoryFailureFiles: RecoveryFiles {
   let base: DiskRecoveryFiles
   let afterPrimary: Bool
   func read(_ name: String) throws -> Data? { try base.read(name) }
+  func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+    try base.fingerprint(name)
+  }
+  func names() throws -> [String] { try base.names() }
+  func remove(_ name: String) throws { try base.remove(name) }
+
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
   }
@@ -156,7 +158,7 @@ private struct HistoryFailureFiles: RecoveryFiles {
     if afterPrimary, name == RecoveryStore.previousName,
       let envelope = try JSONSerialization.jsonObject(with: data) as? [String: Any],
       let encoded = envelope["payload"] as? String, let payload = Data(base64Encoded: encoded),
-      try JSONDecoder().decode(WorkspaceSnapshot.self, from: payload).revision == 2
+      try JSONDecoder().decode(RecoveryManifest.self, from: payload).revision == 2
     {
       // This failure occurs only in the cleanup write, after primary publication.
       XCTAssertEqual(try base.read(RecoveryStore.primaryName), data)

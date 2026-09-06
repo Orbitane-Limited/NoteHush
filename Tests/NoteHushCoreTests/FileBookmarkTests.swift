@@ -141,13 +141,12 @@ final class FileBookmarkTests: XCTestCase {
     let store = RecoveryStore(directory: fixture.directory.appending(path: "Recovery"))
     let tab = TabSnapshot(text: "draft", file: legacy)
     var snapshot = WorkspaceSnapshot(revision: 1, tabs: [tab], selectedTabID: tab.id)
-    try await store.commit(snapshot)
-    let primary = fixture.directory.appending(path: "Recovery/session.json")
-    var envelope = try XCTUnwrap(
-      JSONSerialization.jsonObject(with: Data(contentsOf: primary)) as? [String: Any])
-    envelope["version"] = 2
-    let raw = try JSONSerialization.data(withJSONObject: envelope)
-    try raw.write(to: primary)
+    let recovery = fixture.directory.appending(path: "Recovery")
+    try FileManager.default.createDirectory(at: recovery, withIntermediateDirectories: true)
+    let raw = try legacyRecoveryEnvelope(snapshot, version: 2)
+    for name in [RecoveryStore.primaryName, RecoveryStore.previousName] {
+      try raw.write(to: recovery.appending(path: name))
+    }
     let loaded = try await store.load()
     XCTAssertEqual(loaded.snapshot?.tabs[0].file, legacy)
     snapshot.revision = 2

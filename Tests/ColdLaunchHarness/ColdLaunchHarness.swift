@@ -1,5 +1,4 @@
 import AppKit
-import CryptoKit
 import NoteHushCore
 
 /// Host-only integration driver. Never linked into the app. It launches only the
@@ -168,24 +167,15 @@ private final class Scenario {
       if FileManager.default.fileExists(atPath: recovery.appending(path: "session.json").path) {
         // Read the atomically replaced primary without taking the writer's lock;
         // test observation must not cause a production busy error.
-        let data = try Data(contentsOf: recovery.appending(path: "session.json"))
-        let envelope = try JSONDecoder().decode(CheckpointEnvelope.self, from: data)
-        guard envelope.version == 5,
-          envelope.sha256 == Data(SHA256.hash(data: envelope.payload)).base64EncodedString()
-        else { throw Failure.stateMismatch }
-        let snapshot = try JSONDecoder().decode(WorkspaceSnapshot.self, from: envelope.payload)
-        try snapshot.validate()
-        if matches(snapshot) { return snapshot }
+        if let snapshot = try CheckpointReader.read(recovery.appending(path: "session.json")),
+          matches(snapshot)
+        {
+          return snapshot
+        }
       }
       try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
     }
     throw Failure.checkpointNotObserved
-  }
-
-  private struct CheckpointEnvelope: Decodable {
-    let version: Int
-    let payload: Data
-    let sha256: String
   }
 
   private func quit() async throws {

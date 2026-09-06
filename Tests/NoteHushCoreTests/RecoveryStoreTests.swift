@@ -9,11 +9,7 @@ final class RecoveryStoreTests: XCTestCase {
   func testSchemaOneMigratesKeepingOriginalGenerationAndFileBinding() async throws {
     let fixture = try RecoveryFixture()
     let original = fixture.snapshot(revision: 1, text: "legacy draft")
-    try await fixture.store.commit(original)
-    var envelope = try XCTUnwrap(
-      JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    envelope["version"] = 1
-    let legacy = try JSONSerialization.data(withJSONObject: envelope)
+    let legacy = try legacyRecoveryEnvelope(original, version: 1)
     for name in [RecoveryStore.primaryName, RecoveryStore.previousName] {
       try legacy.write(to: fixture.directory.appending(path: name))
     }
@@ -28,7 +24,7 @@ final class RecoveryStoreTests: XCTestCase {
     try await fixture.store.commit(next)
     let updated = try XCTUnwrap(
       JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    XCTAssertEqual(updated["version"] as? Int, 5)
+    XCTAssertEqual(updated["version"] as? Int, 6)
     XCTAssertEqual(
       try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
     let restored = try await fixture.store.load()
@@ -73,7 +69,10 @@ final class RecoveryStoreTests: XCTestCase {
     try await fixture.store.commit(repaired)
     let names = try FileManager.default.contentsOfDirectory(
       at: fixture.directory, includingPropertiesForKeys: nil)
-    let evidence = names.filter { $0.lastPathComponent.hasPrefix("damaged-") }
+    let evidence = names.filter {
+      $0.lastPathComponent.hasPrefix("damaged-")
+        && $0.lastPathComponent.hasSuffix("--session.json")
+    }
     XCTAssertEqual(evidence.count, 1)
     XCTAssertEqual(try Data(contentsOf: XCTUnwrap(evidence.first)), damaged)
     let reloaded = try await fixture.store.load()
@@ -196,6 +195,11 @@ final class RecoveryStoreTests: XCTestCase {
     let other = try RecoveryFixture()
     try await fixture.store.commit(fixture.snapshot(revision: 1, text: "one"))
     try await other.store.commit(other.snapshot(revision: 1, text: "different"))
+    for name in try FileManager.default.contentsOfDirectory(atPath: other.directory.path)
+    where RecoveryBlobReference.isManagedName(name) {
+      try Data(contentsOf: other.directory.appending(path: name)).write(
+        to: fixture.directory.appending(path: name))
+    }
     try Data(contentsOf: other.primary).write(
       to: fixture.directory.appendingPathComponent(RecoveryStore.previousName))
     do {
@@ -339,6 +343,12 @@ private struct FaultingFiles: RecoveryFiles {
     if name == failedWrite { throw RecoveryError.storageUnavailable }
     try base.writeAtomically(data, named: name)
   }
+
+  func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+    try base.fingerprint(name)
+  }
+  func names() throws -> [String] { try base.names() }
+  func remove(_ name: String) throws { try base.remove(name) }
 
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
