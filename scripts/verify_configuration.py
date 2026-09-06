@@ -24,7 +24,7 @@ def main():
     if entitlements.get("com.apple.security.app-sandbox") is not True:
         raise ValueError("App Sandbox must remain enabled")
     allowed = {"com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write",
-               "com.apple.security.files.bookmarks.app-scope"}
+               "com.apple.security.files.bookmarks.app-scope", "com.apple.security.print"}
     if set(entitlements) - allowed:
         raise ValueError("Review and document any expanded entitlements before changing this allowlist")
     privacy = read_plist(ROOT / "App/NoteHush/Resources/PrivacyInfo.xcprivacy")

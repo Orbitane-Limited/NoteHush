@@ -33,7 +33,7 @@ public enum RecoveryCommit: Sendable {
 public actor RecoveryStore {
   static let primaryName = "session.json"
   static let previousName = "session.previous.json"
-  static let formatVersion = 3
+  static let formatVersion = 4
   static let maximumEnvelopeBytes = 256 * 1024 * 1024
 
   private let files: any RecoveryFiles

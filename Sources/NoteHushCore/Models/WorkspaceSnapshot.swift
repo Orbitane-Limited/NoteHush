@@ -43,10 +43,12 @@ public struct TabSnapshot: Codable, Equatable, Identifiable, Sendable {
 public struct TextScrollPosition: Codable, Equatable, Sendable {
   public var anchor: Int
   public var offset: Double
+  public var horizontalOffset: Double?
 
-  public init(anchor: Int, offset: Double) {
+  public init(anchor: Int, offset: Double, horizontalOffset: Double? = nil) {
     self.anchor = anchor
     self.offset = offset
+    self.horizontalOffset = horizontalOffset
   }
 }
 
@@ -82,15 +84,17 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
   public var selectedTabID: UUID
   // Optional additions keep schema-1 snapshots written before UI integration readable.
   public var windowFrame: WindowFrame?
+  public var preferences: EditorPreferences?
 
   public init(
     revision: UInt64 = 0, tabs: [TabSnapshot], selectedTabID: UUID,
-    windowFrame: WindowFrame? = nil
+    windowFrame: WindowFrame? = nil, preferences: EditorPreferences? = nil
   ) {
     self.revision = revision
     self.tabs = tabs
     self.selectedTabID = selectedTabID
     self.windowFrame = windowFrame
+    self.preferences = preferences
   }
 
   public static func empty() -> WorkspaceSnapshot {

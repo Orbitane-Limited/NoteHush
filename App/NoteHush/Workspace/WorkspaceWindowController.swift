@@ -28,6 +28,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   var resolutionAlert: NSAlert?
   var navigationSheet: GoToLineSheet?
   var navigationTask: Task<Void, Never>?
+  private(set) var preferences = EditorPreferences()
+  private var preferencesWindow: PreferencesWindowController?
+  let printer = WorkspacePrinter()
   private let statusView = EditorStatusView()
   private let fileBanner = NSStackView()
   private let fileMessage = NSTextField(wrappingLabelWithString: "")
@@ -52,6 +55,13 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     window.isReleasedWhenClosed = false
     window.center()
     super.init(window: window)
+    printer.onFailure = { [weak self] in
+      self?.showFileMessage(
+        String(
+          localized:
+            "The text does not fit this page setup. Choose a larger paper size, reduce print scaling or use a smaller font."
+        ))
+    }
     window.delegate = self
     buildInterface()
     showWarning(String(localized: "Restoring your workspace…"))
@@ -110,6 +120,8 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       let snapshot = loaded.snapshot ?? .empty()
       guard snapshot.revision < UInt64.max else { throw RecoveryError.staleRevision }
       revision = snapshot.revision
+      preferences = (snapshot.preferences ?? EditorPreferences()).normalized
+      window?.appearance = preferences.appKitAppearance
       tabs = snapshot.tabs.map { makeTab($0) }
       selectedID = snapshot.selectedTabID
       restoreWindowFrame(snapshot.windowFrame)
@@ -185,7 +197,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   }
 
   private func makeTab(_ snapshot: TabSnapshot) -> EditorTab {
-    let tab = EditorTab(snapshot: snapshot)
+    let tab = EditorTab(snapshot: snapshot, preferences: preferences)
     tab.onChange = { [weak self] in
       guard let self, ready, !stopping else { return }
       updateTabTitles()
@@ -229,7 +241,29 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       revision: revision, tabs: tabs.map { $0.snapshot(isVisible: $0.id == selectedID) },
       selectedTabID: selectedID ?? tabs[0].id,
       windowFrame: WindowFrame(
-        x: frame.minX, y: frame.minY, width: frame.width, height: frame.height))
+        x: frame.minX, y: frame.minY, width: frame.width, height: frame.height),
+      preferences: preferences)
+  }
+
+  func showPreferences() {
+    guard canNavigate else { return }
+    if preferencesWindow == nil {
+      preferencesWindow = PreferencesWindowController(preferences: preferences) {
+        [weak self] value in
+        self?.applyPreferences(value)
+      }
+    }
+    preferencesWindow?.showWindow(nil)
+    preferencesWindow?.window?.makeKeyAndOrderFront(nil)
+  }
+
+  func applyPreferences(_ value: EditorPreferences) {
+    guard canEditFiles else { return }
+    preferences = value.normalized
+    window?.appearance = preferences.appKitAppearance
+    for tab in tabs { tab.applyPreferences(preferences) }
+    preferencesWindow?.refresh(preferences)
+    coordinator?.changed()
   }
 
   func prepareToQuit() async {
@@ -237,7 +271,11 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       await coordinator?.shutdown()
       return
     }
+    // Commit a pending settings field edit before freezing and checkpointing.
+    preferencesWindow?.window?.makeFirstResponder(nil)
+    preferencesWindow?.close()
     stopping = true
+    printer.cancelSheets(on: window)
     pendingFileURLs.removeAll()
     openingTask?.cancel()
     // Use the panel's cancellation path so its completion resumes Save As.

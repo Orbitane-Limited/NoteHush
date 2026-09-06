@@ -23,8 +23,12 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var savedScroll: TextScrollPosition?
   private var restoring = false
   private var observingScroll = false
+  private var preferences = EditorPreferences()
 
-  init(snapshot: TabSnapshot, analyzer: any TextAnalyzing = BackgroundTextAnalyzer()) {
+  init(
+    snapshot: TabSnapshot, preferences: EditorPreferences = EditorPreferences(),
+    analyzer: any TextAnalyzing = BackgroundTextAnalyzer()
+  ) {
     id = snapshot.id
     title = snapshot.title
     file = snapshot.file
@@ -72,7 +76,44 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     NotificationCenter.default.addObserver(
       self, selector: #selector(scrolled), name: NSView.boundsDidChangeNotification,
       object: scrollView.contentView)
+    applyPreferences(preferences)
     refreshDirtyState()
+  }
+
+  func applyPreferences(_ value: EditorPreferences) {
+    let next = value.normalized
+    let relayout =
+      preferences.fontName != next.fontName || preferences.fontSize != next.fontSize
+      || preferences.zoomPercent != next.zoomPercent || preferences.wordWrap != next.wordWrap
+    let visible = observingScroll && scrollView.window != nil
+    if relayout && visible { captureScroll() }
+    restoring = true
+    defer { restoring = false }
+    preferences = next
+    // Set presentation attributes directly, never insert attributed text or change selection.
+    // This also leaves an in-progress input-method composition and undo grouping intact.
+    if editor.font != next.font() { editor.font = next.font() }
+    editor.isContinuousSpellCheckingEnabled = next.checksSpelling
+    editor.isGrammarCheckingEnabled = false
+    editor.isAutomaticSpellingCorrectionEnabled = false
+    editor.isAutomaticQuoteSubstitutionEnabled = false
+    editor.isAutomaticDashSubstitutionEnabled = false
+    editor.isAutomaticTextReplacementEnabled = false
+    if relayout { configureWrapping() }
+    if relayout && visible { restoreScroll() }
+  }
+
+  private func configureWrapping() {
+    let wrap = preferences.wordWrap
+    scrollView.hasHorizontalScroller = !wrap
+    editor.isHorizontallyResizable = !wrap
+    editor.autoresizingMask = wrap ? [.width] : []
+    editor.textContainer?.widthTracksTextView = wrap
+    let width = max(1, scrollView.contentSize.width)
+    editor.setFrameSize(NSSize(width: width, height: editor.frame.height))
+    editor.textContainer?.containerSize = NSSize(
+      width: wrap ? max(1, width - 2 * editor.textContainerInset.width) : .greatestFiniteMagnitude,
+      height: .greatestFiniteMagnitude)
   }
 
   func undoManager(for view: NSTextView) -> UndoManager? { history }
@@ -195,6 +236,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
       observingScroll = true
     }
     editor.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
+    configureWrapping()
     guard let layout = editor.layoutManager, let container = editor.textContainer,
       !editor.string.isEmpty
     else {
@@ -216,7 +258,9 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.setFrameOrigin(.zero)
     let y = line.minY + editor.textContainerInset.height + max(-1000, min(position.offset, 1000))
     let clip = scrollView.contentView
-    let proposed = NSRect(origin: NSPoint(x: 0, y: max(0, y)), size: clip.bounds.size)
+    let horizontal = position.horizontalOffset ?? 0
+    let x = !preferences.wordWrap && horizontal.isFinite ? max(0, horizontal) : 0
+    let proposed = NSRect(origin: NSPoint(x: x, y: max(0, y)), size: clip.bounds.size)
     clip.scroll(to: clip.constrainBoundsRect(proposed).origin)
     scrollView.reflectScrolledClipView(clip)
   }
@@ -239,6 +283,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     let line = layout.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
     savedScroll = TextScrollPosition(
       anchor: layout.characterIndexForGlyph(at: glyph),
-      offset: y - line.minY - editor.textContainerInset.height)
+      offset: y - line.minY - editor.textContainerInset.height,
+      horizontalOffset: scrollView.contentView.bounds.minX)
   }
 }

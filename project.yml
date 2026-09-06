@@ -82,6 +82,8 @@ targets:
       - Tests/NoteHushAppTests
       - App/NoteHush/Editor
       - App/NoteHush/Workspace
+      - App/NoteHush/Preferences
+      - App/NoteHush/Printing
     dependencies:
       - package: NoteHushCore
         product: NoteHushCore

@@ -2,7 +2,9 @@ import AppKit
 
 @MainActor
 extension WorkspaceWindowController {
-  var canNavigate: Bool { canEditFiles && window?.attachedSheet == nil && selectedTab != nil }
+  var canNavigate: Bool {
+    canEditFiles && window?.attachedSheet == nil && !printer.isPresenting && selectedTab != nil
+  }
 
   func performFindAction(_ sender: Any?) {
     guard canNavigate, let tab = selectedTab else { return }

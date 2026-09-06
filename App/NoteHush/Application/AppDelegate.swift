@@ -57,14 +57,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     workspace?.performFindAction(sender)
   }
   @objc private func goToLine(_ sender: Any?) { workspace?.goToLine(sender) }
+  @objc private func showSettings(_ sender: Any?) { workspace?.showPreferences() }
+  @objc private func zoomIn(_ sender: Any?) { workspace?.zoom(increasing: true) }
+  @objc private func zoomOut(_ sender: Any?) { workspace?.zoom(increasing: false) }
+  @objc private func resetZoom(_ sender: Any?) { workspace?.resetZoom() }
+  @objc private func toggleWordWrap(_ sender: Any?) { workspace?.toggleWordWrap() }
+  @objc private func pageSetup(_ sender: Any?) { workspace?.showPageSetup() }
+  @objc private func printDocument(_ sender: Any?) {
+    workspace?.printDocument(selectionOnly: false)
+  }
+  @objc private func printSelection(_ sender: Any?) {
+    workspace?.printDocument(selectionOnly: true)
+  }
 
   func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
     switch menuItem.action {
+    case #selector(zoomIn(_:)):
+      return workspace?.canNavigate == true && (workspace?.preferences.zoomPercent ?? 300) < 300
+    case #selector(zoomOut(_:)):
+      return workspace?.canNavigate == true && (workspace?.preferences.zoomPercent ?? 50) > 50
+    case #selector(toggleWordWrap(_:)):
+      menuItem.state = workspace?.preferences.wordWrap == true ? .on : .off
+      return workspace?.canNavigate ?? false
+    case #selector(printSelection(_:)):
+      return workspace?.canNavigate == true
+        && (workspace?.selectedTab?.editor.selectedRange().length ?? 0) > 0
     case #selector(performTextFinderAction(_:)):
       return workspace?.validateFindAction(menuItem) ?? false
     case #selector(goToLine(_:)), #selector(newTab(_:)), #selector(nextTab(_:)),
       #selector(previousTab(_:)), #selector(openDocument(_:)), #selector(saveDocument(_:)),
-      #selector(saveDocumentAs(_:)):
+      #selector(saveDocumentAs(_:)), #selector(showSettings(_:)), #selector(resetZoom(_:)),
+      #selector(pageSetup(_:)), #selector(printDocument(_:)):
       return workspace?.canNavigate ?? false
     default: return true
     }
@@ -82,6 +105,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     appMenu.addItem(
       withTitle: String(localized: "About NoteHush"),
       action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+    appMenu.addItem(.separator())
+    let settings = appMenu.addItem(
+      withTitle: String(localized: "Settings…"), action: #selector(showSettings(_:)),
+      keyEquivalent: ",")
+    settings.target = self
     appMenu.addItem(.separator())
     appMenu.addItem(
       withTitle: String(localized: "Hide NoteHush"),
@@ -110,6 +138,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
       keyEquivalent: "s")
     saveAs.keyEquivalentModifierMask = [.command, .shift]
     saveAs.target = self
+    file.addItem(.separator())
+    for (title, action, key) in [
+      (String(localized: "Page Setup…"), #selector(pageSetup(_:)), ""),
+      (String(localized: "Print…"), #selector(printDocument(_:)), "p"),
+      (String(localized: "Print Selection…"), #selector(printSelection(_:)), ""),
+    ] {
+      file.addItem(withTitle: title, action: action, keyEquivalent: key).target = self
+    }
     file.addItem(.separator())
     file.addItem(
       withTitle: String(localized: "Close Window"), action: #selector(NSWindow.performClose(_:)),
@@ -162,6 +198,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
       action: #selector(goToLine(_:)), keyEquivalent: "l")
     goTo.target = self
     editItem.submenu = edit
+
+    let viewItem = NSMenuItem()
+    main.addItem(viewItem)
+    let view = NSMenu(title: String(localized: "View"))
+    for (title, action, key) in [
+      (String(localized: "Zoom In"), #selector(zoomIn(_:)), "="),
+      (String(localized: "Zoom Out"), #selector(zoomOut(_:)), "-"),
+      (String(localized: "Actual Size"), #selector(resetZoom(_:)), "0"),
+      (String(localized: "Word Wrap"), #selector(toggleWordWrap(_:)), ""),
+    ] {
+      view.addItem(withTitle: title, action: action, keyEquivalent: key).target = self
+    }
+    viewItem.submenu = view
 
     let windowItem = NSMenuItem()
     main.addItem(windowItem)
