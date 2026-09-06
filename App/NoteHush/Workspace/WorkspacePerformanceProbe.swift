@@ -15,7 +15,7 @@
     }
 
     static func editorReady(window: NSWindow?, editor: NSTextView?) {
-      guard let launch, let window, let editor, window.isVisible,
+      guard let launch, let window, let editor, window.isVisible, window.isKeyWindow,
         editor.isEditable, window.firstResponder === editor
       else { return }
       window.contentView?.layoutSubtreeIfNeeded()

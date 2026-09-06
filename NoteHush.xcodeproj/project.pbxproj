@@ -21,7 +21,6 @@
 		4F941A1619AE96289A7D4D09 /* EditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDBE1C4A6674DEA8F3E24E /* EditingTests.swift */; };
 		505767603C666848AF3F513F /* WorkspacePerformanceProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5377F9A2C3FCBF9976BB7B /* WorkspacePerformanceProbe.swift */; };
 		545603B96531480A46EEC8F7 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0138E69BDE06082791FC37 /* TabBarView.swift */; };
-		548E156E1F60E0FD995A673E /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = 61D9882A8B54B7B559CCAAD9 /* NoteHushCore */; };
 		568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		56DAB19F9FF20D0A724C59BF /* WorkspaceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */; };
 		5C2B03118993D43B145A12AA /* EditorStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AA70104208E5E1822F071E /* EditorStatusView.swift */; };
@@ -122,14 +121,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1252895B931E483DC91794F8 /* NoteHushCore in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CF63C77F3D03B9BC7133D5BE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				548E156E1F60E0FD995A673E /* NoteHushCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,7 +307,6 @@
 			buildConfigurationList = 583B6FD5A9A45A8E6D3E1A8B /* Build configuration list for PBXNativeTarget "NoteHushPerformanceTests" */;
 			buildPhases = (
 				9CE6E18A6041EEAD5DA90BEA /* Sources */,
-				CF63C77F3D03B9BC7133D5BE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -325,7 +315,6 @@
 			);
 			name = NoteHushPerformanceTests;
 			packageProductDependencies = (
-				61D9882A8B54B7B559CCAAD9 /* NoteHushCore */,
 			);
 			productName = NoteHushPerformanceTests;
 			productReference = FCD3367041B36A0BBC1EA4AF /* NoteHushPerformanceTests.xctest */;
@@ -1150,10 +1139,6 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		25CEB671E903BEBA37E584E5 /* NoteHushCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = NoteHushCore;
-		};
-		61D9882A8B54B7B559CCAAD9 /* NoteHushCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NoteHushCore;
 		};

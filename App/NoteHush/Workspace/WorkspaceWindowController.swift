@@ -317,6 +317,15 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   func windowDidMove(_ notification: Notification) { geometryChanged() }
   func windowDidResize(_ notification: Notification) { geometryChanged() }
 
+  #if NOTEHUSH_PERFORMANCE_TESTING
+    func windowDidBecomeKey(_ notification: Notification) {
+      // Activation can finish after recovery. Report readiness only once both
+      // the restored editor and the actual keyboard destination are established.
+      guard ready else { return }
+      WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
+    }
+  #endif
+
   private func geometryChanged() {
     guard ready, !stopping else { return }
     coordinator?.changed()

@@ -27,7 +27,7 @@
       buildConfiguration = "ReleasePerformance"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
-      shouldUseLaunchSchemeArgsEnv = "NO"
+      shouldUseLaunchSchemeArgsEnv = "YES"
       disableMainThreadChecker = "YES"
       onlyGenerateCoverageForSpecifiedTargets = "NO"
       systemAttachmentLifetime = "keepNever">
@@ -55,13 +55,6 @@
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "NOTEHUSH_PERFORMANCE_APP"
-            value = "$(BUILT_PRODUCTS_DIR)/NoteHush.app"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "ReleasePerformance"

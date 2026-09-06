@@ -19,3 +19,4 @@ xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration Debug \
   -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
   CODE_SIGNING_ALLOWED=NO build 2>&1 | tee build/logs/debug-build.log
 bash scripts/archive.sh
+bash scripts/build_performance.sh

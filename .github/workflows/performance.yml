@@ -1,0 +1,36 @@
+name: Application performance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notehush-performance
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    name: Isolated launch measurements
+    # A single self-hosted runner serializes this with functional CI jobs.
+    # The host still needs exclusive human/other-project GUI input availability.
+    runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Measure optimized isolated app
+        run: bash scripts/test_performance.sh
+      - name: Upload measurement evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/logs/
+          retention-days: 14
+          if-no-files-found: error

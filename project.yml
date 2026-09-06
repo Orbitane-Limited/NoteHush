@@ -93,8 +93,6 @@ targets:
     sources: [Tests/NoteHushPerformanceTests]
     dependencies:
       - target: NoteHush
-      - package: NoteHushCore
-        product: NoteHushCore
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.PerformanceTests
@@ -148,8 +146,6 @@ schemes:
       enableGPUFrameCaptureMode: disabled
       enableGPUValidationMode: false
       captureScreenshotsAutomatically: false
-      environmentVariables:
-        NOTEHUSH_PERFORMANCE_APP: "$(BUILT_PRODUCTS_DIR)/NoteHush.app"
       targets:
         - NoteHushPerformanceTests
   NoteHush:
