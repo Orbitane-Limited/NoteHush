@@ -25,6 +25,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   var pendingFileURLs: [URL] = []
   var savingTask: Task<Void, Never>?
   var filePanel: NSSavePanel?
+  var resolutionAlert: NSAlert?
   private let fileBanner = NSStackView()
   private let fileMessage = NSTextField(wrappingLabelWithString: "")
   private let cancelOpeningButton = NSButton()
@@ -65,7 +66,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     if let existing = tabs.first(where: {
       $0.file?.identity == opened.binding.identity || $0.file?.url == opened.binding.url
     }) {
-      existing.grantAccess(to: grantedURL)
+      existing.relocate(using: opened.binding, grantedURL: grantedURL)
       select(existing.id)
       return
     }
@@ -230,6 +231,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     openingTask?.cancel()
     // Use the panel's cancellation path so its completion resumes Save As.
     filePanel?.cancel(nil)
+    if let resolutionAlert { window?.endSheet(resolutionAlert.window, returnCode: .abort) }
     newButton.isEnabled = false
     for tab in tabs {
       tab.editor.unmarkText()

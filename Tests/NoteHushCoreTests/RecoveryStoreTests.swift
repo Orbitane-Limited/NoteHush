@@ -6,7 +6,7 @@ import XCTest
 
 @MainActor
 final class RecoveryStoreTests: XCTestCase {
-  func testSchemaOneMigratesToTwoKeepingOriginalGenerationAndFileBinding() async throws {
+  func testSchemaOneMigratesKeepingOriginalGenerationAndFileBinding() async throws {
     let fixture = try RecoveryFixture()
     let original = fixture.snapshot(revision: 1, text: "legacy draft")
     try await fixture.store.commit(original)
@@ -28,7 +28,7 @@ final class RecoveryStoreTests: XCTestCase {
     try await fixture.store.commit(next)
     let updated = try XCTUnwrap(
       JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    XCTAssertEqual(updated["version"] as? Int, 2)
+    XCTAssertEqual(updated["version"] as? Int, 3)
     XCTAssertEqual(
       try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
     let restored = try await fixture.store.load()

@@ -95,6 +95,27 @@ final class EditorTab: NSObject, NSTextViewDelegate {
 
   func grantAccess(to url: URL) { grantedURL = url }
 
+  func relocate(using binding: FileBinding, grantedURL: URL) {
+    guard let file else { return }
+    self.file = file.relocating(to: binding.url, bookmark: binding.bookmark)
+    self.grantedURL = grantedURL
+    title = binding.url.lastPathComponent
+    onChange?()
+  }
+
+  /// Reload is deliberate and undoable. The external version becomes the new
+  /// baseline; Undo restores the prior draft and correctly marks it unsaved.
+  func reload(_ opened: OpenedTextFile, grantedURL: URL) {
+    editor.breakUndoCoalescing()
+    history.beginUndoGrouping()
+    editor.insertText(
+      opened.text, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+    history.setActionName(String(localized: "Reload File"))
+    history.endUndoGrouping()
+    editor.breakUndoCoalescing()
+    bind(opened.binding, grantedURL: grantedURL)
+  }
+
   func waitForDirtyState() async { await dirtyCheck?.value }
 
   private func refreshDirtyState(immediate: Bool = false) {

@@ -4,7 +4,7 @@ import NoteHushCore
 @MainActor
 extension WorkspaceWindowController {
   @objc func openDocument(_ sender: Any?) {
-    guard canEditFiles, filePanel == nil else { return }
+    guard canEditFiles, filePanel == nil, resolutionAlert == nil else { return }
     let panel = NSOpenPanel()
     panel.preventsApplicationTerminationWhenModal = false
     panel.canChooseFiles = true
@@ -44,6 +44,7 @@ extension WorkspaceWindowController {
     var errors = 0
     var lastError: Error?
     var largeFile = false
+    var missingBookmark = false
     for url in urls {
       guard !Task.isCancelled, canEditFiles else { return false }
       showFileMessage(String(localized: "Opening text files…"), opening: true)
@@ -52,6 +53,7 @@ extension WorkspaceWindowController {
         guard !Task.isCancelled, canEditFiles else { return false }
         installFile(opened, grantedURL: url)
         largeFile = largeFile || opened.byteCount > TextDocumentCodec.largeFileBytes
+        missingBookmark = missingBookmark || opened.binding.bookmark == nil
       } catch is CancellationError {
         return false
       } catch {
@@ -64,8 +66,12 @@ extension WorkspaceWindowController {
         String(localized: "\(errors) file(s) could not be opened. ") + fileErrorMessage(lastError))
     } else {
       showFileMessage(
-        largeFile
-          ? String(localized: "Large file opened. Editing and layout may take longer.") : nil)
+        missingBookmark
+          ? String(
+            localized:
+              "Opened. Access could not be remembered; you may need to relink after restarting.")
+          : (largeFile
+            ? String(localized: "Large file opened. Editing and layout may take longer.") : nil))
     }
     return errors == 0
   }
@@ -74,15 +80,18 @@ extension WorkspaceWindowController {
   @objc func saveDocumentAs(_ sender: Any?) { beginSaving(saveAs: true) }
 
   private func beginSaving(saveAs: Bool) {
-    guard canEditFiles, savingTask == nil, filePanel == nil, let tab = selectedTab else { return }
+    guard canEditFiles, savingTask == nil, filePanel == nil, resolutionAlert == nil,
+      let tab = selectedTab
+    else { return }
     savingTask = Task { [weak self] in
       guard let self else { return }
       defer { savingTask = nil }
-      if !saveAs, let url = tab.grantedURL, let file = tab.file {
-        _ = await saveFile(tab, to: url, encoding: file.encoding, saveAs: false)
+      if !saveAs, tab.file != nil {
+        await saveExistingFile(tab)
       } else {
         guard let destination = await chooseSaveDestination(tab), canEditFiles else { return }
-        _ = await saveFile(tab, to: destination.0, encoding: destination.1, saveAs: true)
+        await saveResolvingConflict(
+          tab, to: destination.0, encoding: destination.1, saveAs: true)
       }
     }
   }
@@ -92,15 +101,8 @@ extension WorkspaceWindowController {
     -> Bool
   {
     guard canEditFiles else { return false }
-    let text = tab.editor.string
-    let protectedFiles = tabs.filter { $0.id != tab.id }.compactMap(\.file)
     do {
-      let binding = try await fileService.save(
-        text, encoding: encoding, to: url,
-        expected: tab.file, saveAs: saveAs, protectedFiles: protectedFiles)
-      tab.bind(binding, grantedURL: url)
-      didSaveFile()
-      showFileMessage(nil)
+      try await writeFile(tab, to: url, encoding: encoding, saveAs: saveAs)
       return true
     } catch {
       showFileMessage(String(localized: "Save could not be confirmed. ") + fileErrorMessage(error))
@@ -108,7 +110,28 @@ extension WorkspaceWindowController {
     }
   }
 
-  private func chooseSaveDestination(_ tab: EditorTab) async -> (URL, TextFileEncoding)? {
+  func writeFile(
+    _ tab: EditorTab, to url: URL, encoding: TextFileEncoding, saveAs: Bool,
+    expected: FileBinding? = nil
+  ) async throws {
+    guard canEditFiles else { throw CancellationError() }
+    let text = tab.editor.string
+    let protectedFiles = tabs.filter { $0.id != tab.id }.compactMap(\.file)
+    let binding = try await fileService.save(
+      text, encoding: encoding, to: url, expected: expected ?? tab.file,
+      saveAs: saveAs, protectedFiles: protectedFiles)
+    tab.bind(binding, grantedURL: url)
+    didSaveFile()
+    showFileMessage(
+      binding.bookmark == nil
+        ? String(
+          localized:
+            "Saved. Access could not be remembered; you may need to relink this file after restarting."
+        )
+        : nil)
+  }
+
+  func chooseSaveDestination(_ tab: EditorTab) async -> (URL, TextFileEncoding)? {
     guard let window else { return nil }
     let panel = NSSavePanel()
     panel.preventsApplicationTerminationWhenModal = false
@@ -137,7 +160,7 @@ extension WorkspaceWindowController {
     return (url, TextFileEncoding.allCases[max(0, encoding.indexOfSelectedItem)])
   }
 
-  private func fileErrorMessage(_ error: Error) -> String {
+  func fileErrorMessage(_ error: Error) -> String {
     switch error as? TextFileError {
     case .invalidEncoding:
       String(

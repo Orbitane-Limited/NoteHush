@@ -17,4 +17,8 @@
 - Lossless UTF-8/BOM and UTF-16 LE/BE handling, mixed-newline preservation, cancellable background reads and atomic coordinated writes with changed-file safeguards.
 - Dirty-file recovery metadata with schema-1 migration, failed-save and concurrent-edit protection, and bounded file loading.
 
+- Persistent app-scoped file bookmarks with lazy resolution, moved-file access, stale refresh and schema-3 recovery migration.
+- Relink/Save As for missing or inaccessible files, disk-version conflict previews, undoable reloads and explicit overwrite guarded against further external changes.
+- Quit dismisses conflict/relink sheets without saving or losing the recovered draft.
+
 No production release has been published.
