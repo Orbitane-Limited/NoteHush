@@ -18,6 +18,8 @@ Deliver sequential milestones; an issue may start only when its dependencies are
 
 The foundation shell is intentionally a development build. M2's first full-snapshot recovery store establishes correctness, while M5 replaces hot-path full snapshots with per-tab commits and validates performance before any blazing-fast claim. M6 may begin signing preparation before M5 closes, but release cannot skip M5.
 
+M5 performance work uses a measured baseline before the storage migration: [#30](https://github.com/Orbitane-Limited/NoteHush/issues/30) adds isolated recovery latency/I/O measurements after #11, followed by [#31](https://github.com/Orbitane-Limited/NoteHush/issues/31) for immutable tab blobs and crash-safe migration/reclamation. Separate PRs keep the measurement method and storage changes reviewable. #12 remains open for whole-app measurements and budget acceptance; a recovery microbenchmark alone cannot close it.
+
 ## Issue acceptance and traceability
 
 Detailed checklists and dependencies live in `roadmap.json` and the corresponding [GitHub issues](https://github.com/CodeHubdotPk/NoteHush/issues). `scripts/bootstrap_github.py` creates missing labels, milestones and issues without duplicating existing titles. It writes `GITHUB_ROADMAP.md` with actual links. Rerunning does not replace edited issue bodies.

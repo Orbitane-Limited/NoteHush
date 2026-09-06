@@ -40,6 +40,7 @@ No production release has been published.
 
 ### Validation
 
+- Isolated 20-sample Release recovery benchmark with raw latency and logical I/O measurements for 5 MiB and 30 MiB workspaces; whole-app performance remains unverified.
 - 37 force-kill scenarios in both Debug and Release, covering real publication phases, continuous input and closed-history cleanup.
 - Isolated cold LaunchServices tests with a dedicated sandboxed test app; missing or malformed test workspace IDs stop startup.
 - App recovery-warning/Retry tests and native Print/Page Setup cancellation followed by red-window closure.
