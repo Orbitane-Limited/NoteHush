@@ -44,6 +44,9 @@ def main():
         raise ValueError("Review and document any expanded entitlements before changing this allowlist")
     privacy = read_plist(ROOT / "App/NoteHush/Resources/PrivacyInfo.xcprivacy")
     validate_privacy(privacy)
+    source_info = read_plist(ROOT / "App/NoteHush/Info.plist")
+    if source_info.get("ITSAppUsesNonExemptEncryption") is not False:
+        raise ValueError("Review the SHA-only encryption audit before changing the export metadata")
     roadmap = json.loads((ROOT / "docs/roadmap.json").read_text())
     identifiers = {item["id"] for item in roadmap["issues"]}
     for item in roadmap["issues"]:
@@ -62,6 +65,11 @@ def main():
         for key, value in expected.items():
             if info.get(key) != value:
                 raise ValueError(f"Archive {key} differs from the declared product configuration")
+        if (info.get("ITSAppUsesNonExemptEncryption") is not False
+                or info.get("CFBundleIconName") != "AppIcon"
+                or info.get("CFBundleIconFile") != "AppIcon"
+                or not (contents / "Resources/AppIcon.icns").is_file()):
+            raise ValueError("Archive must include the original app icon and audited export metadata")
         if info.get("NoteHushRequiresTestWorkspace") != "NO":
             raise ValueError("The release archive must not require a test workspace")
         if info.get("NoteHushPerformanceBuild") != "NO":
