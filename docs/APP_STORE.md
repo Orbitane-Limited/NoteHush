@@ -30,7 +30,7 @@ Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected
 
 ## Store material checklist
 
-Issue #15 prepares an original icon asset catalog, [English metadata](store/metadata.en-US.json), and [static support/privacy pages](../website/README.md). Public deployment, publisher approval, in-app URL integration and final app screenshots remain pending. Archive validation now requires the compiled icon and `ITSAppUsesNonExemptEncryption = false`, matching the documented SHA-only application audit; this is not a submitted export declaration.
+Implementation sub-issue #53 of release gate #15 prepares an original icon asset catalog, [English metadata](store/metadata.en-US.json), and [static support/privacy pages](../website/README.md). Integrate these sources through #53's passing, reviewed PR; keep #15 open for public deployment, publisher approval, in-app URL integration and final app screenshots. Archive validation now requires the compiled icon and `ITSAppUsesNonExemptEncryption = false`, matching the documented SHA-only application audit; this is not a submitted export declaration.
 
 - Title NoteHush and subtitle; App Store Connect verifies title reservation.
 - Original 1024 px source icon and required macOS asset sizes, no Microsoft imagery.

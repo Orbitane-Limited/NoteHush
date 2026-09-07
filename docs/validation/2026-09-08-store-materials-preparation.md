@@ -1,6 +1,6 @@
 # Store materials preparation — 2026-09-08
 
-Issue: #15. Implementation commit: `c61d31c529a5ef49d504cb8a80d01ac345a00a07`, branch `issue-15/store-materials`, based on main `2c786fac01a59e548475c20f985050c0a430e992`. Local date is 2026-09-08 in Asia/Karachi; execution occurred on 2026-09-07 UTC.
+Implementation sub-issue: #53; parent release gate: #15. Implementation commit: `c61d31c529a5ef49d504cb8a80d01ac345a00a07`, branch `issue-53/store-materials`, based on main `2c786fac01a59e548475c20f985050c0a430e992`. This branch was renamed from `issue-15/store-materials` when source integration and final Store readiness were separated. Its code and recorded validation are unchanged. Local date is 2026-09-08 in Asia/Karachi; execution occurred on 2026-09-07 UTC.
 
 ## Prepared candidate
 

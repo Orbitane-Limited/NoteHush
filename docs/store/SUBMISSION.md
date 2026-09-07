@@ -1,6 +1,6 @@
 # Store submission packet
 
-Status: draft under issue #15, not submitted. Use [the English metadata](metadata.en-US.json) only after its advertised functionality and supported systems pass final acceptance. Publisher fields, screenshots, accessibility claims and the final questionnaire responses remain unset rather than guessed.
+Status: sources prepared under implementation sub-issue #53 of release gate #15, not submitted. Use [the English metadata](metadata.en-US.json) only after its advertised functionality and supported systems pass final acceptance. Publisher fields, screenshots, accessibility claims and the final questionnaire responses remain unset rather than guessed.
 
 ## Review notes draft
 
@@ -62,6 +62,6 @@ Primary guidance rechecked 2026-09-08: [App Review Guidelines](https://developer
 | 4.1 originality | Original geometric NoteHush icon and distinct app branding | Name reservation and publisher rights confirmation |
 | 5.1 privacy | Local-only implementation and audited manifest; prepared public policy | Publisher-approved policy, public URLs and accessible in-app policy link |
 | Human interface / accessibility | Native controls/shortcuts and original icon asset catalog | Supported OS/architecture, VoiceOver/IME/contrast, appearance and icon runtime checks |
-| Distribution / legal | Versioning and unsigned archive checks; signed pipeline prepared separately in #14 | Correct identities, upload/processing/TestFlight, legal fields and App Review |
+| Distribution / legal | Versioning and unsigned archive checks; signed pipeline prepared separately in #52 under #14 | Correct identities, upload/processing/TestFlight, legal fields and App Review |
 
 Keep #15 open until the public, in-app, publisher and final screenshot gates are actually complete. Version 1 and a GitHub release remain gated by #16.
