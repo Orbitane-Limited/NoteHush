@@ -1,6 +1,6 @@
 # Mac App Store readiness
 
-Reviewed 2026-09-06. This matrix covers requirements relevant to NoteHush's planned offline plain-text editor. Apple's policies change and App Review is discretionary; neither this file nor a successful archive guarantees approval. All rows begin as pending until evidence is attached.
+Reviewed 2026-09-06; file-metadata reasons rechecked 2026-09-07 for #31. This matrix covers requirements relevant to NoteHush's planned offline plain-text editor. Apple's policies change and App Review is discretionary; neither this file nor a successful archive guarantees approval. All rows begin as pending until evidence is attached.
 
 | Area / guidance | Implementation or evidence required | Gate |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ Reviewed 2026-09-06. This matrix covers requirements relevant to NoteHush's plan
 - `com.apple.security.print = true` for user-initiated native printing and PDF output (implemented in #9).
 - No network client/server, microphone, camera, contacts, location, automation, app groups, iCloud or broad filesystem exception.
 
-Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected data types. Issue #6 uses `fstat` for identity/type/size of user-selected files and declares `NSPrivacyAccessedAPICategoryFileTimestamp` with approved reason `3B52.1` (user-granted files); no metadata leaves the device. UserDefaults for app-owned preferences generally uses reason CA92.1; add it only when implemented and verify the approved reason against actual usage. Inspect the privacy report of the final archive.
+Privacy manifest: `NSPrivacyTracking = false`, no tracking domains, no collected data types. Issue #6 uses `fstat` for identity/type/size of user-selected files and declares `NSPrivacyAccessedAPICategoryFileTimestamp` with reason `3B52.1`. Issue #31 adds `fstat`/`lstat` fingerprints for private recovery blobs, declaring reason `C617.1` for app-container metadata. These uses match [Apple's approved file-metadata reasons](https://developer.apple.com/documentation/bundleresources/app-privacy-configuration/nsprivacyaccessedapitypes/nsprivacyaccessedapitypereasons), rechecked 2026-09-07. No metadata leaves the device. Configuration validation requires both reasons, and archive validation checks the bundled manifest matches source. UserDefaults for app-owned preferences generally uses reason CA92.1; add it only when implemented and verify the approved reason against actual usage. Inspect the privacy report of the final archive.
 
 ## Store material checklist
 

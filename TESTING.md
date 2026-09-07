@@ -31,6 +31,7 @@ The self-hosted CI job allows 30 minutes for validation plus artifact transfer. 
 
 - Repository automation: `python3 -m unittest discover -s Tests/RepositoryAutomationTests -v` uses fake GitHub responses and temporary documentation fixtures. It verifies canonical transfer routing, full pagination, read-only preview, explicit local roadmap generation, idempotent creation, dependency links and preservation of edited issue bodies. Failed listings, ambiguous titles and malformed repository arguments must prevent mutations. CI runs these tests without GitHub API access; live verification uses the bootstrap's default read-only mode.
 - Docs: relative-link validation and traceability review.
+- Privacy metadata: configuration checks require the audited user-selected-file and app-container metadata reasons and no tracking/collection. Python regressions reject missing, duplicated or unaudited declarations; archive validation compares the bundled manifest with source. Recheck Apple's approved reasons when API usage changes.
 - Core: `swift test`, Swift formatting, recovery integration tests.
 - App: core checks + unsigned Debug build and Release archive; relevant UI cases when target exists.
 - Persistence/lifecycle: all recovery tests + clean quit/relaunch + kill drill; corruption/future-schema regression.
