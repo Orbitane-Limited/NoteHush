@@ -2,6 +2,13 @@ name: Application performance
 
 on:
   workflow_dispatch:
+    inputs:
+      suite:
+        description: Measurement protocol (requires exclusive GUI input)
+        type: choice
+        required: true
+        default: launch
+        options: [launch, interaction]
 
 permissions:
   contents: read
@@ -12,7 +19,7 @@ concurrency:
 
 jobs:
   measure:
-    name: Isolated launch measurements
+    name: Isolated app measurements
     # A single self-hosted runner serializes this with functional CI jobs.
     # The host still needs exclusive human/other-project GUI input availability.
     runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]
@@ -25,7 +32,14 @@ jobs:
         with:
           persist-credentials: false
       - name: Measure optimized isolated app
-        run: bash scripts/test_performance.sh
+        env:
+          MEASUREMENT_SUITE: ${{ inputs.suite }}
+        run: |
+          case "$MEASUREMENT_SUITE" in
+            launch) bash scripts/test_performance.sh ;;
+            interaction) bash scripts/test_interactions.sh ;;
+            *) exit 64 ;;
+          esac
       - name: Upload measurement evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
