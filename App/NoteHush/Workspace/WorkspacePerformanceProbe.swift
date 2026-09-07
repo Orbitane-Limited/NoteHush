@@ -18,11 +18,16 @@
       guard let launch, let window, let editor, window.isVisible, window.isKeyWindow,
         editor.isEditable, window.firstResponder === editor
       else { return }
+      // AppKit layout/display may deliver nested window delegate callbacks.
+      // Claim the interval first so those callbacks cannot complete it twice.
+      self.launch = nil
       window.contentView?.layoutSubtreeIfNeeded()
       window.displayIfNeeded()
       // This is an AppKit readiness boundary, not a display scan-out timestamp.
       signposter.endInterval("ProcessToEditorReady", launch)
-      self.launch = nil
+      // The view can already be exposed to accessibility during native layout.
+      // Publish completion after the endpoint so XCTest cannot stop too early.
+      window.setAccessibilityIdentifier("performance-editor-ready")
     }
   }
 #endif

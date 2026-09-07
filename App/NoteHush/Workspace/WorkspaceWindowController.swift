@@ -8,6 +8,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private var selectedID: UUID?
   private var revision: UInt64 = 0
   private var ready = false
+  #if NOTEHUSH_PERFORMANCE_TESTING
+    private var performancePresentationComplete = false
+  #endif
   private var stopping = false
   private let store: RecoveryStore
   private var coordinator: CheckpointCoordinator?
@@ -144,6 +147,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       showWarning(startupWarning)
       presentSelectedTab()
       #if NOTEHUSH_PERFORMANCE_TESTING
+        performancePresentationComplete = true
         WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
       #endif
       coordinator?.changed(immediate: true)
@@ -321,7 +325,7 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
     func windowDidBecomeKey(_ notification: Notification) {
       // Activation can finish after recovery. Report readiness only once both
       // the restored editor and the actual keyboard destination are established.
-      guard ready else { return }
+      guard performancePresentationComplete else { return }
       WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
     }
   #endif

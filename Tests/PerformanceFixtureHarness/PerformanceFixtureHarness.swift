@@ -53,7 +53,9 @@ enum PerformanceFixtureHarness {
       let manifestURL = URL(filePath: CommandLine.arguments[3])
       guard let bundle = Bundle(url: app), bundle.bundleIdentifier == bundleID,
         bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String == "YES",
-        bundle.object(forInfoDictionaryKey: "NoteHushPerformanceBuild") as? String == "YES"
+        bundle.object(forInfoDictionaryKey: "NoteHushPerformanceBuild") as? String == "YES",
+        bundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String
+          == "NoteHushPerformance"
       else { throw Failure.wrongBuild }
       try requireStopped()
       if command == "prepare" {
@@ -97,7 +99,7 @@ enum PerformanceFixtureHarness {
     recorder.arguments = [
       "xctrace", "record", "--template", "Time Profiler", "--time-limit", "10s",
       "--output", trace.path, "--env", "NOTEHUSH_TEST_WORKSPACE=\(fixture.workspace.uuidString)",
-      "--launch", "--", app.appending(path: "Contents/MacOS/NoteHush").path,
+      "--launch", "--", app.appending(path: "Contents/MacOS/NoteHushPerformance").path,
     ]
     // xctrace launches only this verified isolated executable. No all-process
     // collection, permission suppression, debugger entitlement or normal notes.
@@ -159,7 +161,7 @@ enum PerformanceFixtureHarness {
   private static func prepare(_ app: URL, _ manifestURL: URL) async throws {
     for value in [nil, "invalid-workspace"] as [String?] {
       let child = Process()
-      child.executableURL = app.appending(path: "Contents/MacOS/NoteHush")
+      child.executableURL = app.appending(path: "Contents/MacOS/NoteHushPerformance")
       var environment = ProcessInfo.processInfo.environment
       environment["NOTEHUSH_TEST_WORKSPACE"] = value
       child.environment = environment

@@ -22,7 +22,9 @@ def main():
     if (info.get("CFBundleIdentifier") != bundle_id
             or info.get("NoteHushRequiresTestWorkspace") != "YES"):
         raise SystemExit("Only the identified test app may run these sandbox checks")
-    if args.configuration == "ReleasePerformance" and info.get("NoteHushPerformanceBuild") != "YES":
+    if args.configuration == "ReleasePerformance" and (
+            info.get("NoteHushPerformanceBuild") != "YES"
+            or info.get("CFBundleExecutable") != "NoteHushPerformance"):
         raise SystemExit("Expected the optimized performance build identity")
     subprocess.run(["codesign", "--verify", "--strict", str(app)], check=True)
     result = subprocess.run(["codesign", "--display", "--entitlements", "-", "--xml", str(app)],

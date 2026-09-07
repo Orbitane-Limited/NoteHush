@@ -16,6 +16,7 @@ class PerformanceBuildTests(unittest.TestCase):
         self.settings = [{"target": "NoteHush", "buildSettings": {
             "CONFIGURATION": "ReleasePerformance",
             "PRODUCT_BUNDLE_IDENTIFIER": "pk.codehub.NoteHush.PerformanceTesting",
+            "EXECUTABLE_NAME": "NoteHushPerformance",
             "SWIFT_OPTIMIZATION_LEVEL": "-O", "SWIFT_COMPILATION_MODE": "wholemodule",
             "NOTEHUSH_TEST_WORKSPACE_REQUIRED": "YES", "NOTEHUSH_PERFORMANCE_BUILD": "YES",
             "ENABLE_HARDENED_RUNTIME": "YES",
@@ -31,6 +32,7 @@ class PerformanceBuildTests(unittest.TestCase):
     def testShippingOrUnoptimizedConfigurationIsRejected(self):
         for key, value in [
             ("CONFIGURATION", "Release"), ("PRODUCT_BUNDLE_IDENTIFIER", "pk.codehub.NoteHush"),
+            ("EXECUTABLE_NAME", "NoteHush"),
             ("SWIFT_OPTIMIZATION_LEVEL", "-Onone"), ("NOTEHUSH_TEST_WORKSPACE_REQUIRED", "NO"),
             ("NOTEHUSH_PERFORMANCE_BUILD", "NO"), ("ENABLE_HARDENED_RUNTIME", "NO"),
             ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "DEBUG NOTEHUSH_REQUIRE_TEST_WORKSPACE NOTEHUSH_PERFORMANCE_TESTING"),

@@ -80,7 +80,6 @@
 		15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16956BC0F6470379F1AFFB75 /* NoteHush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoteHush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D5314EB6298D1503943F21 /* SettingsControlTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsControlTests.swift; sourceTree = "<group>"; };
-		1C1664A9E89B6716D6EF33DE /* notepad */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notepad; path = .; sourceTree = SOURCE_ROOT; };
 		1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceWindowController.swift; sourceTree = "<group>"; };
 		2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceNavigation.swift; sourceTree = "<group>"; };
 		2C6B25D7DD0C8DD9F78F9F97 /* TabManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagementTests.swift; sourceTree = "<group>"; };
@@ -106,6 +105,7 @@
 		946E57288B58B262B6A27668 /* LaunchPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPerformanceTests.swift; sourceTree = "<group>"; };
 		A658B0E0BD4C5B999423295C /* EditorSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSnapshotTests.swift; sourceTree = "<group>"; };
 		A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFileResolution.swift; sourceTree = "<group>"; };
+		AAA89C187187B69C32C5C640 /* issue-35 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "issue-35"; path = .; sourceTree = SOURCE_ROOT; };
 		C539EC3106341E358550D819 /* PreferencesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesUITests.swift; sourceTree = "<group>"; };
 		C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintDocumentView.swift; sourceTree = "<group>"; };
 		CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileResolutionTests.swift; sourceTree = "<group>"; };
@@ -197,7 +197,7 @@
 		5609597DFB781F16126E3EC5 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				1C1664A9E89B6716D6EF33DE /* notepad */,
+				AAA89C187187B69C32C5C640 /* issue-35 */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -724,6 +724,7 @@
 				CODE_SIGN_ENTITLEMENTS = Config/NoteHush.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXECUTABLE_NAME = NoteHushPerformance;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/NoteHush/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -40,14 +40,15 @@ def main():
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     if (info.get("CFBundleIdentifier") != "pk.codehub.NoteHush.PerformanceTesting"
             or info.get("NoteHushRequiresTestWorkspace") != "YES"
-            or info.get("NoteHushPerformanceBuild") != "YES"):
+            or info.get("NoteHushPerformanceBuild") != "YES"
+            or info.get("CFBundleExecutable") != "NoteHushPerformance"):
         raise SystemExit("Expected only the isolated performance build")
     report = {
         "schema": 1,
         "recordedAt": datetime.now(timezone.utc).isoformat(),
         "sourceRevision": command("git", "rev-parse", "HEAD"),
         "workingTreeDirty": bool(command("git", "status", "--porcelain")),
-        "binarySHA256": hashlib.sha256((app / "Contents/MacOS/NoteHush").read_bytes()).hexdigest(),
+        "binarySHA256": hashlib.sha256((app / "Contents/MacOS/NoteHushPerformance").read_bytes()).hexdigest(),
         "marketingVersion": info["CFBundleShortVersionString"],
         "buildNumber": info["CFBundleVersion"],
         "hardwareModel": command("sysctl", "-n", "hw.model"),

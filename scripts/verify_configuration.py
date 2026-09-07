@@ -68,7 +68,8 @@ def main():
             raise ValueError("The release archive must not enable performance controls")
         executable = contents / "MacOS/NoteHush"
         binary = executable.read_bytes()
-        if b"NOTEHUSH_TEST_WORKSPACE" in binary or b"ProcessToEditorReady" in binary:
+        if any(marker in binary for marker in (
+                b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready")):
             raise ValueError("Test workspace controls or readiness instrumentation reached the release executable")
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")

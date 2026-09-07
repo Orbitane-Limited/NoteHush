@@ -16,6 +16,7 @@ def validate(settings, scheme):
     required = {
         "CONFIGURATION": "ReleasePerformance",
         "PRODUCT_BUNDLE_IDENTIFIER": "pk.codehub.NoteHush.PerformanceTesting",
+        "EXECUTABLE_NAME": "NoteHushPerformance",
         "SWIFT_OPTIMIZATION_LEVEL": "-O",
         "SWIFT_COMPILATION_MODE": "wholemodule",
         "NOTEHUSH_TEST_WORKSPACE_REQUIRED": "YES",

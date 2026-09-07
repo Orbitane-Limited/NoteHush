@@ -46,6 +46,8 @@ final class LaunchPerformanceTests: XCTestCase {
     let bundle = try XCTUnwrap(Bundle(url: applicationURL))
     XCTAssertEqual(bundle.bundleIdentifier, bundleID)
     XCTAssertEqual(
+      bundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String, "NoteHushPerformance")
+    XCTAssertEqual(
       bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String, "YES")
     XCTAssertEqual(
       bundle.object(forInfoDictionaryKey: "NoteHushPerformanceBuild") as? String, "YES")
@@ -68,7 +70,8 @@ final class LaunchPerformanceTests: XCTestCase {
     ) {
       XCTAssertEqual(app.state, .notRunning, "Every measurement must begin with a fresh process")
       app.launch()
-      XCTAssertTrue(editor.waitForExistence(timeout: 20))
+      XCTAssertTrue(app.windows["performance-editor-ready"].waitForExistence(timeout: 20))
+      XCTAssertTrue(editor.exists)
       stopMeasuring()
       // Stop collection before fixture assertions/teardown so the metric's
       // event-loop observer is detached while the measured process is alive.
