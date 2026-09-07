@@ -5,6 +5,80 @@ import XCTest
 
 @MainActor
 final class WorkspaceIntegrationTests: XCTestCase {
+  func testRestoresTwentyMixedScriptDraftsWithoutFullDocumentLayout() async throws {
+    _ = NSApplication.shared
+    let directory = FileManager.default.temporaryDirectory.appending(
+      path: "NoteHushLayout-\(UUID())")
+    defer { try? FileManager.default.removeItem(at: directory) }
+    var tabs = (0..<20).map { TabSnapshot(text: mixedScriptEditorFixture($0)) }
+    let anchor = try XCTUnwrap(tabs.last).text.utf16.count - 2
+    tabs[19].selection = TextSelection(location: anchor)
+    tabs[19].scroll = TextScrollPosition(anchor: anchor, offset: 3)
+    let selected = try XCTUnwrap(tabs.last)
+    let seed = WorkspaceSnapshot(revision: 1, tabs: tabs, selectedTabID: selected.id)
+    let store = RecoveryStore(directory: directory)
+    try await store.commit(seed)
+    let controller = WorkspaceWindowController(store: store)
+    controller.showWindow(nil)
+    await controller.waitUntilLoaded()
+    controller.window?.displayIfNeeded()
+    XCTAssertEqual(controller.tabs.map(\.id), tabs.map(\.id))
+    let active = try XCTUnwrap(controller.selectedTab)
+    XCTAssertEqual(active.id, selected.id)
+    XCTAssertTrue(active.editor.string.utf8.elementsEqual(selected.text.utf8))
+    XCTAssertEqual(active.editor.selectedRange(), NSRange(location: anchor, length: 0))
+    let layout = try XCTUnwrap(active.editor.layoutManager)
+    XCTAssertLessThan(layout.firstUnlaidCharacterIndex(), selected.text.utf16.count)
+    let line = layout.lineFragmentRect(
+      forGlyphAt: layout.glyphIndexForCharacter(at: anchor), effectiveRange: nil)
+    let caretY = line.midY + active.editor.textContainerInset.height
+    let viewport = active.scrollView.contentView.bounds
+    XCTAssertGreaterThan(viewport.minY, 1000)
+    XCTAssertGreaterThanOrEqual(caretY, viewport.minY)
+    XCTAssertLessThanOrEqual(caretY, viewport.maxY)
+    for tab in controller.tabs where tab.id != selected.id {
+      XCTAssertEqual(tab.editor.layoutManager?.firstUnlaidCharacterIndex(), 0)
+    }
+    await controller.prepareToQuit()
+    controller.close()
+    let loaded = try await store.load()
+    let recovered = try XCTUnwrap(loaded.snapshot)
+    XCTAssertEqual(recovered.selectedTabID, selected.id)
+    let savedPosition = try XCTUnwrap(recovered.tabs.last?.scroll)
+    let savedLine = layout.lineFragmentRect(
+      forGlyphAt: layout.glyphIndexForCharacter(at: savedPosition.anchor), effectiveRange: nil)
+    let savedVisibleOffset =
+      viewport.minY - savedLine.minY - active.editor.textContainerInset.height
+    XCTAssertEqual(savedPosition.offset, savedVisibleOffset, accuracy: 1)
+    for (actual, original) in zip(recovered.tabs, tabs) {
+      XCTAssertEqual(actual.id, original.id)
+      XCTAssertTrue(actual.text.utf8.elementsEqual(original.text.utf8))
+    }
+    let reopened = WorkspaceWindowController(store: store)
+    reopened.showWindow(nil)
+    await reopened.waitUntilLoaded()
+    reopened.window?.displayIfNeeded()
+    let restored = try XCTUnwrap(reopened.selectedTab)
+    XCTAssertEqual(restored.editor.selectedRange(), NSRange(location: anchor, length: 0))
+    let restoredLayout = try XCTUnwrap(restored.editor.layoutManager)
+    let restoredLine = restoredLayout.lineFragmentRect(
+      forGlyphAt: restoredLayout.glyphIndexForCharacter(at: savedPosition.anchor),
+      effectiveRange: nil)
+    let restoredViewport = restored.scrollView.contentView.bounds
+    // Noncontiguous layout estimates total document height. Compare the same
+    // text line within the viewport, not its estimated distance from the top.
+    XCTAssertEqual(
+      restoredViewport.minY - restoredLine.minY - restored.editor.textContainerInset.height,
+      savedVisibleOffset, accuracy: 1)
+    let restoredCaretLine = restoredLayout.lineFragmentRect(
+      forGlyphAt: restoredLayout.glyphIndexForCharacter(at: anchor), effectiveRange: nil)
+    XCTAssertEqual(
+      restoredCaretLine.midY + restored.editor.textContainerInset.height - restoredViewport.minY,
+      caretY - viewport.minY, accuracy: 1)
+    await reopened.prepareToQuit()
+    reopened.close()
+  }
+
   func testFailedFinalWriteKeepsDraftAndShowsWarningWithoutBlockingQuit() async throws {
     _ = NSApplication.shared
     let directory = FileManager.default.temporaryDirectory.appending(
