@@ -40,6 +40,7 @@ enum PerformanceFixtureHarness {
   enum Failure: Error {
     case arguments, wrongBuild, appRunning, wrongManifest, missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
+    case profilerTimedOut, profilerRecorderFailed, profilerProcessNotObserved, profilerTraceMissing
   }
 
   static func main() async {
@@ -99,9 +100,11 @@ enum PerformanceFixtureHarness {
     recorder.arguments = [
       "xctrace", "record", "--template", "Time Profiler", "--time-limit", "10s",
       "--output", trace.path, "--env", "NOTEHUSH_TEST_WORKSPACE=\(fixture.workspace.uuidString)",
-      "--launch", "--", app.appending(path: "Contents/MacOS/NoteHushPerformance").path,
+      "--launch", "--", app.path,
     ]
-    // xctrace launches only this verified isolated executable. No all-process
+    // Use xctrace's documented app-bundle launch form so LaunchServices can
+    // identify the native app, rather than treating its inner binary as a CLI.
+    // xctrace launches only this verified isolated bundle. No all-process
     // collection, permission suppression, debugger entitlement or normal notes.
     try recorder.run()
     var owned: NSRunningApplication?
@@ -117,12 +120,16 @@ enum PerformanceFixtureHarness {
             owned = process
           }
         }
-        guard clock.now < deadline else { throw Failure.launchFailed }
+        guard clock.now < deadline else { throw Failure.profilerTimedOut }
         try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
       }
-      guard recorder.terminationReason == .exit, recorder.terminationStatus == 0,
-        owned != nil, FileManager.default.fileExists(atPath: trace.path)
-      else { throw Failure.launchFailed }
+      guard recorder.terminationReason == .exit, recorder.terminationStatus == 0 else {
+        throw Failure.profilerRecorderFailed
+      }
+      guard owned != nil else { throw Failure.profilerProcessNotObserved }
+      guard FileManager.default.fileExists(atPath: trace.path) else {
+        throw Failure.profilerTraceMissing
+      }
       if let owned, !owned.isTerminated {
         guard owned.terminate() else { throw Failure.quitFailed }
         try await wait { owned.isTerminated }
