@@ -52,7 +52,7 @@ No production release has been published.
 
 - Complete four-workload interaction baseline with 160 retained native-dispatch/automation observations and exact recovery checks; mixed-script performance and release budgets remain open.
 - Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
-
+- Native folder-panel tests check the complete generated path and avoid redundant click/Select All setup before keyboard entry.
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.
 - Declare and validate the approved app-container file-metadata reason used by recovery fingerprints, alongside the existing user-selected-file reason.
 - Use the existing Finder opening path for the two long file-access cases' initial fixture setup, with exact app/process checks; native panel coverage, all assertions and time allowances remain unchanged.
