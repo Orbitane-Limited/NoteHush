@@ -10,6 +10,7 @@
 
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
+- Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
