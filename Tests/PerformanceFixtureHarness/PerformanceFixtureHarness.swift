@@ -40,7 +40,8 @@ enum PerformanceFixtureHarness {
   enum Failure: Error {
     case arguments, wrongBuild, appRunning, wrongManifest, missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
-    case profilerTimedOut, profilerRecorderFailed, profilerProcessNotObserved, profilerTraceMissing
+    case profilerTimedOut, profilerProcessNotObserved, profilerTraceMissing
+    case profilerRecorderFailed(Int32)
   }
 
   static func main() async {
@@ -111,6 +112,8 @@ enum PerformanceFixtureHarness {
     do {
       let clock = ContinuousClock()
       let deadline = clock.now.advanced(by: .seconds(45))
+      var observedAt: ContinuousClock.Instant?
+      var requestedQuit = false
       while recorder.isRunning {
         if owned == nil {
           let processes = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
@@ -118,13 +121,24 @@ enum PerformanceFixtureHarness {
           if let process = processes.first {
             guard process.bundleURL?.standardizedFileURL == app else { throw Failure.wrongBuild }
             owned = process
+            observedAt = clock.now
+            print("Profiler observed the verified fixture app")
           }
+        }
+        // Capture launch and settling, then exercise normal termination while
+        // recording. The recorder's ten-second limit remains a failure bound.
+        if let owned, let observedAt, !requestedQuit, !owned.isTerminated,
+          owned.isFinishedLaunching, clock.now >= observedAt.advanced(by: .seconds(5))
+        {
+          guard owned.terminate() else { throw Failure.quitFailed }
+          requestedQuit = true
+          print("Profiler requested normal fixture-app termination")
         }
         guard clock.now < deadline else { throw Failure.profilerTimedOut }
         try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
       }
       guard recorder.terminationReason == .exit, recorder.terminationStatus == 0 else {
-        throw Failure.profilerRecorderFailed
+        throw Failure.profilerRecorderFailed(recorder.terminationStatus)
       }
       guard owned != nil else { throw Failure.profilerProcessNotObserved }
       guard FileManager.default.fileExists(atPath: trace.path) else {
