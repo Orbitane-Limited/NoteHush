@@ -87,6 +87,7 @@ targets:
           PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.UITesting
         ReleasePerformance:
           PRODUCT_BUNDLE_IDENTIFIER: pk.codehub.NoteHush.PerformanceTesting
+          PRODUCT_NAME: NoteHushPerformance
           EXECUTABLE_NAME: NoteHushPerformance
   NoteHushPerformanceTests:
     type: bundle.ui-testing

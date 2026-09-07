@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p build/logs
 derived="build/PerformanceDerivedData"
-application="$derived/Build/Products/ReleasePerformance/NoteHush.app"
+application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
 destination="platform=macOS,arch=$(uname -m)"
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHushPerformance -configuration ReleasePerformance \
   -destination "$destination" -derivedDataPath "$derived" CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual \

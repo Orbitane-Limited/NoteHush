@@ -732,6 +732,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTesting;
+				PRODUCT_NAME = NoteHushPerformance;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 			};

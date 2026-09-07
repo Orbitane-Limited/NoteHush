@@ -17,6 +17,8 @@ def validate(settings, scheme):
         "CONFIGURATION": "ReleasePerformance",
         "PRODUCT_BUNDLE_IDENTIFIER": "pk.codehub.NoteHush.PerformanceTesting",
         "EXECUTABLE_NAME": "NoteHushPerformance",
+        "PRODUCT_NAME": "NoteHushPerformance",
+        "FULL_PRODUCT_NAME": "NoteHushPerformance.app",
         "SWIFT_OPTIMIZATION_LEVEL": "-O",
         "SWIFT_COMPILATION_MODE": "wholemodule",
         "NOTEHUSH_TEST_WORKSPACE_REQUIRED": "YES",

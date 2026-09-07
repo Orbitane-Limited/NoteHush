@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p build/logs
 derived="build/PerformanceDerivedData"
-application="$derived/Build/Products/ReleasePerformance/NoteHush.app"
+application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
 destination="platform=macOS,arch=$(uname -m)"
 bash scripts/build_performance.sh
 swift build --product PerformanceFixtureHarness
