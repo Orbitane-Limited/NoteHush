@@ -1,6 +1,6 @@
 # Application performance measurement
 
-Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) prepares repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). This harness is under validation; no application-launch result has been recorded yet. Record the final baseline only after #31 is merged. Storage-only benchmark results do not certify app latency.
+Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) prepares repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). The isolated host setup and cleanup have [passed a functional check](validation/2026-09-07-performance-harness-setup.md); the measurement suite is still under validation and no application-launch result has been recorded yet. Record the final baseline only after #31 is merged. Storage-only benchmark results do not certify app latency.
 
 ## Isolated optimized app
 
