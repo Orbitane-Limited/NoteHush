@@ -1,6 +1,6 @@
 # Application performance measurement
 
-Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) prepares repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). The isolated host setup and cleanup have [passed a functional check](validation/2026-09-07-performance-harness-setup.md); the measurement suite is still under validation and no application-launch result has been recorded yet. Record the final baseline only after #31 is merged. Storage-only benchmark results do not certify app latency.
+Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) prepares repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). The isolated setup and empty-workspace metric wiring have [passed checks](validation/2026-09-07-performance-harness-setup.md), but the first full run stalled during mixed-script editor construction. [#39](https://github.com/Orbitane-Limited/NoteHush/issues/39) tracks that application defect. No complete application-launch baseline is available; record it after the fix is merged. Storage-only benchmark results do not certify app latency.
 
 ## Isolated optimized app
 
@@ -31,7 +31,7 @@ Wait until CI and other GUI automation are finished. Use a logged-in desktop wit
 bash scripts/test_performance.sh
 ```
 
-The script validates configuration, builds the optimized app/tests, applies and checks the exact sandbox signature, runs the opt-in suite and exports metrics with `xcresulttool`. The host helper verifies all open/closed buffer digests and selection after normal termination, then removes only its generated performance-workspace directories. Existing fixture manifests or an already-running performance app stop setup; failed cleanup leaves evidence for inspection. Logs, provenance and a unique result bundle are retained under `build/logs`. Raw extraction and the first full run remain outstanding while #31 is in CI. Do not present this unfinished harness as measured app performance.
+The script validates configuration, builds the optimized app/tests, applies and checks the exact sandbox signature, runs the opt-in suite and exports metrics with `xcresulttool`. The host helper verifies all open/closed buffer digests and selection after normal termination, then removes only its generated performance-workspace directories. Existing fixture manifests or an already-running performance app stop setup; failed cleanup leaves evidence for inspection. Logs, provenance and a unique result bundle are retained under `build/logs`. The first complete successful run and all-scenario extraction remain outstanding because #39 blocked the 5 MiB case. Do not present this unfinished harness as measured app performance.
 
 The manually dispatched `Application performance` workflow runs the same command and retains evidence for 14 days. Its job shares the single self-hosted runner with functional CI, so those jobs cannot run concurrently. This does not prevent input from a person, local command or another project; the operator still needs to establish exclusive GUI access. No automatic reruns or latency thresholds are configured.
 
