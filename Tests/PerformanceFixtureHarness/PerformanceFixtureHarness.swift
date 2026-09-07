@@ -40,7 +40,7 @@ enum PerformanceFixtureHarness {
   enum Failure: Error {
     case arguments, wrongBuild, appRunning, wrongManifest, missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
-    case profilerTimedOut, profilerProcessNotObserved, profilerTraceMissing
+    case profilerTimedOut, profilerTraceMissing
     case profilerRecorderFailed(Int32)
   }
 
@@ -95,61 +95,45 @@ enum PerformanceFixtureHarness {
     }
     let logs = manifestURL.deletingLastPathComponent().appending(path: "logs")
     try FileManager.default.createDirectory(at: logs, withIntermediateDirectories: true)
-    let trace = logs.appending(path: "PerformanceLaunch-\(UUID().uuidString).trace")
+    let trace = logs.appending(path: "PerformanceAttached-\(UUID().uuidString).trace")
     let recorder = Process()
     recorder.executableURL = URL(filePath: "/usr/bin/xcrun")
-    recorder.arguments = [
-      "xctrace", "record", "--template", "Time Profiler", "--time-limit", "10s",
-      "--output", trace.path, "--env", "NOTEHUSH_TEST_WORKSPACE=\(fixture.workspace.uuidString)",
-      "--launch", "--", app.path,
-    ]
-    // Use xctrace's documented app-bundle launch form so LaunchServices can
-    // identify the native app, rather than treating its inner binary as a CLI.
-    // xctrace launches only this verified isolated bundle. No all-process
-    // collection, permission suppression, debugger entitlement or normal notes.
-    try recorder.run()
     var owned: NSRunningApplication?
     do {
+      let configuration = NSWorkspace.OpenConfiguration()
+      configuration.allowsRunningApplicationSubstitution = false
+      configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": fixture.workspace.uuidString]
+      let process = try await NSWorkspace.shared.openApplication(
+        at: app, configuration: configuration)
+      guard process.bundleURL?.standardizedFileURL == app, process.bundleIdentifier == bundleID
+      else {
+        throw Failure.wrongBuild
+      }
+      owned = process
+      // Attach only to the PID returned for this verified, generated-workspace
+      // launch. This trace begins after LaunchServices startup; it is not the
+      // unprofiled process-entry/readiness measurement.
+      recorder.arguments = [
+        "xctrace", "record", "--template", "Time Profiler", "--time-limit", "10s",
+        "--output", trace.path, "--attach", String(process.processIdentifier),
+      ]
+      try recorder.run()
       let clock = ContinuousClock()
       let deadline = clock.now.advanced(by: .seconds(45))
-      var observedAt: ContinuousClock.Instant?
-      var requestedQuit = false
       while recorder.isRunning {
-        if owned == nil {
-          let processes = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
-          guard processes.count <= 1 else { throw Failure.launchFailed }
-          if let process = processes.first {
-            guard process.bundleURL?.standardizedFileURL == app else { throw Failure.wrongBuild }
-            owned = process
-            observedAt = clock.now
-            print("Profiler observed the verified fixture app")
-          }
-        }
-        // Capture launch and settling, then exercise normal termination while
-        // recording. The recorder's ten-second limit remains a failure bound.
-        if let owned, let observedAt, !requestedQuit, !owned.isTerminated,
-          owned.isFinishedLaunching, clock.now >= observedAt.advanced(by: .seconds(5))
-        {
-          guard owned.terminate() else { throw Failure.quitFailed }
-          requestedQuit = true
-          print("Profiler requested normal fixture-app termination")
-        }
+        guard !process.isTerminated else { throw Failure.quitFailed }
         guard clock.now < deadline else { throw Failure.profilerTimedOut }
         try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
       }
       guard recorder.terminationReason == .exit, recorder.terminationStatus == 0 else {
         throw Failure.profilerRecorderFailed(recorder.terminationStatus)
       }
-      guard owned != nil else { throw Failure.profilerProcessNotObserved }
       guard FileManager.default.fileExists(atPath: trace.path) else {
         throw Failure.profilerTraceMissing
       }
-      if let owned, !owned.isTerminated {
-        guard owned.terminate() else { throw Failure.quitFailed }
-        try await wait { owned.isTerminated }
-      }
+      guard !process.isTerminated, process.terminate() else { throw Failure.quitFailed }
+      try await wait { process.isTerminated }
       try await verify(fixture)
-      // Preserve an app-only table of contents for subsequent trace inspection.
       let export = Process()
       export.executableURL = URL(filePath: "/usr/bin/xcrun")
       export.arguments = [
