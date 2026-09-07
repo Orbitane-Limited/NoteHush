@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
 mkdir -p build/logs
 if ! mkdir build/volume-fixture.lock; then
   echo 'Another fixture run or an interrupted setup needs inspection before rerunning.' >&2
@@ -23,6 +24,7 @@ xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration DebugUITe
 # must use the shipping entitlement scope; the XCTest runner is a separate process.
 codesign --force --sign - --entitlements Config/NoteHush.entitlements "$test_app"
 python3 scripts/verify_test_app.py "$test_app"
+python3 scripts/check_runner_storage.py
 swift run ColdLaunchHarness "$test_app" 2>&1 | tee build/logs/cold-launch-tests.log
 result_bundle="build/logs/Lifecycle-$(uuidgen).xcresult"
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration DebugUITesting \
