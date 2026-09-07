@@ -4,6 +4,8 @@
 
 ### Added
 
+- Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
+
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
 - Swift 6 AppKit development shell, Foundation core model and Unicode-safe validation tests.
