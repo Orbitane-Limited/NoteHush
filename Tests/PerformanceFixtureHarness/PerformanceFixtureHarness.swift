@@ -48,7 +48,8 @@ enum PerformanceFixtureHarness {
         ["prepare", "verify", "cleanup", "profile"].contains(CommandLine.arguments[1])
       else { throw Failure.arguments }
       let command = CommandLine.arguments[1]
-      let app = URL(filePath: CommandLine.arguments[2]).standardizedFileURL
+      let app = URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory)
+        .standardizedFileURL
       let manifestURL = URL(filePath: CommandLine.arguments[3])
       guard let bundle = Bundle(url: app), bundle.bundleIdentifier == bundleID,
         bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String == "YES",
@@ -185,7 +186,7 @@ enum PerformanceFixtureHarness {
         let process = try await NSWorkspace.shared.openApplication(
           at: app, configuration: configuration)
         do {
-          guard process.bundleURL?.standardizedFileURL == app else { throw Failure.launchFailed }
+          guard process.bundleURL?.standardizedFileURL == app else { throw Failure.wrongBuild }
           // Observe only publication, without contending for the live writer lock.
           try await wait {
             !process.isTerminated
