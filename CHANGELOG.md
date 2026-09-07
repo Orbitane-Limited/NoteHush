@@ -48,6 +48,8 @@ No production release has been published.
 
 ### Validation
 
+- Complete four-workload interaction baseline with 160 retained native-dispatch/automation observations and exact recovery checks; mixed-script performance and release budgets remain open.
+
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.
 - Declare and validate the approved app-container file-metadata reason used by recovery fingerprints, alongside the existing user-selected-file reason.
 - Use the existing Finder opening path for the two long file-access cases' initial fixture setup, with exact app/process checks; native panel coverage, all assertions and time allowances remain unchanged.
