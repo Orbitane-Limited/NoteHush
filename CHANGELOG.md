@@ -4,6 +4,8 @@
 
 ### Added
 
+- Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
+
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
 - Swift 6 AppKit development shell, Foundation core model and Unicode-safe validation tests.
