@@ -65,9 +65,9 @@ final class FileAccessTests: XCTestCase {
     expectEditor("my draft")
   }
 
-  func testOverwriteRejectsNewerDiskEditAndRequiresAnotherReview() throws {
+  func testOverwriteRejectsNewerDiskEditAndRequiresAnotherReview() async throws {
     let source = try createSource()
-    open(source)
+    try await openFromFinder(source)
     replaceDraft("my draft")
     try Data("reviewed".utf8).write(to: source, options: .atomic)
     showConflict()
@@ -78,7 +78,7 @@ final class FileAccessTests: XCTestCase {
       predicate:
         NSPredicate(format: "value CONTAINS %@", "overwrite could not be confirmed"),
       object: message)
-    wait(for: [failed], timeout: 5)
+    await fulfillment(of: [failed], timeout: 5)
     XCTAssertEqual(try Data(contentsOf: source), Data("newer external edit".utf8))
     expectEditor("my draft")
     showConflict()
@@ -99,11 +99,11 @@ final class FileAccessTests: XCTestCase {
     expectEditor("quit draft")
   }
 
-  func testDeletedFileRelinkThenSaveAsKeepsDraftAndOtherFile() throws {
+  func testDeletedFileRelinkThenSaveAsKeepsDraftAndOtherFile() async throws {
     let source = try createSource()
     let candidate = root.appending(path: "candidate.txt")
     try Data("candidate text".utf8).write(to: candidate)
-    open(source)
+    try await openFromFinder(source)
     replaceDraft("relinked draft")
     try FileManager.default.removeItem(at: source)
     app.typeKey("s", modifierFlags: .command)
@@ -115,7 +115,7 @@ final class FileAccessTests: XCTestCase {
     let relinked = XCTNSPredicateExpectation(
       predicate: NSPredicate(format: "value CONTAINS %@", "File relinked"),
       object: app.staticTexts["file-message"])
-    wait(for: [relinked], timeout: 5)
+    await fulfillment(of: [relinked], timeout: 5)
     expectEditor("relinked draft")
     XCTAssertEqual(try Data(contentsOf: candidate), Data("candidate text".utf8))
     showConflict()
@@ -227,6 +227,33 @@ final class FileAccessTests: XCTestCase {
         NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
       )
       .firstMatch.waitForExistence(timeout: 10))
+  }
+
+  private func openFromFinder(_ url: URL) async throws {
+    let applicationURL = Bundle.main.bundleURL.deletingLastPathComponent()
+      .appending(path: "NoteHush.app").standardizedFileURL
+    let bundle = try XCTUnwrap(Bundle(url: applicationURL))
+    XCTAssertEqual(bundle.bundleIdentifier, "pk.codehub.NoteHush.UITesting")
+    XCTAssertEqual(
+      bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String, "YES")
+    // Start with XCTest so the mandatory UUID reaches the app before any file
+    // event. Reuse this exact running test app through the public Finder path.
+    launch()
+    let processes = NSRunningApplication.runningApplications(
+      withBundleIdentifier: "pk.codehub.NoteHush.UITesting")
+    XCTAssertEqual(processes.count, 1)
+    let process = try XCTUnwrap(processes.first)
+    XCTAssertEqual(process.bundleURL?.standardizedFileURL, applicationURL)
+    let configuration = NSWorkspace.OpenConfiguration()
+    configuration.allowsRunningApplicationSubstitution = false
+    let opened = try await NSWorkspace.shared.open(
+      [url], withApplicationAt: applicationURL, configuration: configuration)
+    XCTAssertEqual(opened.processIdentifier, process.processIdentifier)
+    XCTAssertTrue(
+      app.radioButtons.matching(
+        NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
+      ).firstMatch.waitForExistence(timeout: 10))
+    expectEditor("original")
   }
 
   private func goTo(_ url: URL) {
