@@ -118,7 +118,11 @@ private final class Scenario {
         application.forceTerminate()
         try? await waitUntil { application.isTerminated }
       }
-      if application?.isTerminated != false { try? cleanup() }
+      if application?.isTerminated != false,
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty
+      {
+        try? cleanup()
+      }
       throw error
     }
   }
@@ -208,18 +212,21 @@ private final class Scenario {
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.allowsRunningApplicationSubstitution = false
     configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": workspaceID.uuidString]
+    let launched: NSRunningApplication
     do {
       if let file {
-        application = try await NSWorkspace.shared.open(
+        launched = try await NSWorkspace.shared.open(
           [file], withApplicationAt: applicationURL, configuration: configuration)
       } else {
-        application = try await NSWorkspace.shared.openApplication(
+        launched = try await NSWorkspace.shared.openApplication(
           at: applicationURL, configuration: configuration)
       }
     } catch { throw Failure.launchRejected }
-    guard application?.bundleIdentifier == bundleID,
-      application?.bundleURL?.standardizedFileURL == applicationURL
+    guard launched.bundleIdentifier == bundleID,
+      launched.bundleURL?.standardizedFileURL == applicationURL
     else { throw Failure.wrongBuild }
+    // Only an identified fixture process is eligible for failure cleanup.
+    application = launched
   }
 
   private func checkpoint(_ matches: (WorkspaceSnapshot) -> Bool) async throws -> WorkspaceSnapshot

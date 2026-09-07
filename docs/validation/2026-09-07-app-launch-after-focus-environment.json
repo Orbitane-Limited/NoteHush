@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-09-07T03:52:09.043368+00:00",
+  "sourceRevision": "63d4f30b9695ea7dbda3fa685b1b0d4fe8d94cc1",
+  "workingTreeDirty": false,
+  "binarySHA256": "87ae7acd1ab60c0156b43a4ad012fe025c1ea9a26daf0fd9802f49a646910e6a",
+  "marketingVersion": "0.1.0",
+  "buildNumber": "1",
+  "hardwareModel": "Mac16,8",
+  "memoryBytes": 25769803776,
+  "logicalCPUs": 12,
+  "architecture": "arm64",
+  "osVersion": "26.6.2",
+  "osBuild": "25G83",
+  "xcode": "Xcode 26.6\nBuild version 17F113",
+  "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+  "powerSource": {
+    "source": "AC Power",
+    "batteryPercent": 80,
+    "batteryState": null
+  },
+  "displayAndThermalAtFixturePreparation": {
+    "thermalState": 1,
+    "screens": [
+      {
+        "widthPoints": 3440,
+        "heightPoints": 1440,
+        "scale": 1
+      }
+    ],
+    "capturedAt": 810445928.97753,
+    "lowPowerMode": false
+  },
+  "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+  "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately."
+}

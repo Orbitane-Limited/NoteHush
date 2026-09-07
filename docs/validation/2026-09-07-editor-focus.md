@@ -1,6 +1,6 @@
 # Selected-editor focus investigation
 
-Issue [#41](https://github.com/Orbitane-Limited/NoteHush/issues/41), version 0.1.0 (1). Restore the saved viewport before making the selected editor first responder. This keeps native text editing and independent caret/scroll restoration while avoiding the expensive initial focus layout observed in the generated mixed-script workspace. The complete 20-sample application comparison and final CI are still required before acceptance.
+Issue [#41](https://github.com/Orbitane-Limited/NoteHush/issues/41), version 0.1.0 (1). Restore the saved viewport before making the selected editor first responder. This keeps native text editing and independent caret/scroll restoration while avoiding the expensive initial focus layout observed in the generated mixed-script workspace. The complete 20-sample comparison, exact recovery checks and app-only profiling passed. Final-head CI remains the merge gate; minimum-hardware and other product budgets remain open.
 
 ## Evidence and bounded reproduction
 
@@ -37,6 +37,40 @@ The product change only reorders `restoreScroll()` and `makeFirstResponder`. It 
 
 The finalized cold-launch harness passed, including all its preceding isolation/file/dirty-recovery scenarios. The candidate's exact sandbox signature and DebugUITesting build passed. All **33 AppKit tests passed in 16.579 seconds**, including the existing deep-scroll one-point checks, hidden large editors, marked text, Unicode, undo, preferences, printing and failure handling. Retained logs: `/tmp/notehush-issue41-cold-scroll-final.log`, `/tmp/notehush-issue41-appkit.log`, and `build/logs/EditorFocus-AppKit.xcresult`.
 
-## Remaining validation
+## Complete unprofiled comparison
 
-Run the unchanged full optimized launch protocol from a clean source, retain all 120 observations and final buffer verification, and record the candidate's separate app-only profile. Full final-head CI remains required. M1/8 GB, minimum macOS/Intel, event-to-visible typing, switching, memory/idle energy, large-file/display/printing/history budgets, accessibility, signing and TestFlight remain separate gates. No release or speed marketing claim follows from this diagnostic.
+`bash scripts/test_performance.sh` passed on clean source `63d4f30b9695ea7dbda3fa685b1b0d4fe8d94cc1`, executable SHA-256 `87ae7acd1ab60c0156b43a4ad012fe025c1ea9a26daf0fd9802f49a646910e6a`. The extra diagnostic hooks and five-iteration override were removed. The product app source remains unchanged after that measurement; a subsequent host-test change makes process ownership contingent on exact bundle verification before failure cleanup.
+
+Provenance was captured at 03:52:09 UTC. The baseline and candidate both used the M4 Pro/24 GiB, macOS 26.6.2 (25G83), Xcode 26.6 (17F113), Swift 6.3.3, AC power, low-power mode off, fair initial thermal state (1), one 3440 × 1440-point display at scale 1 and warm filesystem caches. NoteHush CI and other local GUI automation were complete before each measurement; other human/application input exclusivity was not independently verified. These are initial conditions, not continuous thermal monitoring or an M1/8 GB certification.
+
+All **63** fresh-process launch/readiness/selected-tab/text/edit/Undo/Cmd+Q cycles passed. XCTest excluded its single warm-up per workload; all **120** exported observations were retained, with exactly 20 finite nonnegative seconds samples for each original interval in every scenario, no retries or trimming. Exact final open/closed text digests, tab order, selected tab and advanced recovery revisions passed host verification. Build settings, exact sandbox signatures, CSV/raw JSON export and fixture cleanup passed.
+
+Entry-to-editor-ready milliseconds:
+
+| Workspace | Before median | Before p95 | Candidate median | Candidate p95 |
+| --- | ---: | ---: | ---: | ---: |
+| Empty | 198.042 | 267.138 | 180.038 | 219.695 |
+| 20 tabs / 5 MiB | 1904.724 | 2237.930 | 789.285 | 852.798 |
+| 100 open + 20 closed / 30 MiB | 3016.358 | 3087.787 | 1899.178 | 1951.239 |
+
+Candidate Apple first-frame launch milliseconds, reported separately:
+
+| Workspace | Median | p95 |
+| --- | ---: | ---: |
+| Empty | 275.130 | 302.011 |
+| 20 tabs / 5 MiB | 283.430 | 305.455 |
+| 100 open + 20 closed / 30 MiB | 266.054 | 288.870 |
+
+The 5 MiB readiness p95 is now **852.798 ms** on this Mac, below the one-second restoration target on this hardware. The reference M1/8 GB is still unverified, and the interval excludes pre-entry loader/LaunchServices work. This does not establish post-reboot cold launch, event-to-visible typing or other #12 budgets. Apple first-frame and readiness intervals overlap and must not be added.
+
+[All candidate observations](2026-09-07-app-launch-after-focus-metrics.json) and [sanitized provenance](2026-09-07-app-launch-after-focus-environment.json) are committed alongside the original baseline. Raw evidence is `build/logs/Performance-A660D93A-5757-4D49-BA3B-3AD28ACFC568.xcresult`, adjacent CSV/raw/summary/environment exports and `/tmp/notehush-issue41-full-performance.log`. Case durations were 82.968, 90.706 and 100.130 seconds respectively; these are whole-test durations, not launch samples. The log retains 26 event-loop-monitor diagnostics, all during Tear Down after metrics: 8 empty, 11 at 5 MiB, 7 at 30 MiB. Their cause remains unverified; all samples and functional checks passed and none were suppressed.
+
+## Separate candidate profile
+
+`bash scripts/profile_performance.sh` passed on the same clean source and executable hash, with provenance captured at 03:58:25 UTC. Recorder success, exact PID ownership, normal termination, complete recovered-buffer verification, TOC export, sandbox signature and cleanup passed. `PerformanceAttached-F9DA3788-0275-46DB-B024-DE25A5043B16.trace` and its exported Time Profiler table contain **two samples, both from the verified fixture app**, one on the main thread, over about 10.75 seconds. This attached recording starts after LaunchServices/attachment overhead and does not establish a startup breakdown or 60-second idle-CPU acceptance. The unprofiled comparison above provides the launch/readiness measurements.
+
+Retained evidence: the trace, adjacent TOC/sample XML and profile-environment JSON under `build/logs`, plus `/tmp/notehush-issue41-profile.log`. Raw traces/TOCs can contain device and process-environment metadata; only the whitelisted measurement provenance and sample summaries are committed.
+
+## Remaining gates
+
+Full final-head CI remains required. M1/8 GB, minimum macOS/Intel, event-to-visible typing, switching, memory/idle energy, large-file/display/printing/history budgets, accessibility, signing and TestFlight remain separate gates. No release or speed marketing claim follows from this Mac's measurements alone.
