@@ -38,7 +38,7 @@ Local evidence remains ignored under this worktree's `build/logs/`: `store-repos
 ## Gates still open
 
 - Publisher team/bundle confirmation; matching App ID and App Store Connect app record.
-- Available GitHub environment protection and real reviewer setup, with settings checked and required secrets configured. No claim that source YAML enables remote protection.
+- Available GitHub environment protection and real reviewer setup, with settings checked and required secrets configured. A later read-only check confirmed a private repository on the organization's Free plan, which cannot provide the required environment. See the [recorded configuration constraint](../APP_STORE_DELIVERY.md). No billing/visibility change was made and no claim that source YAML enables remote protection is made.
 - Actual Store application/installer identities and profile. The observed installed Developer ID Application identity does not qualify.
 - Real archive/export/signature/profile/entitlement validation and real cleanup on this Mac with signing assets. Fixture tests do not substitute for those operations.
 - Complete successful CI for the merged release source, successful Apple processing, installed TestFlight fresh/upgrade acceptance, production sandbox lifecycle/files/printing, hardware/OS, accessibility/IME and performance evidence.
