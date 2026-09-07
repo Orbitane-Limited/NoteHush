@@ -1,6 +1,6 @@
 # Application performance measurement
 
-Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) provides repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). The [initial complete baseline](validation/2026-09-07-app-launch-baseline.md) passed all three workloads, exact recovered-buffer verification and 20-sample extraction for both intervals. Separate app-only attached profiling also passed. The 5 MiB readiness p95 is 2.24 seconds on this M4 Pro; product budgets remain open. Storage-only benchmark results do not certify app latency.
+Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) provides repeatable native-app measurements for [#12](https://github.com/Orbitane-Limited/NoteHush/issues/12). The [initial complete baseline](validation/2026-09-07-app-launch-baseline.md) passed all three workloads, exact recovered-buffer verification and 20-sample extraction for both intervals. Separate app-only attached profiling also passed. The [viewport-before-focus comparison](validation/2026-09-07-editor-focus.md#complete-unprofiled-comparison) reduces 5 MiB readiness p95 from 2.24 seconds to 853 ms on this M4 Pro. Minimum-hardware and other product budgets remain open. Storage-only benchmark results do not certify app latency.
 
 ## Isolated optimized app
 

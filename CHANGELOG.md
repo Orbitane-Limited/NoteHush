@@ -34,6 +34,8 @@ No production release has been published.
 
 ### Fixed
 
+- Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.
+
 - Restored hidden tabs avoid eager bidirectional typesetting; the selected editor uses native anchor scrolling with on-demand layout.
 
 - Recovery schema 6 stores immutable tab text with small atomic manifests, preserves legacy generations and damaged evidence, and avoids rewriting unchanged tabs.

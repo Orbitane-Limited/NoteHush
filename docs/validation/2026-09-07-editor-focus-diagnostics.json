@@ -1,0 +1,324 @@
+{
+  "schema": 1,
+  "scope": "Five measured observations per interval for diagnosis only; not the full launch baseline. XCTest adds one warm-up.",
+  "runs": [
+    {
+      "variant": "focus-before-scroll",
+      "resultBundle": "PhaseDiagnosis-305BF5AD-67A2-4896-92B8-B43F4BCCE33F.xcresult",
+      "environment": {
+        "schema": 1,
+        "recordedAt": "2026-09-07T03:34:28.508461+00:00",
+        "sourceRevision": "421f24ec6a9e53c375377205af2e8abb2d3ae4aa",
+        "workingTreeDirty": true,
+        "binarySHA256": "91e03b1e146f94892bfe42ea5a73b83d106920ff85e032b3e6f103497344d8fb",
+        "marketingVersion": "0.1.0",
+        "buildNumber": "1",
+        "hardwareModel": "Mac16,8",
+        "memoryBytes": 25769803776,
+        "logicalCPUs": 12,
+        "architecture": "arm64",
+        "osVersion": "26.6.2",
+        "osBuild": "25G83",
+        "xcode": "Xcode 26.6\nBuild version 17F113",
+        "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+        "powerSource": {
+          "source": "AC Power",
+          "batteryPercent": 80,
+          "batteryState": null
+        },
+        "displayAndThermalAtFixturePreparation": {
+          "screens": [
+            {
+              "heightPoints": 1440,
+              "widthPoints": 3440,
+              "scale": 1
+            }
+          ],
+          "lowPowerMode": false,
+          "capturedAt": 810444868.450179,
+          "thermalState": 1
+        },
+        "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+        "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately."
+      },
+      "metrics": [
+        {
+          "displayName": "Duration (EditorStatus)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorStatus.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.00048558300000000004,
+            0.0005893750000000001,
+            0.000755,
+            0.0006467910000000001,
+            0.0006367090000000001
+          ],
+          "median": 0.0006367090000000001
+        },
+        {
+          "displayName": "Duration (EditorScroll)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorScroll.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.00016425,
+            0.000189208,
+            0.0002655,
+            0.000199917,
+            0.000216209
+          ],
+          "median": 0.000199917
+        },
+        {
+          "displayName": "Duration (RecoveryLoad)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-RecoveryLoad.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.033233125,
+            0.054169708000000004,
+            0.051739833000000006,
+            0.034416791,
+            0.044661041000000005
+          ],
+          "median": 0.044661041000000005
+        },
+        {
+          "displayName": "Duration (EditorAttachment)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorAttachment.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.030236750000000003,
+            0.043548333,
+            0.048129125,
+            0.028258917,
+            0.039927417
+          ],
+          "median": 0.039927417
+        },
+        {
+          "displayName": "Duration (EditorFocus)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorFocus.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            1.4369538750000002,
+            1.772771292,
+            2.0703598750000003,
+            1.450509167,
+            1.890666125
+          ],
+          "median": 1.772771292
+        },
+        {
+          "displayName": "Duration (WorkspaceChrome)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-WorkspaceChrome.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.025770917,
+            0.038004167000000005,
+            0.040799458000000004,
+            0.026568,
+            0.037117708
+          ],
+          "median": 0.037117708
+        },
+        {
+          "displayName": "Duration (ProcessToEditorReady)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-ProcessToEditorReady.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            1.8692343750000002,
+            2.376749792,
+            2.7546262500000003,
+            1.8859407090000002,
+            2.5403900420000003
+          ],
+          "median": 2.376749792
+        },
+        {
+          "displayName": "Duration (ApplicationLaunch)",
+          "identifier": "com.apple.dt.XCTMetric_ApplicationLaunch-ApplicationLaunch.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.273660375,
+            0.33631995800000003,
+            0.40711454100000005,
+            0.267442917,
+            0.36917300000000003
+          ],
+          "median": 0.33631995800000003
+        },
+        {
+          "displayName": "Duration (EditorConstruction)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorConstruction.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.20790133400000002,
+            0.277354458,
+            0.29217512500000004,
+            0.20976308300000002,
+            0.27703341600000003
+          ],
+          "median": 0.27703341600000003
+        }
+      ]
+    },
+    {
+      "variant": "scroll-before-focus",
+      "resultBundle": "PhaseDiagnosis-7B81EA90-BCE2-41F9-BA2B-D3EFC245BF2C.xcresult",
+      "environment": {
+        "schema": 1,
+        "recordedAt": "2026-09-07T03:37:57.067886+00:00",
+        "sourceRevision": "421f24ec6a9e53c375377205af2e8abb2d3ae4aa",
+        "workingTreeDirty": true,
+        "binarySHA256": "1e97a14a2cf3f1369d45f74105624b9bcab9671e07074ccc789491762058340c",
+        "marketingVersion": "0.1.0",
+        "buildNumber": "1",
+        "hardwareModel": "Mac16,8",
+        "memoryBytes": 25769803776,
+        "logicalCPUs": 12,
+        "architecture": "arm64",
+        "osVersion": "26.6.2",
+        "osBuild": "25G83",
+        "xcode": "Xcode 26.6\nBuild version 17F113",
+        "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+        "powerSource": {
+          "source": "AC Power",
+          "batteryPercent": 80,
+          "batteryState": null
+        },
+        "displayAndThermalAtFixturePreparation": {
+          "thermalState": 0,
+          "screens": [
+            {
+              "widthPoints": 3440,
+              "heightPoints": 1440,
+              "scale": 1
+            }
+          ],
+          "lowPowerMode": false,
+          "capturedAt": 810445077.005348
+        },
+        "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+        "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately."
+      },
+      "metrics": [
+        {
+          "displayName": "Duration (EditorStatus)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorStatus.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.000574625,
+            0.000490125,
+            0.000524833,
+            0.0007089580000000001,
+            0.000574917
+          ],
+          "median": 0.000574625
+        },
+        {
+          "displayName": "Duration (EditorScroll)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorScroll.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.327321542,
+            0.32189262500000004,
+            0.32377225000000004,
+            0.3266525,
+            0.324307083
+          ],
+          "median": 0.324307083
+        },
+        {
+          "displayName": "Duration (RecoveryLoad)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-RecoveryLoad.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.035411500000000005,
+            0.038272667,
+            0.035878542,
+            0.034384917,
+            0.034609541
+          ],
+          "median": 0.035411500000000005
+        },
+        {
+          "displayName": "Duration (EditorAttachment)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorAttachment.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.036046292,
+            0.028718459000000002,
+            0.031452584,
+            0.031768709,
+            0.031319333000000005
+          ],
+          "median": 0.031452584
+        },
+        {
+          "displayName": "Duration (EditorFocus)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorFocus.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.0015684590000000001,
+            0.001435667,
+            0.00143,
+            0.0014480830000000002,
+            0.0014131670000000001
+          ],
+          "median": 0.001435667
+        },
+        {
+          "displayName": "Duration (WorkspaceChrome)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-WorkspaceChrome.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.029056417,
+            0.028819875000000002,
+            0.028223958,
+            0.028425708,
+            0.026795667000000002
+          ],
+          "median": 0.028425708
+        },
+        {
+          "displayName": "Duration (ProcessToEditorReady)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-ProcessToEditorReady.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.7896732500000001,
+            0.764401333,
+            0.791660833,
+            0.7908780000000001,
+            0.776462917
+          ],
+          "median": 0.7896732500000001
+        },
+        {
+          "displayName": "Duration (ApplicationLaunch)",
+          "identifier": "com.apple.dt.XCTMetric_ApplicationLaunch-ApplicationLaunch.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.26465170800000004,
+            0.24921187500000003,
+            0.272645542,
+            0.274448792,
+            0.248878917
+          ],
+          "median": 0.26465170800000004
+        },
+        {
+          "displayName": "Duration (EditorConstruction)",
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-EditorConstruction.duration",
+          "unitOfMeasurement": "s",
+          "measurements": [
+            0.21941195800000002,
+            0.21400279100000003,
+            0.217731584,
+            0.216753209,
+            0.208868875
+          ],
+          "median": 0.216753209
+        }
+      ]
+    }
+  ]
+}

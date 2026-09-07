@@ -234,8 +234,10 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       tab.scrollView.bottomAnchor.constraint(equalTo: editorHost.bottomAnchor),
     ])
     window?.contentView?.layoutSubtreeIfNeeded()
-    window?.makeFirstResponder(tab.editor)
+    // Establish the saved viewport before AppKit draws the insertion point.
+    // Focusing an unprepared mixed-script editor triggers expensive layout.
     tab.restoreScroll()
+    window?.makeFirstResponder(tab.editor)
     tab.activateStatus()
     statusView.render(tab)
     tabBar.reveal(tab.id)

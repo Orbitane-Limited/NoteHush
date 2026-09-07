@@ -9,9 +9,11 @@ enum ColdLaunchHarness {
   static func main() async {
     do {
       guard CommandLine.arguments.count == 2 else { throw Failure.arguments }
-      try await Scenario(applicationURL: URL(filePath: CommandLine.arguments[1])).run()
+      try await Scenario(
+        applicationURL: URL(filePath: CommandLine.arguments[1], directoryHint: .isDirectory)
+      ).run()
       print(
-        "Cold launch: missing/invalid workspace rejected; file event, dirty recovery and restart passed"
+        "Cold launch: isolation, file event, dirty recovery, restart and independent caret/scroll passed"
       )
     } catch {
       let reason = (error as? Failure).map { String(describing: $0) } ?? "fixtureOperationFailed"
@@ -106,6 +108,8 @@ private final class Scenario {
         throw Failure.stateMismatch
       }
       try requireSource(source, external)
+      try await verifyIndependentScroll(store)
+      try requireSource(source, external)
       try cleanup()
     } catch {
       // Failure cleanup targets only the process this driver created. A forced
@@ -114,9 +118,71 @@ private final class Scenario {
         application.forceTerminate()
         try? await waitUntil { application.isTerminated }
       }
-      if application?.isTerminated != false { try? cleanup() }
+      if application?.isTerminated != false,
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty
+      {
+        try? cleanup()
+      }
       throw error
     }
+  }
+
+  private func verifyIndependentScroll(_ store: RecoveryStore) async throws {
+    let header = "tab-0000000000\r\n"
+    let line = "خط e\u{301} 📝.\r\n"
+    let text = header + String(repeating: line, count: 256 * 1024 / 16 - 1)
+    guard text.utf8.count == 256 * 1024 else { throw Failure.stateMismatch }
+    for middleViewport in [true, false] {
+      guard var expected = try await store.load().snapshot, !expected.tabs.isEmpty else {
+        throw Failure.stateMismatch
+      }
+      let anchor = middleViewport ? header.utf16.count + 8000 * line.utf16.count : 0
+      let offset = middleViewport ? 3.0 : -16.0
+      let caret = middleViewport ? 0 : text.utf16.count - 2
+      let visibleLine = middleViewport ? 8001 : 0
+      guard Self.fixtureLineNumber(in: text, at: anchor) == visibleLine else {
+        throw Failure.stateMismatch
+      }
+      expected.revision += 1
+      expected.tabs[0].text = text
+      expected.tabs[0].selection = TextSelection(location: caret)
+      expected.tabs[0].scroll = TextScrollPosition(anchor: anchor, offset: offset)
+      expected.selectedTabID = expected.tabs[0].id
+      try await store.commit(expected)
+      // Each case starts from an explicit saved viewport, then checks another
+      // restart from the app's own checkpoint. The selection lies offscreen.
+      for _ in 0..<2 {
+        try await launch(file: nil)
+        try await waitUntil { self.application?.isActive == true }
+        _ = try await checkpoint {
+          Self.matches($0, expected)
+            && Self.matchesScroll($0, caret: caret, visibleLine: visibleLine, offset: offset)
+        }
+        try await quit()
+        guard let saved = try await store.load().snapshot, Self.matches(saved, expected),
+          Self.matchesScroll(saved, caret: caret, visibleLine: visibleLine, offset: offset)
+        else { throw Failure.stateMismatch }
+        expected = saved
+      }
+    }
+  }
+
+  private static func matchesScroll(
+    _ snapshot: WorkspaceSnapshot, caret: Int, visibleLine: Int, offset: Double
+  ) -> Bool {
+    guard let tab = snapshot.tabs.first, let scroll = tab.scroll else { return false }
+    // A mixed-direction line's leftmost glyph need not be its first character.
+    // Compare the visible logical line and offset, not one arbitrary glyph index.
+    return tab.selection == TextSelection(location: caret)
+      && fixtureLineNumber(in: tab.text, at: scroll.anchor) == visibleLine
+      && abs(scroll.offset - offset) <= 1
+  }
+
+  private static func fixtureLineNumber(in text: String, at utf16Offset: Int) -> Int {
+    guard (0...text.utf16.count).contains(utf16Offset) else { return -1 }
+    // These fixtures contain CRLF. Count LF code units because Swift treats
+    // a CRLF pair as one Character, which does not equal Character("\n").
+    return text.utf16.prefix(utf16Offset).filter { $0 == 0x0A }.count
   }
 
   private func rejectUnisolatedLaunch(_ value: String?) async throws {
@@ -146,15 +212,21 @@ private final class Scenario {
     let configuration = NSWorkspace.OpenConfiguration()
     configuration.allowsRunningApplicationSubstitution = false
     configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": workspaceID.uuidString]
+    let launched: NSRunningApplication
     do {
       if let file {
-        application = try await NSWorkspace.shared.open(
+        launched = try await NSWorkspace.shared.open(
           [file], withApplicationAt: applicationURL, configuration: configuration)
       } else {
-        application = try await NSWorkspace.shared.openApplication(
+        launched = try await NSWorkspace.shared.openApplication(
           at: applicationURL, configuration: configuration)
       }
     } catch { throw Failure.launchRejected }
+    guard launched.bundleIdentifier == bundleID,
+      launched.bundleURL?.standardizedFileURL == applicationURL
+    else { throw Failure.wrongBuild }
+    // Only an identified fixture process is eligible for failure cleanup.
+    application = launched
   }
 
   private func checkpoint(_ matches: (WorkspaceSnapshot) -> Bool) async throws -> WorkspaceSnapshot
