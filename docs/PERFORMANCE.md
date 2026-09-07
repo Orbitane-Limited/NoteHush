@@ -37,6 +37,8 @@ The manually dispatched `Application performance` workflow runs the same command
 
 The scripts record source revision/dirty state, executable hash, macOS/Xcode/Swift versions, hardware model/memory/architecture, cache/power conditions, screen sizes/scales and initial thermal state. Thermal enum values are 0 nominal, 1 fair, 2 serious, 3 critical; the fixture timestamp is Foundation's seconds since 2001-01-01. The record explicitly leaves other GUI input exclusivity unverified. Document sample counts, display changes and competing workloads separately; a dirty checkout is acceptable for harness debugging, not the final reproducible baseline. Compare unprofiled samples separately from Instruments runs. Failure or interruption invalidates that result set; investigate it without trimming slow samples or changing functional assertions.
 
+Power metadata retains only a recognized power source, internal-battery percentage and charging state. Battery identifiers, device names and raw command output are excluded; unfamiliar values remain unknown. These are initial conditions, not continuous monitoring of the full run.
+
 ## Instruments protocol
 
 The installed Xcode 26.6 provides App Launch, Time Profiler, CPU Profiler, Allocations and Power Profiler templates. `xctrace record` supports targeting a single launched app or PID, and `xctrace export` exposes a trace table of contents plus XPath-selected tables. Only the independently verified PerformanceTesting app and generated fixtures are in scope. Never use `--all-processes`, attach to an unrelated process, or profile the user's regular NoteHush workspace.

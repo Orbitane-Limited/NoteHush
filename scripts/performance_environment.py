@@ -6,12 +6,25 @@ import hashlib
 import json
 from pathlib import Path
 import plistlib
+import re
 import subprocess
 from urllib.parse import unquote, urlparse
 
 
 def command(*arguments):
     return subprocess.run(arguments, check=True, capture_output=True, text=True).stdout.strip()
+
+
+def power_summary(output):
+    """Keep measurement conditions, not battery IDs or arbitrary device names."""
+    source = re.search(r"Now drawing from '(AC Power|Battery Power|UPS Power)'(?:\n|$)", output)
+    batteries = [line for line in output.splitlines() if re.match(r"\s*-InternalBattery-\d+\s", line)]
+    line = batteries[0] if batteries else ""
+    percentage = re.search(r"\b(\d{1,3})%;", line)
+    percent = int(percentage[1]) if percentage and int(percentage[1]) <= 100 else None
+    state = re.search(r"%;\s*(charged|charging|discharging|finishing charge)(?:;|$)", line)
+    return {"source": source[1] if source else None, "batteryPercent": percent,
+            "batteryState": state[1] if state else None}
 
 
 def main():
@@ -45,7 +58,7 @@ def main():
         "osBuild": command("sw_vers", "-buildVersion"),
         "xcode": command("xcodebuild", "-version"),
         "swift": command("swift", "--version"),
-        "powerSource": command("pmset", "-g", "batt"),
+        "powerSource": power_summary(command("pmset", "-g", "batt")),
         "displayAndThermalAtFixturePreparation": manifest["environment"],
         "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
         "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately.",
