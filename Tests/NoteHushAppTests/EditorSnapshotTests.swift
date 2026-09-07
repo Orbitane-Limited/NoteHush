@@ -5,6 +5,32 @@ import XCTest
 
 @MainActor
 final class EditorSnapshotTests: XCTestCase {
+  func testLargeMixedScriptEditorsStayUnlaidWhileHidden() throws {
+    _ = NSApplication.shared
+    let snapshots = (0..<20).map { index in
+      let text = mixedScriptEditorFixture(index)
+      return TabSnapshot(
+        text: text, selection: TextSelection(location: index % 2 == 0 ? 0 : text.utf16.count - 2))
+    }
+    let tabs = snapshots.map { EditorTab(snapshot: $0) }
+    var preferences = EditorPreferences()
+    preferences.fontSize = 18
+    preferences.wordWrap = false
+    for (tab, original) in zip(tabs, snapshots) {
+      let layout = try XCTUnwrap(tab.editor.layoutManager)
+      XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+      XCTAssertGreaterThan(tab.scrollView.contentSize.width, 0)
+      tab.applyPreferences(preferences)
+      XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+      let captured = tab.snapshot(isVisible: false)
+      XCTAssertEqual(captured.textIdentity, original.textIdentity)
+      XCTAssertTrue(captured.text.utf8.elementsEqual(original.text.utf8))
+      XCTAssertEqual(
+        tab.editor.selectedRange(),
+        NSRange(location: original.selection.location, length: original.selection.length))
+    }
+  }
+
   func testMetadataAndAttributesReuseTextButDirectStorageEditsInvalidateCapture() throws {
     _ = NSApplication.shared
     let original = TabSnapshot(text: "\u{FEFF}ée\u{301}\r\n👩🏽‍💻")
@@ -72,4 +98,13 @@ final class EditorSnapshotTests: XCTestCase {
     XCTAssertEqual(Array(undone.text.utf8), Array(committed.text.utf8))
     XCTAssertNotEqual(undone.textIdentity, edited.textIdentity)
   }
+}
+
+/// The same 256 KiB ASCII/mixed-script CRLF workload used by the app launch probe.
+func mixedScriptEditorFixture(_ index: Int) -> String {
+  let line = index % 2 == 0 ? "generated line\r\n" : "خط e\u{301} 📝.\r\n"
+  let text =
+    String(format: "tab-%010d\r\n", index) + String(repeating: line, count: 256 * 1024 / 16 - 1)
+  XCTAssertEqual(text.utf8.count, 256 * 1024)
+  return text
 }

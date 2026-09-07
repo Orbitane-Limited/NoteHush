@@ -16,7 +16,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var statusActive = false
   private(set) var metrics: TextMetrics?
   let editor: NSTextView
-  let scrollView = NSScrollView()
+  let scrollView: NSScrollView
   var onChange: (() -> Void)?
   var onStatusChange: (() -> Void)?
   private let history = UndoManager()
@@ -41,12 +41,17 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     capturedSnapshot = snapshot
     let storage = NSTextStorage()
     let layout = NSLayoutManager()
+    // Hidden tabs must not eagerly typeset their full text. AppKit lays out
+    // visible or explicitly requested character ranges when they are needed.
+    layout.allowsNonContiguousLayout = true
+    layout.backgroundLayoutEnabled = false
     let container = NSTextContainer(
       containerSize: NSSize(width: 900, height: CGFloat.greatestFiniteMagnitude))
     storage.addLayoutManager(layout)
     layout.addTextContainer(container)
-    editor = NSTextView(
-      frame: NSRect(x: 0, y: 0, width: 900, height: 500), textContainer: container)
+    let initialFrame = NSRect(x: 0, y: 0, width: 900, height: 500)
+    editor = NSTextView(frame: initialFrame, textContainer: container)
+    scrollView = NSScrollView(frame: initialFrame)
     super.init()
     editor.isRichText = false
     editor.importsGraphics = false
@@ -67,6 +72,13 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     container.widthTracksTextView = true
     editor.setAccessibilityLabel(String(localized: "Note text"))
     editor.setAccessibilityIdentifier("note-editor")
+    scrollView.hasVerticalScroller = true
+    scrollView.autohidesScrollers = true
+    scrollView.translatesAutoresizingMaskIntoConstraints = false
+    // Attaching a populated NSTextView invalidates its content style and can
+    // force expensive bidirectional layout before any tab is shown.
+    scrollView.documentView = editor
+    applyPreferences(preferences)
     editor.string = snapshot.text
     let selection = snapshot.selection.clamped(toUTF16Length: storage.length)
     editor.setSelectedRange(NSRange(location: selection.location, length: selection.length))
@@ -74,15 +86,10 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     NotificationCenter.default.addObserver(
       self, selector: #selector(storageDidProcessEditing),
       name: NSTextStorage.didProcessEditingNotification, object: storage)
-    scrollView.hasVerticalScroller = true
-    scrollView.autohidesScrollers = true
-    scrollView.translatesAutoresizingMaskIntoConstraints = false
-    scrollView.documentView = editor
     scrollView.contentView.postsBoundsChangedNotifications = true
     NotificationCenter.default.addObserver(
       self, selector: #selector(scrolled), name: NSView.boundsDidChangeNotification,
       object: scrollView.contentView)
-    applyPreferences(preferences)
     refreshDirtyState()
   }
 
@@ -269,7 +276,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     }
     editor.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
     configureWrapping()
-    guard let layout = editor.layoutManager, let container = editor.textContainer,
+    guard let layout = editor.layoutManager, editor.textContainer != nil,
       !editor.string.isEmpty
     else {
       editor.setFrameOrigin(.zero)
@@ -280,11 +287,13 @@ final class EditorTab: NSObject, NSTextViewDelegate {
       savedScroll.flatMap { $0.offset.isFinite ? $0 : nil }
       ?? TextScrollPosition(anchor: 0, offset: -editor.textContainerInset.height)
     let anchor = min(max(position.anchor, 0), editor.string.utf16.count - 1)
-    layout.ensureLayout(forCharacterRange: NSRange(location: 0, length: anchor + 1))
+    // Native scrolling lays out the anchor's visible area and updates its
+    // estimated geometry before we apply the saved offset. A single-character
+    // layout request can leave that offset pointing at a different line.
+    editor.scrollRangeToVisible(NSRange(location: anchor, length: 1))
+    editor.sizeToFit()
     let glyph = layout.glyphIndexForCharacter(at: anchor)
     let line = layout.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
-    layout.ensureLayout(for: container)
-    editor.sizeToFit()
     // NSText sizes about its previous top edge while detached. The scroll
     // document must start at zero before clip-view constraints are applied.
     editor.setFrameOrigin(.zero)
