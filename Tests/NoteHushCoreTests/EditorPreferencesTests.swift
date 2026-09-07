@@ -40,11 +40,7 @@ final class EditorPreferencesTests: XCTestCase {
   func testSchemaThreeMigratesPreferencesKeepingExactPreviousGeneration() async throws {
     let fixture = try RecoveryFixture()
     let original = fixture.snapshot(revision: 1, text: "legacy\r\nاردو 👩🏽‍💻")
-    try await fixture.store.commit(original)
-    var envelope = try XCTUnwrap(
-      JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    envelope["version"] = 3
-    let legacy = try JSONSerialization.data(withJSONObject: envelope)
+    let legacy = try legacyRecoveryEnvelope(original, version: 3)
     for name in [RecoveryStore.primaryName, RecoveryStore.previousName] {
       try legacy.write(to: fixture.directory.appending(path: name))
     }
@@ -71,6 +67,6 @@ final class EditorPreferencesTests: XCTestCase {
       try Data(contentsOf: fixture.directory.appending(path: RecoveryStore.previousName)), legacy)
     let current = try XCTUnwrap(
       JSONSerialization.jsonObject(with: Data(contentsOf: fixture.primary)) as? [String: Any])
-    XCTAssertEqual(current["version"] as? Int, 5)
+    XCTAssertEqual(current["version"] as? Int, 6)
   }
 }

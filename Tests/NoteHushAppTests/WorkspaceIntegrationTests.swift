@@ -126,6 +126,12 @@ private struct UnwritableRecoveryFiles: RecoveryFiles {
   func writeAtomically(_ data: Data, named name: String) throws {
     throw RecoveryError.storageUnavailable
   }
+  func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+    try base.fingerprint(name)
+  }
+  func names() throws -> [String] { try base.names() }
+  func remove(_ name: String) throws { try base.remove(name) }
+
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
   }

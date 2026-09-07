@@ -10,6 +10,9 @@ enum RecoveryBenchmark {
     var bytesRead = 0
     var bytesWritten = 0
     var writes = 0
+    var fingerprints = 0
+    var listings = 0
+    var removals = 0
   }
 
   struct Distribution: Encodable {
@@ -31,6 +34,9 @@ enum RecoveryBenchmark {
     let bytesRead: Distribution
     let bytesWritten: Distribution
     let writes: Distribution
+    let fingerprints: Distribution
+    let listings: Distribution
+    let removals: Distribution
   }
 
   struct Scenario: Encodable {
@@ -42,7 +48,7 @@ enum RecoveryBenchmark {
   }
 
   struct Report: Encodable {
-    let schema = 1
+    let schema = 2
     let measuredAt = Date().ISO8601Format()
     let operatingSystem = ProcessInfo.processInfo.operatingSystemVersionString
     let logicalProcessors = ProcessInfo.processInfo.processorCount
@@ -97,6 +103,9 @@ enum RecoveryBenchmark {
       var reads: [Double] = []
       var writes: [Double] = []
       var counts: [Double] = []
+      var fingerprints: [Double] = []
+      var listings: [Double] = []
+      var removals: [Double] = []
       for sample in 0..<20 {
         if operation != "restore" {
           snapshot.revision += 1
@@ -119,6 +128,9 @@ enum RecoveryBenchmark {
         reads.append(Double(count.bytesRead))
         writes.append(Double(count.bytesWritten))
         counts.append(Double(count.writes))
+        fingerprints.append(Double(count.fingerprints))
+        listings.append(Double(count.listings))
+        removals.append(Double(count.removals))
         if operation == "restore" {
           try verify(restored, expected: snapshot)
         } else {
@@ -128,7 +140,9 @@ enum RecoveryBenchmark {
       results.append(
         Measurement(
           operation: operation, milliseconds: Distribution(timings), bytesRead: Distribution(reads),
-          bytesWritten: Distribution(writes), writes: Distribution(counts)))
+          bytesWritten: Distribution(writes), writes: Distribution(counts),
+          fingerprints: Distribution(fingerprints), listings: Distribution(listings),
+          removals: Distribution(removals)))
     }
     return Scenario(
       openTabs: open, closedTabs: closed, bytesPerTab: byteCount, samples: 20,
@@ -167,6 +181,19 @@ enum RecoveryBenchmark {
     }
 
     func synchronizeDirectory() throws { try base.synchronizeDirectory() }
+
+    func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+      counters.withLock { $0.fingerprints += 1 }
+      return try base.fingerprint(name)
+    }
+    func names() throws -> [String] {
+      counters.withLock { $0.listings += 1 }
+      return try base.names()
+    }
+    func remove(_ name: String) throws {
+      try base.remove(name)
+      counters.withLock { $0.removals += 1 }
+    }
 
     func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
       try base.withExclusiveAccess(operation)

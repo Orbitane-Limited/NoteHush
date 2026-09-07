@@ -14,6 +14,21 @@ def read_plist(path):
         return plistlib.load(stream)
 
 
+def validate_privacy(privacy):
+    if (privacy.get("NSPrivacyTracking") is not False
+            or privacy.get("NSPrivacyTrackingDomains") != []
+            or privacy.get("NSPrivacyCollectedDataTypes") != []):
+        raise ValueError("Privacy metadata no longer matches the no-collection product contract")
+    accesses = privacy.get("NSPrivacyAccessedAPITypes", [])
+    if (len(accesses) != 1
+            or accesses[0].get("NSPrivacyAccessedAPIType") != "NSPrivacyAccessedAPICategoryFileTimestamp"):
+        raise ValueError("Declare the audited file-metadata API category")
+    reasons = accesses[0].get("NSPrivacyAccessedAPITypeReasons", [])
+    # User-selected files and private recovery files are separate approved uses.
+    if len(reasons) != 2 or set(reasons) != {"3B52.1", "C617.1"}:
+        raise ValueError("Declare both user-granted and app-container file metadata access")
+
+
 def main():
     version_file = (ROOT / "Config/Version.xcconfig").read_text()
     version = re.search(r"^MARKETING_VERSION = (\d+\.\d+\.\d+)$", version_file, re.M)
@@ -28,8 +43,7 @@ def main():
     if set(entitlements) - allowed:
         raise ValueError("Review and document any expanded entitlements before changing this allowlist")
     privacy = read_plist(ROOT / "App/NoteHush/Resources/PrivacyInfo.xcprivacy")
-    if privacy.get("NSPrivacyTracking") is not False or privacy.get("NSPrivacyCollectedDataTypes") != []:
-        raise ValueError("Privacy metadata no longer matches the no-collection product contract")
+    validate_privacy(privacy)
     roadmap = json.loads((ROOT / "docs/roadmap.json").read_text())
     identifiers = {item["id"] for item in roadmap["issues"]}
     for item in roadmap["issues"]:

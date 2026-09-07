@@ -24,6 +24,8 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var restoring = false
   private var observingScroll = false
   private var preferences = EditorPreferences()
+  private var capturedSnapshot: TabSnapshot
+  private var textCaptureInvalidated = false
 
   init(
     snapshot: TabSnapshot, preferences: EditorPreferences = EditorPreferences(),
@@ -36,6 +38,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     metrics = snapshot.text.isEmpty ? .empty : nil
     isDirty = !snapshot.text.isEmpty
     savedScroll = snapshot.scroll
+    capturedSnapshot = snapshot
     let storage = NSTextStorage()
     let layout = NSLayoutManager()
     let container = NSTextContainer(
@@ -65,9 +68,12 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.setAccessibilityLabel(String(localized: "Note text"))
     editor.setAccessibilityIdentifier("note-editor")
     editor.string = snapshot.text
-    let selection = snapshot.selection.clamped(toUTF16Length: editor.string.utf16.count)
+    let selection = snapshot.selection.clamped(toUTF16Length: storage.length)
     editor.setSelectedRange(NSRange(location: selection.location, length: selection.length))
     editor.delegate = self
+    NotificationCenter.default.addObserver(
+      self, selector: #selector(storageDidProcessEditing),
+      name: NSTextStorage.didProcessEditingNotification, object: storage)
     scrollView.hasVerticalScroller = true
     scrollView.autohidesScrollers = true
     scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -117,6 +123,14 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   }
 
   func undoManager(for view: NSTextView) -> UndoManager? { history }
+  @objc private func storageDidProcessEditing(_ notification: Notification) {
+    guard let storage = notification.object as? NSTextStorage,
+      storage.editedMask.contains(.editedCharacters)
+    else { return }
+    // Covers direct storage changes, undo and input-method edits as well as
+    // NSTextView delegate callbacks. Presentation-only changes keep the text identity.
+    textCaptureInvalidated = true
+  }
   func textDidChange(_ notification: Notification) {
     contentRevision &+= 1
     isDirty = file != nil || !editor.string.isEmpty
@@ -176,10 +190,19 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   func snapshot(isVisible: Bool) -> TabSnapshot {
     if isVisible && observingScroll { captureScroll() }
     let range = editor.selectedRange()
-    return TabSnapshot(
-      id: id, title: title, text: editor.string,
-      selection: TextSelection(location: range.location, length: range.length)
-        .clamped(toUTF16Length: editor.string.utf16.count), scroll: savedScroll, file: file)
+    // A caller can capture inside beginEditing/endEditing before the storage
+    // notification is delivered. Its pending character mask must invalidate too.
+    if textCaptureInvalidated || editor.textStorage?.editedMask.contains(.editedCharacters) == true
+    {
+      capturedSnapshot.text = editor.string
+      textCaptureInvalidated = false
+    }
+    capturedSnapshot.title = title
+    capturedSnapshot.selection = TextSelection(location: range.location, length: range.length)
+      .clamped(toUTF16Length: editor.textStorage?.length ?? 0)
+    capturedSnapshot.scroll = savedScroll
+    capturedSnapshot.file = file
+    return capturedSnapshot
   }
 
   func bind(_ binding: FileBinding, grantedURL: URL) {

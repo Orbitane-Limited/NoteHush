@@ -36,7 +36,10 @@ final class RecoveryWorkspaceTests: XCTestCase {
     let evidence = try FileManager.default.contentsOfDirectory(
       at: root, includingPropertiesForKeys: nil
     )
-    .filter { $0.lastPathComponent.hasPrefix("damaged-") }
+    .filter {
+      $0.lastPathComponent.hasPrefix("damaged-")
+        && $0.lastPathComponent.hasSuffix("--session.json")
+    }
     XCTAssertEqual(evidence.count, 1)
     XCTAssertEqual(try Data(contentsOf: XCTUnwrap(evidence.first)), damaged)
   }
@@ -72,6 +75,10 @@ final class RecoveryWorkspaceTests: XCTestCase {
       try retryButton(workspace).performClick(nil)
       await workspace.waitUntilLoaded()
       XCTAssertTrue(workspace.tabs.isEmpty)
+      for name in try FileManager.default.contentsOfDirectory(atPath: root.path)
+      where name.hasPrefix("blob-") {
+        originals[name] = try Data(contentsOf: root.appending(path: name))
+      }
       let exported = try JSONDecoder().decode(
         [String: Data].self, from: await store.exportGenerations())
       XCTAssertEqual(exported, originals)
@@ -84,7 +91,9 @@ final class RecoveryWorkspaceTests: XCTestCase {
       await retried.waitUntilLoaded()
       XCTAssertFalse(retried.canEditFiles)
       // Repair only this generated fixture; Retry must actually reload it.
-      for name in originals.keys { try valid.write(to: root.appending(path: name)) }
+      for name in ["session.json", "session.previous.json"] {
+        try valid.write(to: root.appending(path: name))
+      }
       try retryButton(retried).performClick(nil)
       await retried.waitUntilLoaded()
       XCTAssertEqual(retried.selectedTab?.editor.string, seed.tabs[0].text)
@@ -184,6 +193,12 @@ private struct SwitchableRecoveryFiles: RecoveryFiles {
     if failing.withLock({ $0 }) { throw RecoveryError.storageUnavailable }
     try base.synchronizeDirectory()
   }
+  func fingerprint(_ name: String) throws -> RecoveryFileFingerprint? {
+    try base.fingerprint(name)
+  }
+  func names() throws -> [String] { try base.names() }
+  func remove(_ name: String) throws { try base.remove(name) }
+
   func withExclusiveAccess<T>(_ operation: () throws -> T) throws -> T {
     try base.withExclusiveAccess(operation)
   }

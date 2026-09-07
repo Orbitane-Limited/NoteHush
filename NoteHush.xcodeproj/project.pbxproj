@@ -15,6 +15,7 @@
 		1252895B931E483DC91794F8 /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = CD0700D001813D43C7F3EB2F /* NoteHushCore */; };
 		159F14997145375F752A2B78 /* EditorPreferences+AppKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64806345D19229EAF0DF9FFF /* EditorPreferences+AppKit.swift */; };
 		198187624E9BF8482512A2F0 /* WorkspaceFileResolution.swift in Sources */ = {isa = PBXBuildFile; fileRef = A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */; };
+		1A646331D66BB3313062C612 /* EditorSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A658B0E0BD4C5B999423295C /* EditorSnapshotTests.swift */; };
 		203C5328C43B0B564B01F2B3 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0138E69BDE06082791FC37 /* TabBarView.swift */; };
 		35514349B6D8DA3C0511E8B8 /* WorkspacePrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB03280CD7B09201257121 /* WorkspacePrinter.swift */; };
 		44643BD5EA82FFDBB140F1A5 /* WorkspaceNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */; };
@@ -91,6 +92,7 @@
 		8C620622CB0DE79507944B40 /* EditorTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTab.swift; sourceTree = "<group>"; };
 		8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		916A239972126C756C35492B /* PreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesTests.swift; sourceTree = "<group>"; };
+		A658B0E0BD4C5B999423295C /* EditorSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSnapshotTests.swift; sourceTree = "<group>"; };
 		A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFileResolution.swift; sourceTree = "<group>"; };
 		C539EC3106341E358550D819 /* PreferencesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesUITests.swift; sourceTree = "<group>"; };
 		C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintDocumentView.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				641B0BAAB841EBA1AEF7C3B6 /* EditorNavigationTests.swift */,
+				A658B0E0BD4C5B999423295C /* EditorSnapshotTests.swift */,
 				CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */,
 				0F7EF74D0EC9AD8C79B81A40 /* FileWorkspaceTests.swift */,
 				916A239972126C756C35492B /* PreferencesTests.swift */,
@@ -433,6 +436,7 @@
 			files = (
 				E4885FC473115E2383C944E0 /* EditorNavigationTests.swift in Sources */,
 				018C0EF905AEAB427FDA1819 /* EditorPreferences+AppKit.swift in Sources */,
+				1A646331D66BB3313062C612 /* EditorSnapshotTests.swift in Sources */,
 				5C2B03118993D43B145A12AA /* EditorStatusView.swift in Sources */,
 				F4DCC850BBDEA777A405D8A6 /* EditorTab.swift in Sources */,
 				94366F4B434DC2C9AD12A569 /* FileResolutionTests.swift in Sources */,
