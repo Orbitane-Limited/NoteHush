@@ -29,6 +29,21 @@ def validate_privacy(privacy):
         raise ValueError("Declare both user-granted and app-container file metadata access")
 
 
+def validate_undo_diagnostic_exclusion(binary):
+    if any(marker in binary for marker in (
+            b"NOTEHUSH_UNDO_DIAGNOSTICS", b"UndoDiagnosticProbe", b"undo-diagnostic-")):
+        raise ValueError("Isolated Undo diagnostics reached a non-diagnostic executable")
+
+
+def validate_undo_diagnostic_bundle(executable):
+    # With ENABLE_DEBUG_DYLIB, the executable is a launcher and the actual app
+    # code lives beside it. Checking only the launcher would miss the probe.
+    for artifact in [executable, *sorted(executable.parent.glob("*.dylib"))]:
+        if artifact.is_symlink() or not artifact.is_file():
+            raise ValueError("Expected a regular app code artifact")
+        validate_undo_diagnostic_exclusion(artifact.read_bytes())
+
+
 def main():
     version_file = (ROOT / "Config/Version.xcconfig").read_text()
     version = re.search(r"^MARKETING_VERSION = (\d+\.\d+\.\d+)$", version_file, re.M)
@@ -68,6 +83,7 @@ def main():
             raise ValueError("The release archive must not enable performance controls")
         executable = contents / "MacOS/NoteHush"
         binary = executable.read_bytes()
+        validate_undo_diagnostic_bundle(executable)
         if any(marker in binary for marker in (
                 b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready")):
             raise ValueError("Test workspace controls or readiness instrumentation reached the release executable")

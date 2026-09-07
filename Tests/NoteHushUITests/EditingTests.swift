@@ -12,6 +12,14 @@ final class EditingTests: XCTestCase {
     executionTimeAllowance = 90
     app = XCUIApplication()
     app.launchEnvironment["NOTEHUSH_TEST_WORKSPACE"] = UUID().uuidString
+    if ProcessInfo.processInfo.environment["NOTEHUSH_UNDO_DIAGNOSTICS"] == "1" {
+      app.launchEnvironment["NOTEHUSH_UNDO_DIAGNOSTICS"] = "1"
+      let identifier = try XCTUnwrap(app.launchEnvironment["NOTEHUSH_TEST_WORKSPACE"])
+      let attachment = XCTAttachment(string: identifier)
+      attachment.name = "Isolated Undo diagnostic workspace"
+      attachment.lifetime = .keepAlways
+      add(attachment)
+    }
     root = FileManager.default.temporaryDirectory.appending(path: "NoteHushEditingTests-\(UUID())")
     try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
     // Native Find uses the shared Find pasteboard. Preserve it without logging
