@@ -1,6 +1,6 @@
 # Native folder-panel input investigation
 
-Issue [#50](https://github.com/Orbitane-Limited/NoteHush/issues/50), NoteHush 0.1.0 (1). This candidate changes only native UI-test setup. It removes the Go to Folder helper's click and Select All operation, enters the same generated path in the field's initial selection, and checks the complete field value before Return. App code, sandbox entitlements, file fixtures, original content/recovery assertions and one-minute test limits are unchanged. Native validation is pending; this is not yet a verified correction.
+Issue [#50](https://github.com/Orbitane-Limited/NoteHush/issues/50), NoteHush 0.1.0 (1). This candidate changes only native UI-test setup. It removes the Go to Folder helper's click and Select All operation, enters the same generated path in the field's initial selection, and checks the complete field value before Return. App code, sandbox entitlements, file fixtures, original content/recovery assertions and one-minute test limits are unchanged. All three focused native cases pass; complete final-head CI remains required.
 
 ## Retained failure
 
@@ -22,4 +22,18 @@ Before acceptance, the dedicated native Open/Save As, bookmark and relink cases 
 
 Strict formatting of both changed Swift files, configuration/link validation and diff checks pass. Build-for-testing also passes, followed by re-signing and verification of exactly the four product entitlements. The build did not launch the app or a test. Evidence is in this issue checkout's `build/logs/native-folder-build.log` and `test-app-entitlements.plist`. This was the candidate on the main base above with its two helper changes uncommitted; compilation does not verify the native field-selection assumption.
 
-The first 20-minute operator input window ended after CI attempt 3. A further awake/unlocked exclusive-input window has been requested for native validation. No new native run or performance measurement is started while that clarification is pending. The branch can be retained remotely, but creating its PR would automatically start GUI CI, so PR creation follows the input-window confirmation.
+The first 20-minute operator input window ended after CI attempt 3. The branch was retained remotely without opening a PR or starting another GUI run while a further window was pending. The user instructed continuation at approximately 14:39 UTC after the next explicit awake/unlocked exclusive-input request. Actual input was not continuously monitored. The self-hosted runner was online/idle, no isolated NoteHush test process was active, and storage passed before and after building (122,859,163,648 bytes free after building versus 49,438,479,565 required).
+
+## Focused native validation
+
+Clean source `d81393144e5f55c7d93d627314b214a0f0294273` rebuilt successfully with Xcode's `build-for-testing`, then ran the three cases below through `test-without-building` in `DebugUITesting`, arm64, with parallel testing disabled and the unchanged 30-second default/60-second maximum allowances. The app executable SHA-256 was `a209098a0535ba6cf382709d470f0b64208dbc6ec54b568957c159198f1cfe6f`. Re-signing and exact product-entitlement verification passed before testing, and a fresh signature/entitlement check passed afterward.
+
+| Native case | Result | Duration |
+| --- | --- | ---: |
+| `FileAccessTests.testBookmarkFollowsMoveAcrossFoldersAfterRestartAndRefreshesAfterSave` | Pass | 34.531 s |
+| `FileAccessTests.testDeletedFileRelinkThenSaveAsKeepsDraftAndOtherFile` | Pass | 29.970 s |
+| `FilePanelTests.testNativeOpenAndSaveAsPreserveMixedNewlinesAndChosenExtension` | Pass | 35.910 s |
+
+The completed xcresult reports three passes, zero failures and zero skipped tests. The exact-path assertions demonstrate that the initial field selection accepted replacement text in both helpers and across the Relink/Save As flow on this host. Every existing source/destination byte and restart assertion remains intact. These are functional observations, not a controlled performance comparison or proof against every future input interruption.
+
+Evidence remains in this checkout's `build/logs/NativeFolder-10281D10-0B91-4B89-BD76-B55571762D9B.xcresult`, `native-folder-focus-build.log`, `native-folder-focus-tests.log`, and the adjacent provenance/summary JSON files. No disposable volume fixture was needed for this focused selection; complete CI must still execute the mounted and offline phases and all remaining checks. The PR remains draft until its exact final source passes those requirements and review feedback is resolved.
