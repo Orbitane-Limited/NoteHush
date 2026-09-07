@@ -2,6 +2,10 @@
 
 ## Unreleased — 0.1.0 development
 
+### Fixed
+
+- Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
+
 ### Added
 
 - Product research, requirements, technical design, testing and App Store release plan.
