@@ -1,6 +1,6 @@
 # Signed App Store delivery
 
-Status: pipeline implementation prepared under issue #14. No Store identity, profile, protected signing environment, app record, signed upload or installed TestFlight result has been verified. Engineering version remains `0.1.0 (1)`; this document does not certify version 1 readiness.
+Status: pipeline implementation prepared under sub-issue #52 of release gate #14. Integrate #52 through its own passing, reviewed PR before the main-only workflow can run. Keep #14 open for real signing and TestFlight acceptance. No Store identity, profile, protected signing environment, app record, signed upload or installed TestFlight result has been verified. Engineering version remains `0.1.0 (1)`; this document does not certify version 1 readiness.
 
 The separate [App Store workflow](../.github/workflows/app-store.yml) runs only through manual dispatch on current `main`. The existing engineering delivery workflow continues to produce explicitly unsigned artifacts. Signing credentials are never available to pull-request jobs.
 

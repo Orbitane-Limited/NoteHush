@@ -1,6 +1,6 @@
 # Store delivery preparation — 2026-09-08
 
-Issue: #14. Implementation commit: `5c40f984f20857e0fbb13431cd0b4d212af046e5`, branch `issue-14/app-store-delivery`, based on main `2c786fac01a59e548475c20f985050c0a430e992`. Local date is 2026-09-08 in Asia/Karachi; execution occurred on 2026-09-07 UTC.
+Implementation sub-issue: #52; parent release gate: #14. Implementation commit: `5c40f984f20857e0fbb13431cd0b4d212af046e5`, branch `issue-52/app-store-delivery`, based on main `2c786fac01a59e548475c20f985050c0a430e992`. This branch was renamed from `issue-14/app-store-delivery` when implementation and live distribution acceptance were separated. Its code and recorded validation are unchanged. Local date is 2026-09-08 in Asia/Karachi; execution occurred on 2026-09-07 UTC.
 
 ## Prepared behavior
 
