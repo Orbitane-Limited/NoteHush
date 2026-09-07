@@ -13,9 +13,13 @@ spec.loader.exec_module(module)
 class PerformanceMetricsTests(unittest.TestCase):
     def fixture(self):
         return [{"testIdentifier": f"LaunchPerformanceTests/{name}()", "testRuns": [{"metrics": [
-            {"displayName": "Application Launch", "identifier": "launch", "unitOfMeasurement": "s",
+            {"displayName": "Duration (ApplicationLaunch)",
+             "identifier": "com.apple.dt.XCTMetric_ApplicationLaunch-ApplicationLaunch.duration",
+             "unitOfMeasurement": "s",
              "measurements": list(range(1, 21))},
-            {"displayName": "ProcessToEditorReady", "identifier": "ready", "unitOfMeasurement": "ms",
+            {"displayName": "Duration (ProcessToEditorReady)",
+             "identifier": "com.apple.dt.XCTMetric_OSSignpost-ProcessToEditorReady.duration",
+             "unitOfMeasurement": "s",
              "measurements": [500] + list(range(1, 20))},
         ]}]} for name in sorted(module.SCENARIOS)]
 
@@ -26,7 +30,7 @@ class PerformanceMetricsTests(unittest.TestCase):
             self.assertEqual(launch["unit"], "s")
             self.assertEqual(launch["median"], 10.5)
             self.assertEqual(launch["p95"], 19)
-            self.assertEqual(ready["unit"], "ms")
+            self.assertEqual(ready["unit"], "s")
             self.assertEqual(ready["samples"][0], 500)
             self.assertEqual(ready["count"], 20)
             self.assertEqual(ready["p95"], 19)
@@ -54,6 +58,24 @@ class PerformanceMetricsTests(unittest.TestCase):
                 module.summarize(tests)
         tests = self.fixture()
         tests[0]["testRuns"][0]["metrics"][0]["unitOfMeasurement"] = ""
+        with self.assertRaises(ValueError):
+            module.summarize(tests)
+
+    def testRejectsDifferentLaunchBoundaryUnknownUnitsAndAdditionalMetrics(self):
+        for field, value in [
+            ("identifier", "com.apple.dt.XCTMetric_ApplicationLaunch-ApplicationFirstFramePresentationResponsive.duration"),
+            ("identifier", "unrecognized-launch-interval"),
+            ("unitOfMeasurement", "ms"),
+        ]:
+            tests = self.fixture()
+            tests[0]["testRuns"][0]["metrics"][0][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                module.summarize(tests)
+        tests = self.fixture()
+        tests[0]["testRuns"][0]["metrics"].append({
+            "displayName": "Extra launch", "identifier": "extra-launch", "unitOfMeasurement": "s",
+            "measurements": [1] * 20,
+        })
         with self.assertRaises(ValueError):
             module.summarize(tests)
 

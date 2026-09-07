@@ -65,8 +65,11 @@ final class LaunchPerformanceTests: XCTestCase {
     options.invocationOptions = .manuallyStop
     let readiness = XCTOSSignpostMetric(
       subsystem: bundleID, category: "Readiness", name: "ProcessToEditorReady")
+    // Report first-frame display separately from actual editor readiness. The
+    // responsive-launch variant omitted observations on the recorded toolchain;
+    // it is a different interval, not a fallback source for missing samples.
     measure(
-      metrics: [XCTApplicationLaunchMetric(waitUntilResponsive: true), readiness], options: options
+      metrics: [XCTApplicationLaunchMetric(waitUntilResponsive: false), readiness], options: options
     ) {
       XCTAssertEqual(app.state, .notRunning, "Every measurement must begin with a fresh process")
       app.launch()

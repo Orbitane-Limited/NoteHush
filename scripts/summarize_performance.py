@@ -9,6 +9,10 @@ import re
 import statistics
 
 SCENARIOS = {"testEmptyWorkspaceLaunch", "testFiveMiBWorkspaceLaunch", "testThirtyMiBWorkspaceLaunch"}
+METRICS = {
+    "com.apple.dt.XCTMetric_ApplicationLaunch-ApplicationLaunch.duration": "s",
+    "com.apple.dt.XCTMetric_OSSignpost-ProcessToEditorReady.duration": "s",
+}
 
 
 def summarize(tests):
@@ -28,12 +32,14 @@ def summarize(tests):
         for metric in runs[0]["metrics"]:
             display = metric["displayName"]
             unit = metric["unitOfMeasurement"]
-            identity = metric.get("identifier", display)
+            identity = metric["identifier"]
             values = metric["measurements"]
             if not all(isinstance(item, str) and item for item in [display, unit, identity]):
                 raise ValueError("Every metric needs a name, identity and explicit unit")
             if identity in identities:
                 raise ValueError("Duplicate metric identity")
+            if identity not in METRICS or unit != METRICS[identity]:
+                raise ValueError("Unexpected metric interval or unit; review the measurement protocol")
             identities.add(identity)
             if (not isinstance(values, list) or len(values) < 20
                     or any(type(v) not in (float, int) or not math.isfinite(v) or v < 0 for v in values)):
@@ -42,11 +48,8 @@ def summarize(tests):
                             "count": len(values), "samples": values,
                             "median": statistics.median(values),
                             "p95": sorted(values)[math.ceil(0.95 * len(values)) - 1]})
-        labels = [f"{m['name']} {m['identifier']}".lower() for m in metrics]
-        if not any("processtoeditorready" in name for name in labels):
-            raise ValueError("Editor-readiness signpost measurements are missing")
-        if not any("launch" in name and "processtoeditorready" not in name for name in labels):
-            raise ValueError("Application launch measurements are missing")
+        if identities != set(METRICS):
+            raise ValueError("Require exactly the first-frame and editor-readiness intervals")
         results[name] = metrics
     if set(results) != SCENARIOS:
         raise ValueError("All three workspace scenarios must have measurements")
