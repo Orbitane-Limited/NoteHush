@@ -1,0 +1,70 @@
+# Signed App Store delivery
+
+Status: pipeline implementation prepared under sub-issue #52 of release gate #14. Integrate #52 through its own passing, reviewed PR before the main-only workflow can run. Keep #14 open for real signing and TestFlight acceptance. No Store identity, profile, protected signing environment, app record, signed upload or installed TestFlight result has been verified. Engineering version remains `0.1.0 (1)`; this document does not certify version 1 readiness.
+
+The separate [App Store workflow](../.github/workflows/app-store.yml) runs only through manual dispatch on current `main`. The existing engineering delivery workflow continues to produce explicitly unsigned artifacts. Signing credentials are never available to pull-request jobs.
+
+## Publisher setup
+
+Confirm the registered seller, Apple Developer team and `pk.codehub.NoteHush` bundle identifier before reserving the explicit App ID or creating the App Store Connect record. Confirm the app's numeric Apple ID after creating that record. No app record or certificate is created by this workflow, and `-allowProvisioningUpdates` is deliberately absent: delivery uses the reviewed assets supplied to it.
+
+Prepare an Apple Distribution or Mac App Distribution application identity, a Mac Installer Distribution identity, and a Mac App Store Connect provisioning profile for the explicit App ID. Both certificates need their private keys. Export those two identities together to a password-protected PKCS#12. A Developer ID Application identity signs software distributed outside the Store and cannot satisfy this pipeline. See Apple's [certificate roles](https://developer.apple.com/help/account/certificates/certificates-overview) and [Store profile setup](https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile/).
+
+Create a team App Store Connect API key with the least role/app access that permits reading this app's builds and uploading its binary. This implementation uses a team key with an issuer UUID; individual keys use different JWT claims and are not supported. Keep the downloaded `.p8`, PKCS#12 and passwords in approved secret storage, never in chat, an issue, a PR or a tracked file. The API key's read-only preflight tokens expire after five minutes and are scoped to this app's identity/build-list endpoints. The upload tool uses the same key for the separately authorized upload operation. Apple documents [API tokens](https://developer.apple.com/documentation/appstoreconnectapi/generating-tokens-for-api-requests) and [binary upload](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/).
+
+Configure an `app-store` GitHub environment with required reviewers, prevention of self-review, administrator bypass disabled, and a deployment branch restriction to `main`. The preflight verifies the documented REST fields for reviewer configuration; bypass and branch restrictions must also be inspected in the repository settings. The workflow independently refuses every ref except current main. Environment protection must be available on the repository's plan: a missing or unverifiable rule stops delivery. Do not replace it with repository-wide signing secrets. GitHub documents [plan-dependent protection and secrets](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments) and the [environment REST response](https://docs.github.com/en/rest/deployments/environments).
+
+As of the initial inspection on 2026-09-07 UTC, this repository had no release environment or Actions secret names. Previous branch-protection attempts returned a plan restriction. Configuring a protected signing environment remains unverified; source files do not enable repository protection by themselves. If the current plan cannot enforce the required delivery gate, resolve that publisher/repository configuration before enabling this workflow. Do not claim enforcement that is unavailable.
+
+Set these **environment variables** after confirming the publisher's assets:
+
+| Variable | Value |
+| --- | --- |
+| `STORE_TEAM_ID` | Ten-character Apple Developer team ID |
+| `STORE_CONFIRMED_BUNDLE_ID` | `pk.codehub.NoteHush`, after publisher confirmation |
+| `STORE_APP_ID` | Numeric Apple ID of the matching App Store Connect record |
+| `STORE_APP_CERTIFICATE_SHA1` | Exact application signing certificate fingerprint, 40 hex characters |
+| `STORE_INSTALLER_CERTIFICATE_SHA1` | Exact installer certificate fingerprint, 40 hex characters |
+| `STORE_INSTALLER_CERTIFICATE_SHA256` | The same installer certificate's SHA-256 fingerprint, 64 hex characters |
+| `STORE_API_KEY_ID` | App Store Connect team API key ID |
+| `STORE_API_ISSUER_ID` | That key's issuer UUID |
+
+Set these **environment secrets** through secure local files or the GitHub settings interface:
+
+| Secret | Value |
+| --- | --- |
+| `STORE_SIGNING_P12_BASE64` | Base64 of the password-protected PKCS#12 containing both signing identities |
+| `STORE_SIGNING_P12_PASSWORD` | PKCS#12 password |
+| `STORE_PROFILE_BASE64` | Base64 of the Mac App Store Connect provisioning profile |
+| `STORE_API_KEY_BASE64` | Base64 of the downloaded App Store Connect `.p8` key |
+
+Base64 must contain no line breaks. Do not print these values to prepare an issue or validation report. Fingerprints and app/team identifiers are configuration identifiers, not substitutes for the private keys.
+
+## Candidate execution
+
+1. Complete the PR workflow and review for the candidate. Run full CI on the merged main commit. Supply that successful **entire** CI run ID to the App Store workflow; passing tests followed by a failed artifact transfer do not qualify.
+2. Confirm the marketing version and globally increasing integer build in `Config/Version.xcconfig`. The workflow queries all App Store build pages, including expired/failed prior builds, and refuses a build number that does not exceed the prior maximum. It repeats the query immediately before upload and disables Xcode's automatic version/build management. An upload failure with an ambiguous server outcome requires inspecting App Store Connect before any retry; never retry until green or reuse an accepted build number.
+3. Dispatch **App Store delivery** from main, with `ci_run_id`. A separate job checks source/CI/environment configuration before the signing job receives secrets. The environment reviewer approves the concrete commit and run. A new main commit during delivery invalidates the candidate; dispatch again after its own CI passes.
+4. The signing job builds a universal Release archive and exports using Xcode's `app-store-connect` method with manual, pinned signing identities. It validates both the archive app and the app extracted from the final `.pkg`: bundle/version/build, minimum OS, exact product permissions, identity entitlements, matching privacy manifest, both architecture signatures, Apple certificate chain, Hardened Runtime, selected leaf certificate, provisioning preflight and absence of test/performance probes and quarantine attributes. It also verifies the package's installer certificate fingerprint.
+5. Apple's upload tool validates the package, then uploads it. Only the signed package, its checksum and an allowlisted report are retained as the workflow artifact. The report explicitly leaves processing, installation and App Review unverified. No GitHub release or App Review submission is performed by this workflow.
+
+The four product permissions remain sandbox, user-selected read/write, app-scoped bookmarks and printing. Store signing also records the matching application/team identity, and may include the profile-authorized `beta-reports-active` distribution marker. Those fields do not authorize additional filesystem or network access. Debug permissions, keychain groups, temporary filesystem exceptions and other undeclared capabilities fail validation. See [Apple's profile and entitlement explanation](https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles). Plist profile checks are diagnostic preflight; Xcode and Apple's upload validation remain authoritative for provisioning, including its DER representation.
+
+This workflow's concurrency group serializes its own deliveries. It cannot lock uploads from another machine, Organizer or another workflow. Use it as the sole upload channel while a candidate is in flight. A server/network error fails the run; it never silently treats an unavailable build listing as empty.
+
+## Credential lifetime and failure handling
+
+The driver creates a private directory under this job's `RUNNER_TEMP`, with mode `0700` and credential files `0600`. It imports keys into a uniquely named temporary keychain, adds only that keychain to the search list, and never changes the user's default keychain. Existing unrelated keychains and provisioning profiles are preserved. The installed profile is linked from an owned inode so cleanup can identify its own file even after an interrupted setup; a preexisting identical profile is reused and retained.
+
+Normal success, Python failure and SIGTERM execute cleanup. The workflow also calls cleanup in an independent `always()` step without signing secrets. Cleanup removes private-key/PKCS#12 copies even if native keychain deletion fails, leaves an ownership record for retry, and fails the run. Cancellation stops build/upload child processes before removing their credentials. A failed native tool's raw diagnostics stay in the ignored, private `build/store-private/` directory and are never uploaded automatically; inspect only the relevant failure and redact account/authority details before sharing.
+
+SIGKILL, power loss or a disconnected runner cannot guarantee executing cleanup. Before reusing the Mac after such an interruption, stop new jobs and inspect the affected run's `NoteHush-Signing-<run ID>-<attempt>` directory under its recorded `RUNNER_TEMP`. Set that run's `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT` and `RUNNER_TEMP`, then run `python3 scripts/store_delivery.py --cleanup` from the reviewed checkout. Cleanup refuses missing/invalid ownership, preserves changed files, and can be rerun. Do not delete all keychains, profiles or runner temporary directories. Resolve any remaining credentials before restarting the runner.
+
+## Checks after upload
+
+- Verify processing in App Store Connect, confirm the uploaded version/build and exported candidate report, then install through TestFlight. An upload command exit code cannot prove these steps.
+- Record fresh installation and upgrade, prompt-free Quit/window close and exact draft restoration, user-selected file access and persistent bookmarks under the production sandbox.
+- From a fresh login/service start, verify Print/Page Setup, cancel/offline behavior, a physical printer and source-file preservation with generated fixtures. Ad-hoc/Xcode test entitlements do not qualify.
+- Finish performance, accessibility, Unicode/IME and supported hardware/OS acceptance, public privacy/support URLs and store metadata. Resolve every release gate before bumping/publishing v1 or submitting the final candidate for review.
+
+Use [TESTING.md](../TESTING.md), [the App Store matrix](APP_STORE.md) and [the release checklist](RELEASING.md). Keep issue #14 open until the real signed/TestFlight acceptance evidence exists.
