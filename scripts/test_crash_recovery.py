@@ -48,10 +48,15 @@ def timed_drills(binary, mode, delays):
 def phase_drills(binary):
     phases = ("temporaryWritten", "fileSynchronized", "renamed", "directorySynchronized")
     count = 0
-    for mode in ("first", "update", "clear"):
-        targets = ("backup", "primary", "cleanup") if mode == "clear" else ("backup", "primary")
+    for mode in ("first", "update", "clear", "migrate", "repair"):
+        targets = ["blob", "backup", "primary"]
+        if mode == "clear":
+            targets += ["cleanup", "reclaim"]
+        if mode == "repair":
+            targets += ["evidenceBlob", "evidenceManifest"]
         for target in targets:
-            for phase in phases:
+            target_phases = ("unlinked", "directorySynchronized") if target == "reclaim" else phases
+            for phase in target_phases:
                 with tempfile.TemporaryDirectory(prefix="NoteHushPhaseTests-") as directory:
                     child = subprocess.Popen(
                         [str(binary), "phase-write", directory, mode, target, phase],
@@ -73,9 +78,9 @@ def phase_drills(binary):
                         restored = int(result.stdout.strip())
                         installed = phase in ("renamed", "directorySynchronized")
                         if mode == "first":
-                            expected = 0 if target == "backup" and not installed else 1
+                            expected = 0 if target == "blob" or (target == "backup" and not installed) else 1
                         else:
-                            expected = 2 if target == "cleanup" or (target == "primary" and installed) else 1
+                            expected = 2 if target in ("cleanup", "reclaim") or (target == "primary" and installed) else 1
                         if restored != expected:
                             raise AssertionError(
                                 f"Unexpected revision at {mode}/{target}/{phase}: {restored} != {expected}")
@@ -101,7 +106,7 @@ def main():
     timed_drills(binary, "write", [0, 0.001, 0.003, 0.006, 0.012, 0.02])
     timed_drills(binary, "continuous", [0, 0.015, 0.05])
     count = phase_drills(binary)
-    if count != 28:
+    if count != 74:
         raise AssertionError("Every configured publication phase must run")
     print(f"{9 + count} {configuration} crash recovery drills passed")
 

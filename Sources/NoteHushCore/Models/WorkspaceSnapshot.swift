@@ -20,7 +20,14 @@ public struct TextSelection: Codable, Equatable, Sendable {
 public struct TabSnapshot: Codable, Equatable, Identifiable, Sendable {
   public let id: UUID
   public var title: String
-  public var text: String
+  private var capturedText: CapturedText
+  public var text: String {
+    get { capturedText.value }
+    set { capturedText = CapturedText(value: newValue) }
+  }
+  // An in-memory identity, never decoded from disk or accepted from a caller.
+  // Copies share it until an assignment creates a new immutable text value.
+  var textIdentity: UUID { capturedText.identity }
   public var selection: TextSelection
   public var scroll: TextScrollPosition?
   public var file: FileBinding?
@@ -32,10 +39,42 @@ public struct TabSnapshot: Codable, Equatable, Identifiable, Sendable {
   ) {
     self.id = id
     self.title = title
-    self.text = text
+    capturedText = CapturedText(value: text)
     self.selection = selection
     self.scroll = scroll
     self.file = file
+  }
+
+  private struct CapturedText: Equatable, Sendable {
+    let value: String
+    let identity = UUID()
+
+    static func == (left: Self, right: Self) -> Bool { left.value == right.value }
+  }
+
+  // Keep the original flat Codable shape for legacy recovery, exports and
+  // independent crash-test oracles. The transient identity is not persistence.
+  private enum CodingKeys: String, CodingKey { case id, title, text, selection, scroll, file }
+
+  public init(from decoder: any Decoder) throws {
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    self.init(
+      id: try values.decode(UUID.self, forKey: .id),
+      title: try values.decode(String.self, forKey: .title),
+      text: try values.decode(String.self, forKey: .text),
+      selection: try values.decode(TextSelection.self, forKey: .selection),
+      scroll: try values.decodeIfPresent(TextScrollPosition.self, forKey: .scroll),
+      file: try values.decodeIfPresent(FileBinding.self, forKey: .file))
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var values = encoder.container(keyedBy: CodingKeys.self)
+    try values.encode(id, forKey: .id)
+    try values.encode(title, forKey: .title)
+    try values.encode(text, forKey: .text)
+    try values.encode(selection, forKey: .selection)
+    try values.encodeIfPresent(scroll, forKey: .scroll)
+    try values.encodeIfPresent(file, forKey: .file)
   }
 }
 
@@ -119,6 +158,12 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
   }
 
   public func validate() throws {
+    try validate(utf16Length: { $0.text.utf16.count })
+  }
+
+  /// Recovery may reuse a length computed from the same immutable text identity.
+  /// The public validator still derives every bound directly from its text.
+  func validate(utf16Length: (TabSnapshot) throws -> Int) throws {
     guard !tabs.isEmpty else { throw WorkspaceValidationError.emptyWorkspace }
     guard Set(tabs.map(\.id)).count == tabs.count else {
       throw WorkspaceValidationError.duplicateTabID
@@ -133,7 +178,8 @@ public struct WorkspaceSnapshot: Codable, Equatable, Sendable {
       Set(allTabs.map(\.id)).count == allTabs.count
     else { throw WorkspaceValidationError.invalidClosedTabs }
     for tab in allTabs {
-      guard tab.selection == tab.selection.clamped(toUTF16Length: tab.text.utf16.count) else {
+      let count = try utf16Length(tab)
+      guard count >= 0, tab.selection == tab.selection.clamped(toUTF16Length: count) else {
         throw WorkspaceValidationError.invalidSelection(tab.id)
       }
     }
