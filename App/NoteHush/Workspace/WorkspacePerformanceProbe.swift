@@ -23,6 +23,14 @@
       self.launch = nil
       window.contentView?.layoutSubtreeIfNeeded()
       window.displayIfNeeded()
+      // Nested AppKit callbacks can also change focus during layout/display.
+      // Keep the interval pending until the actual endpoint has input focus.
+      guard window.isVisible, window.isKeyWindow, editor.isEditable,
+        window.firstResponder === editor
+      else {
+        self.launch = launch
+        return
+      }
       // This is an AppKit readiness boundary, not a display scan-out timestamp.
       signposter.endInterval("ProcessToEditorReady", launch)
       // The view can already be exposed to accessibility during native layout.
