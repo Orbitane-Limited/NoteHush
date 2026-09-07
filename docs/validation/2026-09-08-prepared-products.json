@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "sourceRevision": "03def2051f25a71566038fb5684bbad60ddc8d6b",
+  "sourceClean": true,
+  "nativeGUIExecuted": false,
+  "storeSigned": false,
+  "products": {
+    "debug": {
+      "bundleIdentifier": "pk.codehub.NoteHush.Development",
+      "marketingVersion": "0.1.0",
+      "build": "1",
+      "minimumOS": "14.0",
+      "iconName": "AppIcon",
+      "iconFile": "AppIcon",
+      "nonExemptEncryption": false,
+      "codeArtifacts": [
+        {
+          "name": "NoteHush",
+          "sha256": "cb8ad84d4dd5f704f7cdebc8f33ea84676053dad26886324b8db509f727542e2",
+          "architectures": [
+            "x86_64",
+            "arm64"
+          ]
+        },
+        {
+          "name": "NoteHush.debug.dylib",
+          "sha256": "b4acc1ee31c9c3deb525c7b50a35eda5666e810ad4e07cfd9418ca9a06d36c49",
+          "architectures": [
+            "x86_64",
+            "arm64"
+          ]
+        },
+        {
+          "name": "__preview.dylib",
+          "sha256": "9d106cbca111553fca8c3b15ce4f61b732bca5e9bd9f12b84e2cd62cbd0c03bd",
+          "architectures": [
+            "x86_64",
+            "arm64"
+          ]
+        }
+      ],
+      "undoDiagnosticExcluded": true
+    },
+    "unsignedRelease": {
+      "bundleIdentifier": "pk.codehub.NoteHush",
+      "marketingVersion": "0.1.0",
+      "build": "1",
+      "minimumOS": "14.0",
+      "iconName": "AppIcon",
+      "iconFile": "AppIcon",
+      "nonExemptEncryption": false,
+      "codeArtifacts": [
+        {
+          "name": "NoteHush",
+          "sha256": "55a222e67f2ec44fe4146015686df17eed9c15703c09ea81d3a0968dfcd56266",
+          "architectures": [
+            "x86_64",
+            "arm64"
+          ]
+        }
+      ],
+      "undoDiagnosticExcluded": true
+    },
+    "isolatedPerformance": {
+      "bundleIdentifier": "pk.codehub.NoteHush.PerformanceTesting",
+      "marketingVersion": "0.1.0",
+      "build": "1",
+      "minimumOS": "14.0",
+      "iconName": "AppIcon",
+      "iconFile": "AppIcon",
+      "nonExemptEncryption": false,
+      "codeArtifacts": [
+        {
+          "name": "NoteHushPerformance",
+          "sha256": "33daf1a718c4a36ecfd66b08ba1edcde2522c72c751e8d266911f405b10a85bc",
+          "architectures": [
+            "arm64"
+          ]
+        }
+      ],
+      "undoDiagnosticExcluded": true
+    }
+  }
+}
