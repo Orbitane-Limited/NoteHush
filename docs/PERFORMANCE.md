@@ -21,7 +21,7 @@ Report two separate intervals:
 - `XCTApplicationLaunchMetric(waitUntilResponsive: true)` reports Apple's first-frame/main-thread-responsiveness launch metric. An asynchronous recovery operation can outlast the initial window, so this metric alone does not establish editor readiness.
 - `ProcessToEditorReady` starts in the app entry point after workspace-identity validation and ends after recovery, selected-editor installation, focus, layout and `displayIfNeeded`. This excludes pre-entry loader/LaunchServices work, and its endpoint is an AppKit readiness boundary rather than display scan-out. It must not be relabeled as event-to-visible typing latency or added to an overlapping launch interval.
 
-Static signpost names contain no document content, paths, bookmarks or clipboard data. Selected-tab identity/text checks run after the measured intervals, and all open/closed buffers are verified after the final normal termination. Generated fixture storage is removed only after the owned test app stops. The suite refuses to take over a previously running performance app.
+Static signpost names contain no document content, paths, bookmarks or clipboard data. After the measured intervals, the driver checks selected-tab identity/text, types a generated character into the restored keyboard destination, undoes it and verifies the original digest. It then uses Cmd+Q and verifies both XCTest state and the identified process have terminated. Every iteration must start without a running app; all open/closed buffers are verified after the final normal termination. Generated fixture storage is removed only after the owned test app stops. The suite refuses to take over a previously running performance app.
 
 ## Running and retaining evidence
 

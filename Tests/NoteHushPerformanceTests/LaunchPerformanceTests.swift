@@ -65,6 +65,7 @@ final class LaunchPerformanceTests: XCTestCase {
     measure(
       metrics: [XCTApplicationLaunchMetric(waitUntilResponsive: true), readiness], options: options
     ) {
+      XCTAssertEqual(app.state, .notRunning, "Every measurement must begin with a fresh process")
       app.launch()
       XCTAssertTrue(editor.waitForExistence(timeout: 20))
       // Both metric intervals have ended before these fixture assertions/teardown.
@@ -74,10 +75,17 @@ final class LaunchPerformanceTests: XCTestCase {
       }
       let selectedTab = app.descendants(matching: .any)["tab-\(fixture.selectedTab.uuidString)"]
       XCTAssertEqual(selectedTab.value as? Int, 1)
-      XCTAssertTrue(editor.isEnabled)
       let restored = editor.value as? String
       XCTAssertNotNil(restored)
       XCTAssertEqual(restored.map(digest), selectedDigest)
+      // NSTextView's accessibility enabled flag is false even for an editable
+      // native view. Prove the restored keyboard destination accepts an edit,
+      // then undo and verify exact content before normal termination. These
+      // actions occur after both reported launch/readiness intervals.
+      app.typeKey("x", modifierFlags: [])
+      XCTAssertEqual(editor.value as? String, restored.map { "x" + $0 })
+      app.typeKey("z", modifierFlags: .command)
+      XCTAssertEqual((editor.value as? String).map(digest), selectedDigest)
       do { try quit(app) } catch { XCTFail("The isolated app failed to terminate normally") }
     }
   }
@@ -94,8 +102,9 @@ final class LaunchPerformanceTests: XCTestCase {
   private func quit(_ app: XCUIApplication) throws {
     let process = try XCTUnwrap(
       NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first)
-    XCTAssertTrue(process.terminate())
+    app.typeKey("q", modifierFlags: .command)
     XCTAssertTrue(app.wait(for: .notRunning, timeout: 20))
+    XCTAssertTrue(process.isTerminated)
   }
 
   private func digest(_ text: String) -> Data { Data(SHA256.hash(data: Data(text.utf8))) }
