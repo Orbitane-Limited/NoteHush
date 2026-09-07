@@ -10,7 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     NSApplication.shared.mainMenu = makeMenu()
     var directory = URL.applicationSupportDirectory.appending(
       path: "NoteHush/Recovery", directoryHint: .isDirectory)
-    #if DEBUG
+    #if DEBUG || NOTEHUSH_PERFORMANCE_TESTING
       // Only UUID-named, separate test workspaces are accepted; no arbitrary path or reset flag.
       if let value = ProcessInfo.processInfo.environment["NOTEHUSH_TEST_WORKSPACE"],
         let id = UUID(uuidString: value)

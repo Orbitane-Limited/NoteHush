@@ -8,6 +8,9 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
   private var selectedID: UUID?
   private var revision: UInt64 = 0
   private var ready = false
+  #if NOTEHUSH_PERFORMANCE_TESTING
+    private var performancePresentationComplete = false
+  #endif
   private var stopping = false
   private let store: RecoveryStore
   private var coordinator: CheckpointCoordinator?
@@ -143,6 +146,10 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
       rebuildTabs()
       showWarning(startupWarning)
       presentSelectedTab()
+      #if NOTEHUSH_PERFORMANCE_TESTING
+        performancePresentationComplete = true
+        WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
+      #endif
       coordinator?.changed(immediate: true)
     } catch {
       guard !stopping else { return }
@@ -313,6 +320,15 @@ final class WorkspaceWindowController: NSWindowController, NSWindowDelegate {
 
   func windowDidMove(_ notification: Notification) { geometryChanged() }
   func windowDidResize(_ notification: Notification) { geometryChanged() }
+
+  #if NOTEHUSH_PERFORMANCE_TESTING
+    func windowDidBecomeKey(_ notification: Notification) {
+      // Activation can finish after recovery. Report readiness only once both
+      // the restored editor and the actual keyboard destination are established.
+      guard performancePresentationComplete else { return }
+      WorkspacePerformanceProbe.editorReady(window: window, editor: selectedTab?.editor)
+    }
+  #endif
 
   private func geometryChanged() {
     guard ready, !stopping else { return }

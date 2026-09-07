@@ -64,6 +64,13 @@ def main():
                 raise ValueError(f"Archive {key} differs from the declared product configuration")
         if info.get("NoteHushRequiresTestWorkspace") != "NO":
             raise ValueError("The release archive must not require a test workspace")
+        if info.get("NoteHushPerformanceBuild") != "NO":
+            raise ValueError("The release archive must not enable performance controls")
+        executable = contents / "MacOS/NoteHush"
+        binary = executable.read_bytes()
+        if any(marker in binary for marker in (
+                b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready")):
+            raise ValueError("Test workspace controls or readiness instrumentation reached the release executable")
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")
     print(f"Configuration valid: NoteHush {version[1]} ({build[1]})")

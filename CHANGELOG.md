@@ -44,6 +44,7 @@ No production release has been published.
 
 ### Validation
 
+- Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.
 - Declare and validate the approved app-container file-metadata reason used by recovery fingerprints, alongside the existing user-selected-file reason.
 - Use the existing Finder opening path for the two long file-access cases' initial fixture setup, with exact app/process checks; native panel coverage, all assertions and time allowances remain unchanged.
 - Isolated 20-sample Release recovery benchmark with raw latency and logical I/O measurements for 5 MiB and 30 MiB workspaces; whole-app performance remains unverified.

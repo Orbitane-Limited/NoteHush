@@ -20,6 +20,7 @@
 		35514349B6D8DA3C0511E8B8 /* WorkspacePrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB03280CD7B09201257121 /* WorkspacePrinter.swift */; };
 		44643BD5EA82FFDBB140F1A5 /* WorkspaceNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */; };
 		4F941A1619AE96289A7D4D09 /* EditingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDBE1C4A6674DEA8F3E24E /* EditingTests.swift */; };
+		505767603C666848AF3F513F /* WorkspacePerformanceProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5377F9A2C3FCBF9976BB7B /* WorkspacePerformanceProbe.swift */; };
 		545603B96531480A46EEC8F7 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC0138E69BDE06082791FC37 /* TabBarView.swift */; };
 		568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		56DAB19F9FF20D0A724C59BF /* WorkspaceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */; };
@@ -34,6 +35,7 @@
 		860BFA4DF6F78F49E4C15B99 /* PreferencesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C539EC3106341E358550D819 /* PreferencesUITests.swift */; };
 		8DC0FE5CFB8B351A71EFE20B /* NoteHushCore in Frameworks */ = {isa = PBXBuildFile; productRef = 25CEB671E903BEBA37E584E5 /* NoteHushCore */; };
 		8F07EDF9881CD3052272CBEF /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65173C96BFDC350A50758EE5 /* PreferencesWindowController.swift */; };
+		907DF7D40B092D44FED1F221 /* WorkspacePerformanceProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D5377F9A2C3FCBF9976BB7B /* WorkspacePerformanceProbe.swift */; };
 		933986CB4BFE478ED3A8CF2D /* PrintDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */; };
 		94366F4B434DC2C9AD12A569 /* FileResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */; };
 		9E44BB993385A9511041182F /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65173C96BFDC350A50758EE5 /* PreferencesWindowController.swift */; };
@@ -46,6 +48,7 @@
 		B636F9BD86FE2EA8C7B1FC96 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E3E5C1AF0BA9E6C3AD8755C6 /* PrivacyInfo.xcprivacy */; };
 		B6E8501CE20FD5AA0D338557 /* FileAccessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6505663F6B91725492B1F6C3 /* FileAccessTests.swift */; };
 		CC351674B5C1429625387A67 /* PrintDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */; };
+		DBA8B5B81DF64DBC0C6E1F64 /* LaunchPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946E57288B58B262B6A27668 /* LaunchPerformanceTests.swift */; };
 		E457BA65E5DE0C60AE5FAAF2 /* EditorStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AA70104208E5E1822F071E /* EditorStatusView.swift */; };
 		E4885FC473115E2383C944E0 /* EditorNavigationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641B0BAAB841EBA1AEF7C3B6 /* EditorNavigationTests.swift */; };
 		E9E44259C381CD3B8A46EA99 /* TabManagementUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C815C550D70B7E143C6C656 /* TabManagementUITests.swift */; };
@@ -56,6 +59,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		325036BC949C9E0229B68C9F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E1B2DA218F20764215A0473 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF0A2F19F04AF65561AE77D6;
+			remoteInfo = NoteHush;
+		};
 		D99306F72CC815F17082AC85 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1E1B2DA218F20764215A0473 /* Project object */;
@@ -70,7 +80,6 @@
 		15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16956BC0F6470379F1AFFB75 /* NoteHush.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoteHush.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D5314EB6298D1503943F21 /* SettingsControlTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsControlTests.swift; sourceTree = "<group>"; };
-		1C1664A9E89B6716D6EF33DE /* notepad */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notepad; path = .; sourceTree = SOURCE_ROOT; };
 		1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceWindowController.swift; sourceTree = "<group>"; };
 		2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceNavigation.swift; sourceTree = "<group>"; };
 		2C6B25D7DD0C8DD9F78F9F97 /* TabManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabManagementTests.swift; sourceTree = "<group>"; };
@@ -90,10 +99,13 @@
 		6CA6C17F100961DD2E8454A2 /* NoteHushMain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteHushMain.swift; sourceTree = "<group>"; };
 		74EAD7381D6FA34EDDB14578 /* GoToLineSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToLineSheet.swift; sourceTree = "<group>"; };
 		8C620622CB0DE79507944B40 /* EditorTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTab.swift; sourceTree = "<group>"; };
+		8D5377F9A2C3FCBF9976BB7B /* WorkspacePerformanceProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacePerformanceProbe.swift; sourceTree = "<group>"; };
 		8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		916A239972126C756C35492B /* PreferencesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesTests.swift; sourceTree = "<group>"; };
+		946E57288B58B262B6A27668 /* LaunchPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPerformanceTests.swift; sourceTree = "<group>"; };
 		A658B0E0BD4C5B999423295C /* EditorSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorSnapshotTests.swift; sourceTree = "<group>"; };
 		A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFileResolution.swift; sourceTree = "<group>"; };
+		AAA89C187187B69C32C5C640 /* issue-35 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "issue-35"; path = .; sourceTree = SOURCE_ROOT; };
 		C539EC3106341E358550D819 /* PreferencesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesUITests.swift; sourceTree = "<group>"; };
 		C5B70E798E3D292CD16CBD02 /* PrintDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintDocumentView.swift; sourceTree = "<group>"; };
 		CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileResolutionTests.swift; sourceTree = "<group>"; };
@@ -101,6 +113,7 @@
 		DAEB076A27E4634EBBE783B7 /* FilePanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePanelTests.swift; sourceTree = "<group>"; };
 		E3E5C1AF0BA9E6C3AD8755C6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		FC0138E69BDE06082791FC37 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
+		FCD3367041B36A0BBC1EA4AF /* NoteHushPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEB6DABD246B4788EB3F9FB9 /* WorkspacePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacePreferences.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -149,6 +162,7 @@
 				A824149D04E1C9BED4115861 /* WorkspaceFileResolution.swift */,
 				61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */,
 				2822E06E4D2810910825A53C /* WorkspaceNavigation.swift */,
+				8D5377F9A2C3FCBF9976BB7B /* WorkspacePerformanceProbe.swift */,
 				FEB6DABD246B4788EB3F9FB9 /* WorkspacePreferences.swift */,
 				1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */,
 			);
@@ -183,7 +197,7 @@
 		5609597DFB781F16126E3EC5 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				1C1664A9E89B6716D6EF33DE /* notepad */,
+				AAA89C187187B69C32C5C640 /* issue-35 */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -193,6 +207,7 @@
 			children = (
 				16956BC0F6470379F1AFFB75 /* NoteHush.app */,
 				15487BA14602C50B4B76082E /* NoteHushAppTests.xctest */,
+				FCD3367041B36A0BBC1EA4AF /* NoteHushPerformanceTests.xctest */,
 				8EF6222BE4D845080179E3CF /* NoteHushUITests.xctest */,
 			);
 			name = Products;
@@ -233,6 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				517DF38160700B0991FC400B /* NoteHushAppTests */,
+				AF9EEBFC49D9331023BC0EAD /* NoteHushPerformanceTests */,
 				689B94E290C991B827A44338 /* NoteHushUITests */,
 			);
 			path = Tests;
@@ -247,6 +263,14 @@
 				8CACFC1DAA73AA618E22CBF5 /* Tests */,
 				5962A856287F38FD1C9BEA95 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		AF9EEBFC49D9331023BC0EAD /* NoteHushPerformanceTests */ = {
+			isa = PBXGroup;
+			children = (
+				946E57288B58B262B6A27668 /* LaunchPerformanceTests.swift */,
+			);
+			path = NoteHushPerformanceTests;
 			sourceTree = "<group>";
 		};
 		D41F60FEBEED50FC35912AEC /* NoteHush */ = {
@@ -281,6 +305,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		238A131DC46D098888F290C0 /* NoteHushPerformanceTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 583B6FD5A9A45A8E6D3E1A8B /* Build configuration list for PBXNativeTarget "NoteHushPerformanceTests" */;
+			buildPhases = (
+				9CE6E18A6041EEAD5DA90BEA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1327DD0062831C8755291A0B /* PBXTargetDependency */,
+			);
+			name = NoteHushPerformanceTests;
+			packageProductDependencies = (
+			);
+			productName = NoteHushPerformanceTests;
+			productReference = FCD3367041B36A0BBC1EA4AF /* NoteHushPerformanceTests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		3D0388D3D507A26573695C45 /* NoteHushUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C60A6AE95112FB6EECD6321A /* Build configuration list for PBXNativeTarget "NoteHushUITests" */;
@@ -347,6 +389,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					238A131DC46D098888F290C0 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = DF0A2F19F04AF65561AE77D6;
+					};
 					3D0388D3D507A26573695C45 = {
 						ProvisioningStyle = Automatic;
 						TestTargetID = DF0A2F19F04AF65561AE77D6;
@@ -377,6 +423,7 @@
 			projectRoot = "";
 			targets = (
 				DF0A2F19F04AF65561AE77D6 /* NoteHush */,
+				238A131DC46D098888F290C0 /* NoteHushPerformanceTests */,
 				3D0388D3D507A26573695C45 /* NoteHushUITests */,
 				4B2795B5B7081910630E541C /* NoteHushAppTests */,
 			);
@@ -411,9 +458,18 @@
 				B43D00B4914ADBE86C9AD6BC /* WorkspaceFileResolution.swift in Sources */,
 				56DAB19F9FF20D0A724C59BF /* WorkspaceFiles.swift in Sources */,
 				B1800E0F0D5D1E4898CAE29E /* WorkspaceNavigation.swift in Sources */,
+				505767603C666848AF3F513F /* WorkspacePerformanceProbe.swift in Sources */,
 				6B4F5936480DCF40D730CDCF /* WorkspacePreferences.swift in Sources */,
 				35514349B6D8DA3C0511E8B8 /* WorkspacePrinter.swift in Sources */,
 				568C73A207BC33DE437E0A0E /* WorkspaceWindowController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9CE6E18A6041EEAD5DA90BEA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBA8B5B81DF64DBC0C6E1F64 /* LaunchPerformanceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +509,7 @@
 				04423B17DF11EEA777F80B77 /* WorkspaceFiles.swift in Sources */,
 				7EEB638D2A1FF633E7D2B7DE /* WorkspaceIntegrationTests.swift in Sources */,
 				44643BD5EA82FFDBB140F1A5 /* WorkspaceNavigation.swift in Sources */,
+				907DF7D40B092D44FED1F221 /* WorkspacePerformanceProbe.swift in Sources */,
 				0FE9D75A09A0978D02E867E9 /* WorkspacePreferences.swift in Sources */,
 				EC4788823FB19A20C9CD6BB6 /* WorkspacePrinter.swift in Sources */,
 				EF196BED4D4083F141B894C7 /* WorkspaceWindowController.swift in Sources */,
@@ -462,6 +519,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1327DD0062831C8755291A0B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF0A2F19F04AF65561AE77D6 /* NoteHush */;
+			targetProxy = 325036BC949C9E0229B68C9F /* PBXContainerItemProxy */;
+		};
 		348EF83EFF84A88AFC07737D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DF0A2F19F04AF65561AE77D6 /* NoteHush */;
@@ -470,6 +532,23 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0CE80FCA8F22D74EC9A5DDB3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = Debug;
+		};
 		17738A73A54DDBA39A81C5E5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A1EE66A07A6886F1B9A218E /* Version.xcconfig */;
@@ -522,6 +601,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NOTEHUSH_PERFORMANCE_BUILD = NO;
 				NOTEHUSH_TEST_WORKSPACE_REQUIRED = NO;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -609,6 +689,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NOTEHUSH_PERFORMANCE_BUILD = NO;
 				NOTEHUSH_TEST_WORKSPACE_REQUIRED = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -636,6 +717,44 @@
 			};
 			name = Debug;
 		};
+		5CDC09D4C0C96A94C5AB40AE /* ReleasePerformance */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/NoteHush.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				EXECUTABLE_NAME = NoteHushPerformance;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/NoteHush/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTesting;
+				PRODUCT_NAME = NoteHushPerformance;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+			};
+			name = ReleasePerformance;
+		};
+		79CEC624224849DE9823329A /* ReleasePerformance */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.UITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = ReleasePerformance;
+		};
 		79D6695139DFD0102DF04973 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -648,6 +767,87 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.UITests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = Release;
+		};
+		7BD219D2BA881EA07DFF99AE /* ReleasePerformance */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A1EE66A07A6886F1B9A218E /* Version.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				NOTEHUSH_PERFORMANCE_BUILD = YES;
+				NOTEHUSH_TEST_WORKSPACE_REQUIRED = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) NOTEHUSH_REQUIRE_TEST_WORKSPACE NOTEHUSH_PERFORMANCE_TESTING";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = ReleasePerformance;
+		};
+		8CCBFCAF33E758725CDBD4FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTests;
 				SDKROOT = macosx;
 				TEST_TARGET_NAME = NoteHush;
 			};
@@ -685,6 +885,40 @@
 			};
 			name = DebugUITesting;
 		};
+		BB888628DD355EEAB31AE699 /* DebugUITesting */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = DebugUITesting;
+		};
+		C0B41C17A89720B29D3A925C /* ReleasePerformance */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.PerformanceTests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = NoteHush;
+			};
+			name = ReleasePerformance;
+		};
 		C8A967CCBA8F870E8C9A972B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -720,6 +954,22 @@
 				TEST_TARGET_NAME = NoteHush;
 			};
 			name = Debug;
+		};
+		CA1558707F893730490EE96D /* ReleasePerformance */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = pk.codehub.NoteHush.AppTests;
+				SDKROOT = macosx;
+			};
+			name = ReleasePerformance;
 		};
 		D5299D223B5FA6FF7CCFB22D /* DebugUITesting */ = {
 			isa = XCBuildConfiguration;
@@ -795,6 +1045,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NOTEHUSH_PERFORMANCE_BUILD = NO;
 				NOTEHUSH_TEST_WORKSPACE_REQUIRED = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -828,12 +1079,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		583B6FD5A9A45A8E6D3E1A8B /* Build configuration list for PBXNativeTarget "NoteHushPerformanceTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CE80FCA8F22D74EC9A5DDB3 /* Debug */,
+				BB888628DD355EEAB31AE699 /* DebugUITesting */,
+				8CCBFCAF33E758725CDBD4FC /* Release */,
+				C0B41C17A89720B29D3A925C /* ReleasePerformance */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		C60A6AE95112FB6EECD6321A /* Build configuration list for PBXNativeTarget "NoteHushUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C9AF77D96D90032FFFB51BE3 /* Debug */,
 				D5299D223B5FA6FF7CCFB22D /* DebugUITesting */,
 				79D6695139DFD0102DF04973 /* Release */,
+				79CEC624224849DE9823329A /* ReleasePerformance */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -844,6 +1107,7 @@
 				C8A967CCBA8F870E8C9A972B /* Debug */,
 				1AC917F77652122CE6087C44 /* DebugUITesting */,
 				F9F3786F6E6DDAA77C0736BD /* Release */,
+				5CDC09D4C0C96A94C5AB40AE /* ReleasePerformance */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -854,6 +1118,7 @@
 				1E8BCDE7D646DAD38E72E72F /* Debug */,
 				96987DF28A1135D2D5ED5C1F /* DebugUITesting */,
 				91DC1246856D3A5C3EA625CE /* Release */,
+				CA1558707F893730490EE96D /* ReleasePerformance */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -864,6 +1129,7 @@
 				1D28B7CAD544A02FB6A0220D /* Debug */,
 				D77399711D3487CBE0BCBCA1 /* DebugUITesting */,
 				17738A73A54DDBA39A81C5E5 /* Release */,
+				7BD219D2BA881EA07DFF99AE /* ReleasePerformance */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

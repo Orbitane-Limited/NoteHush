@@ -1,0 +1,120 @@
+import AppKit
+import CryptoKit
+import XCTest
+
+/// Opt-in optimized measurements. The functional CI scheme does not run these.
+@MainActor
+final class LaunchPerformanceTests: XCTestCase {
+  private let bundleID = "pk.codehub.NoteHush.PerformanceTesting"
+
+  override func setUp() async throws { continueAfterFailure = false }
+
+  func testEmptyWorkspaceLaunch() async throws {
+    try measureLaunch("empty")
+  }
+  func testFiveMiBWorkspaceLaunch() async throws { try measureLaunch("fiveMiB") }
+  func testThirtyMiBWorkspaceLaunch() async throws {
+    try measureLaunch("thirtyMiB")
+  }
+
+  private struct Manifest: Decodable {
+    let version: Int
+    let applicationURL: URL
+    let fixtures: [Fixture]
+  }
+  private struct Fixture: Decodable {
+    let name: String
+    let workspace: UUID
+    let selectedTab: UUID
+    let tabIDs: [UUID]
+    let tabDigests: [Data]
+  }
+
+  private func measureLaunch(_ name: String) throws {
+    // Xcode's UI runner is sandboxed. The host helper owns setup, complete buffer
+    // verification and cleanup; this target reads only the generated manifest.
+    let manifestURL = URL(filePath: #filePath).deletingLastPathComponent()
+      .deletingLastPathComponent().deletingLastPathComponent()
+      .appending(path: "build/performance-fixtures.json")
+    let manifest = try JSONDecoder().decode(Manifest.self, from: Data(contentsOf: manifestURL))
+    XCTAssertEqual(manifest.version, 1)
+    let fixture = try XCTUnwrap(manifest.fixtures.first { $0.name == name })
+    let selectedIndex = try XCTUnwrap(fixture.tabIDs.firstIndex(of: fixture.selectedTab))
+    XCTAssertEqual(fixture.tabIDs.count, fixture.tabDigests.count)
+    let selectedDigest = fixture.tabDigests[selectedIndex]
+    let applicationURL = manifest.applicationURL.standardizedFileURL
+    let bundle = try XCTUnwrap(Bundle(url: applicationURL))
+    XCTAssertEqual(bundle.bundleIdentifier, bundleID)
+    XCTAssertEqual(
+      bundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String, "NoteHushPerformance")
+    XCTAssertEqual(
+      bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String, "YES")
+    XCTAssertEqual(
+      bundle.object(forInfoDictionaryKey: "NoteHushPerformanceBuild") as? String, "YES")
+    XCTAssertTrue(
+      NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty,
+      "Performance tests require exclusive ownership of the isolated app")
+    let app = XCUIApplication()
+    app.launchEnvironment["NOTEHUSH_TEST_WORKSPACE"] = fixture.workspace.uuidString
+    defer {
+      if app.state != .notRunning { app.terminate() }
+    }
+    let editor = app.textViews["note-editor"].firstMatch
+    let options = XCTMeasureOptions()
+    options.iterationCount = 20
+    options.invocationOptions = .manuallyStop
+    let readiness = XCTOSSignpostMetric(
+      subsystem: bundleID, category: "Readiness", name: "ProcessToEditorReady")
+    // Report first-frame display separately from actual editor readiness. The
+    // responsive-launch variant omitted observations on the recorded toolchain;
+    // it is a different interval, not a fallback source for missing samples.
+    measure(
+      metrics: [XCTApplicationLaunchMetric(waitUntilResponsive: false), readiness], options: options
+    ) {
+      XCTAssertEqual(app.state, .notRunning, "Every measurement must begin with a fresh process")
+      app.launch()
+      XCTAssertTrue(app.windows["performance-editor-ready"].waitForExistence(timeout: 20))
+      XCTAssertTrue(editor.exists)
+      stopMeasuring()
+      // Stop collection before fixture assertions/teardown so the metric's
+      // event-loop observer is detached while the measured process is alive.
+      // XCTest synchronization time is not represented as event-to-visible latency.
+      do { try requireProcess(applicationURL) } catch {
+        XCTFail("The expected performance process was not launched")
+      }
+      let selectedTab = app.descendants(matching: .any)["tab-\(fixture.selectedTab.uuidString)"]
+      XCTAssertEqual(selectedTab.value as? Int, 1)
+      let restored = editor.value as? String
+      XCTAssertNotNil(restored)
+      XCTAssertEqual(restored.map(digest), selectedDigest)
+      // NSTextView's accessibility enabled flag is false even for an editable
+      // native view. Prove the restored keyboard destination accepts an edit,
+      // then undo and verify exact content before normal termination. These
+      // actions occur after both reported launch/readiness intervals.
+      app.typeKey("x", modifierFlags: [])
+      XCTAssertEqual(editor.value as? String, restored.map { "x" + $0 })
+      app.typeKey("z", modifierFlags: .command)
+      XCTAssertEqual((editor.value as? String).map(digest), selectedDigest)
+      do { try quit(app) } catch { XCTFail("The isolated app failed to terminate normally") }
+    }
+  }
+
+  @discardableResult
+  private func requireProcess(_ applicationURL: URL) throws -> NSRunningApplication {
+    let processes = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+    XCTAssertEqual(processes.count, 1)
+    let process = try XCTUnwrap(processes.first)
+    XCTAssertEqual(process.bundleURL?.standardizedFileURL, applicationURL)
+    return process
+  }
+
+  private func quit(_ app: XCUIApplication) throws {
+    let process = try XCTUnwrap(
+      NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first)
+    app.typeKey("q", modifierFlags: .command)
+    XCTAssertTrue(app.wait(for: .notRunning, timeout: 20))
+    XCTAssertTrue(process.isTerminated)
+  }
+
+  private func digest(_ text: String) -> Data { Data(SHA256.hash(data: Data(text.utf8))) }
+}
