@@ -60,6 +60,7 @@ final class LaunchPerformanceTests: XCTestCase {
     let editor = app.textViews["note-editor"].firstMatch
     let options = XCTMeasureOptions()
     options.iterationCount = 20
+    options.invocationOptions = .manuallyStop
     let readiness = XCTOSSignpostMetric(
       subsystem: bundleID, category: "Readiness", name: "ProcessToEditorReady")
     measure(
@@ -68,7 +69,9 @@ final class LaunchPerformanceTests: XCTestCase {
       XCTAssertEqual(app.state, .notRunning, "Every measurement must begin with a fresh process")
       app.launch()
       XCTAssertTrue(editor.waitForExistence(timeout: 20))
-      // Both metric intervals have ended before these fixture assertions/teardown.
+      stopMeasuring()
+      // Stop collection before fixture assertions/teardown so the metric's
+      // event-loop observer is detached while the measured process is alive.
       // XCTest synchronization time is not represented as event-to-visible latency.
       do { try requireProcess(applicationURL) } catch {
         XCTFail("The expected performance process was not launched")
