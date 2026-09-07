@@ -5,6 +5,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
   private var workspace: WorkspaceWindowController?
   private var terminationTask: Task<Void, Never>?
   private var pendingOpenURLs: [URL] = []
+  #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+    private var undoDiagnosticProbe: UndoDiagnosticProbe?
+  #endif
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApplication.shared.mainMenu = makeMenu()
@@ -22,6 +25,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     let controller = WorkspaceWindowController(directory: directory)
     workspace = controller
     controller.showWindow(nil)
+    #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+      undoDiagnosticProbe = UndoDiagnosticProbe.installIfEnabled(
+        workspace: controller, directory: directory)
+    #endif
     NSApplication.shared.activate(ignoringOtherApps: true)
     if !pendingOpenURLs.isEmpty {
       controller.beginOpening(pendingOpenURLs)
@@ -41,6 +48,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     if terminationTask == nil {
       terminationTask = Task { [weak self] in
         await self?.workspace?.prepareToQuit()
+        #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+          await self?.undoDiagnosticProbe?.finish()
+        #endif
         sender.reply(toApplicationShouldTerminate: true)
       }
     }

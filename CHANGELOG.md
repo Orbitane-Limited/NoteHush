@@ -2,6 +2,10 @@
 
 ## Unreleased — 0.1.0 development
 
+### Validation
+
+- Add opt-in, isolated native Undo diagnostics and strict trace validation; verify their exclusion from shipping and performance code, including Xcode's separate Debug code library. The intermittent Find/Undo diagnosis remains open.
+
 ### Added
 
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.

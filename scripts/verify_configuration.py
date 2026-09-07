@@ -29,7 +29,6 @@ def validate_privacy(privacy):
         raise ValueError("Declare both user-granted and app-container file metadata access")
 
 
-
 def validate_release_isolation(info, binary):
     if info.get("NoteHushRequiresTestWorkspace") != "NO":
         raise ValueError("The release archive must not require a test workspace")
@@ -39,6 +38,21 @@ def validate_release_isolation(info, binary):
             b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready",
             b"PerformanceApplication", b"TypingEventDispatch", b"TabEventDispatch", b"performance-event-")):
         raise ValueError("Test workspace controls or performance instrumentation reached the release executable")
+
+
+def validate_undo_diagnostic_exclusion(binary):
+    if any(marker in binary for marker in (
+            b"NOTEHUSH_UNDO_DIAGNOSTICS", b"UndoDiagnosticProbe", b"undo-diagnostic-")):
+        raise ValueError("Isolated Undo diagnostics reached a non-diagnostic executable")
+
+
+def validate_undo_diagnostic_bundle(executable):
+    # With ENABLE_DEBUG_DYLIB, the executable is a launcher and the actual app
+    # code lives beside it. Checking only the launcher would miss the probe.
+    for artifact in [executable, *sorted(executable.parent.glob("*.dylib"))]:
+        if artifact.is_symlink() or not artifact.is_file():
+            raise ValueError("Expected a regular app code artifact")
+        validate_undo_diagnostic_exclusion(artifact.read_bytes())
 
 
 def main():
@@ -74,8 +88,10 @@ def main():
         for key, value in expected.items():
             if info.get(key) != value:
                 raise ValueError(f"Archive {key} differs from the declared product configuration")
-        binary = (contents / "MacOS/NoteHush").read_bytes()
+        executable = contents / "MacOS/NoteHush"
+        binary = executable.read_bytes()
         validate_release_isolation(info, binary)
+        validate_undo_diagnostic_bundle(executable)
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")
     print(f"Configuration valid: NoteHush {version[1]} ({build[1]})")
