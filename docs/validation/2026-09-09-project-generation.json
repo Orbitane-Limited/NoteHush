@@ -1,0 +1,22 @@
+{
+  "xcodegenVersion": "Version: 2.46.0",
+  "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+  "cases": [
+    {
+      "case": "before",
+      "generatedSuccessfully": true,
+      "declarationPresent": false,
+      "declaration": null,
+      "allOtherProductMetadataUnchanged": true,
+      "generatedPlistSHA256": "b0afe41344e11ecf6504a74af0311b55371b3f7ea3f3e5a6827f96526d54e450"
+    },
+    {
+      "case": "after",
+      "generatedSuccessfully": true,
+      "declarationPresent": true,
+      "declaration": false,
+      "allOtherProductMetadataUnchanged": true,
+      "generatedPlistSHA256": "8bbd20aed0ca3f570ef7904ef6c79e68b715e63dd480e97644aae4e13b526cb6"
+    }
+  ]
+}
