@@ -36,6 +36,8 @@ No production release has been published.
 
 ### Fixed
 
+- Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
+
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
 
 - Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.
