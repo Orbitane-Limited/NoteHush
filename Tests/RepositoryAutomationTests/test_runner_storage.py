@@ -72,7 +72,7 @@ class RunnerStorageTests(unittest.TestCase):
 
     def test_failed_gate_stops_every_native_entry_point_before_work(self):
         entry_points = ["check.sh", "test_app.sh", "archive.sh", "build_performance.sh",
-                        "test_performance.sh", "profile_performance.sh"]
+                        "test_performance.sh", "profile_performance.sh", "test_interactions.sh"]
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             scripts = root / "scripts"
@@ -96,6 +96,47 @@ class RunnerStorageTests(unittest.TestCase):
                     self.assertEqual(result.returncode, 1, result.stderr)
                     self.assertFalse(marker.exists())
                     self.assertFalse((root / "build").exists())
+
+    def test_space_loss_after_build_stops_measurement_fixture_creation(self):
+        for name in ["test_performance.sh", "profile_performance.sh", "test_interactions.sh"]:
+            with self.subTest(script=name), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                scripts = root / "scripts"
+                scripts.mkdir()
+                (scripts / name).write_text((ROOT / "scripts" / name).read_text())
+                (scripts / "build_performance.sh").write_text("#!/bin/bash\nexit 0\n")
+                # The first check passes; building consumes the available margin.
+                (scripts / "check_runner_storage.py").write_text(
+                    "from pathlib import Path\n"
+                    "p = Path('capacity-check-count')\n"
+                    "count = int(p.read_text()) + 1 if p.exists() else 1\n"
+                    "p.write_text(str(count))\n"
+                    "raise SystemExit(0 if count == 1 else 1)\n")
+                commands = root / "bin"
+                commands.mkdir()
+                marker = root / "fixture-created"
+                swift = commands / "swift"
+                swift.write_text(
+                    '#!/bin/bash\n'
+                    'if [[ "$*" == "build --show-bin-path" ]]; then\n'
+                    '  printf "%s\\n" "$NOTEHUSH_TEST_BINARY_DIRECTORY"\n'
+                    'elif [[ "$*" != "build --product PerformanceFixtureHarness" ]]; then\n'
+                    '  exit 98\n'
+                    'fi\n')
+                swift.chmod(0o700)
+                harness = commands / "PerformanceFixtureHarness"
+                harness.write_text(
+                    '#!/bin/bash\ntouch "$NOTEHUSH_TEST_FIXTURE_MARKER"\nexit 97\n')
+                harness.chmod(0o700)
+                environment = dict(
+                    os.environ, PATH=str(commands) + os.pathsep + os.environ["PATH"],
+                    NOTEHUSH_TEST_BINARY_DIRECTORY=str(commands),
+                    NOTEHUSH_TEST_FIXTURE_MARKER=str(marker))
+                result = subprocess.run(["/bin/bash", str(scripts / name)], env=environment,
+                                        capture_output=True, text=True, timeout=5)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual((root / "capacity-check-count").read_text(), "2")
+                self.assertFalse(marker.exists())
 
 
 if __name__ == "__main__":

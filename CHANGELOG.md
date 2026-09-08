@@ -4,6 +4,7 @@
 
 ### Added
 
+- Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 
 - Product research, requirements, technical design, testing and App Store release plan.
@@ -50,6 +51,7 @@ No production release has been published.
 
 ### Validation
 
+- Complete four-workload interaction baseline with 160 retained native-dispatch/automation observations and exact recovery checks; mixed-script performance and release budgets remain open.
 - Native folder-panel tests check the complete generated path and avoid redundant click/Select All setup before keyboard entry.
 - Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
 
