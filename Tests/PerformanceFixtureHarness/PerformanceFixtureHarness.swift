@@ -88,7 +88,9 @@ enum PerformanceFixtureHarness {
       }
       print("Performance fixtures: \(command) passed")
     } catch {
-      let reason = (error as? Failure).map { String(describing: $0) } ?? "fixtureOperationFailed"
+      let reason =
+        (error as? Failure).map { String(describing: $0) }
+        ?? IdleResourceMeasurement.failureCode(for: error) ?? "fixtureOperationFailed"
       FileHandle.standardError.write(Data("Performance fixtures failed: \(reason)\n".utf8))
       exit(1)
     }
