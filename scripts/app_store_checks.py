@@ -158,8 +158,13 @@ def command(arguments):
 
 
 def tool_environment():
-    environment = {key: value for key, value in os.environ.items()
-                   if not key.startswith("STORE_") and key not in {"GH_TOKEN", "GITHUB_TOKEN"}}
+    # The runner may host unrelated credentials and tool overrides. An allowlist
+    # keeps new secret names out of every native child without maintaining a
+    # growing denylist. Preserve the selected Xcode and normal login/temp paths;
+    # upload-specific key lookup is supplied explicitly by the delivery driver.
+    allowed = {"PATH", "HOME", "TMPDIR", "USER", "LOGNAME", "DEVELOPER_DIR",
+               "LANG", "__CF_USER_TEXT_ENCODING"}
+    environment = {key: value for key, value in os.environ.items() if key in allowed}
     environment["LC_ALL"] = "C"
     return environment
 

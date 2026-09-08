@@ -14,6 +14,7 @@
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 - Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
+- Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
 
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
