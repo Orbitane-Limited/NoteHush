@@ -4,6 +4,8 @@
 
 ### Added
 
+- Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
+
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
 - Swift 6 AppKit development shell, Foundation core model and Unicode-safe validation tests.
