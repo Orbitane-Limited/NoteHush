@@ -47,3 +47,9 @@ A newly created, headless calibration process sampled only itself and compared c
 All 37 repository tests pass, including clock conversion, retained outliers, incomplete/invalid evidence and operator/clean-source guards protected from launching a build during tests. All 85 core tests pass with coverage. Debug and Release host builds, strict Swift formatting, configuration/relative-link validation, shell syntax and diff checks pass. The optimized isolated app's build-for-testing passes with exactly the product sandbox entitlements. Private logs are retained under `build/logs/idle-*`.
 
 The real two-workload native run, full final-head CI, independent review and all release acceptance remain pending. No NoteHush app was launched by the preparation checks. Normal app runtime sources and entitlements are unchanged; the self-process calibration is separate from product acceptance.
+
+## Integration validation — 2026-09-08 UTC
+
+The prepared branch now includes current main plus the related interaction and failed-fixture-retention dependencies. All **56 repository tests pass**, and the integrated Release `PerformanceFixtureHarness` builds successfully. Swift formatting, configuration and whitespace checks pass. Both interaction and idle fixture names, exact recovery/viewport checks, post-build storage guards and evidence retention are preserved. PR #44 and PR #60 must merge before this branch; verify the final diff contains only idle-measurement work.
+
+The earlier native attempt remains rejected, as documented in [the attempt report](2026-09-08-idle-resource-attempt.md). The bounded activation diagnostic did not establish the cause of the foreground change or produce an idle baseline. No native app was launched by these integration checks. The complete two-workload collection and final-head CI remain pending.
