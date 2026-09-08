@@ -4,6 +4,8 @@ Tests protect user data and measure behavior. Passing a build is not proof of da
 
 The self-hosted CI job allows 30 minutes for validation plus artifact transfer. A measured run used 9m52s for validation and 11m27s for its 137 MB verification upload, exceeding the former 20-minute job budget despite successful tests. This transfer allowance does not change Xcode's 30-second default/60-second maximum test-case limits or any assertions.
 
+Native validation requires the [runner disk-headroom preflight](docs/SELF_HOSTED_RUNNER.md#disk-headroom-and-retained-evidence): at least 20 GiB or 10% of each workspace/temporary filesystem, whichever is larger. It fails before native work and retains a fresh capacity report per invocation. Repository tests cover both threshold boundaries, larger volumes, invalid/unreadable capacity, either volume failing, report retention/failure and all six shell entry points stopping before native commands. These tests use injected capacities and command stubs; never fill the user's disk to test the gate. See the [confirmed cache-reclamation kills](docs/validation/2026-09-07-runner-storage.md). Exact recovery, screenshot and time-limit assertions remain unchanged.
+
 ## Layers
 
 | Layer | Required coverage | Where |
