@@ -10,6 +10,7 @@
 
 ### Added
 
+- Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
 - Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
