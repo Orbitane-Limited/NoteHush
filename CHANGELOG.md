@@ -55,6 +55,7 @@ No production release has been published.
 
 - Store signature verification passes its Apple-chain and publisher-team requirement as literal source to codesign, and uses the supported certificate-extraction argument format.
 - Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
+- Xcode project regeneration preserves the existing audited encryption declaration.
 
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
 
