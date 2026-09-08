@@ -74,3 +74,14 @@ separately supplied membership Developer ID was not mapped to an App Store
 Connect API issuer or app ID. Seller, explicit App ID, Store app record, Store
 signing assets and live delivery remain pending under #14. Team confirmation
 does not complete that issue's combined publisher/account acceptance criterion.
+
+The subsequent read-only Xcode account inspection found an existing Apple
+account, an Admin team with Certificates, Identifiers & Profiles access, and a
+certificate manager showing Developer ID Application. The creation menu offers
+Apple Distribution and Mac Installer Distribution. The menu was cancelled
+without choosing either entry; the certificate manager remains open. No new
+login, credential creation, private-key export, profile download or account
+setting change occurred. This verifies the available Xcode setup interface,
+not a signed account transaction or App Store Connect app access. The account
+UI did not display a team ID, so any resulting signing assets must still be
+checked against the publisher-confirmed `4T674XS5MF` before use.
