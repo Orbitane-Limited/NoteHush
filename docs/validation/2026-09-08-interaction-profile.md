@@ -55,3 +55,18 @@ The two previously unlaunched TextKit 2 cases then ran in fresh fixtures. Both p
 These are diagnostic observations during a CI artifact-upload interval after all native tests/builds had completed, not an accepted performance comparison. The view uses a generated standalone setup, the legacy mixed case failed, there is only one completed observation per case, and there are no complete before/after app protocols. No speedup, release-budget pass, production migration or remaining Unicode/IME/viewport acceptance is claimed. The existing native profile still motivates investigating caret/layout work; adopting another engine would require replacing legacy layout-manager queries without triggering fallback and passing the unchanged app acceptance protocols. Apple's [TextKit 2 session](https://developer.apple.com/videos/play/wwdc2022/10090/) explains the compatibility boundary.
 
 All private source, build logs, plans, complete/partial JSONL evidence and SHA-256 provenance remain under root `build/textkit-comparison/`. Timed-out fixtures remain untouched. No shipping source changed.
+
+## Repeated native TextKit diagnostic — 2026-09-08, 09:11 and 09:33 UTC
+
+Two separately declared diagnostics each used fresh TextKit 2 ASCII and mixed-script workspaces. Each case dispatched 20 new app-local key events, with a fresh event timestamp, exact text/UTF-16 selection verification, explicit Undo verification and a 100 ms interval between observations. The application remained active with the intended editor focused, and the native TextKit 2 engine remained present for every observation. All four cases completed normally; all 80 observations passed their exact checks. The earlier TextKit 1 timeout was retained and was not retried.
+
+| Private view configuration | Generated 1 MiB text | Median / p95 dispatch |
+| --- | --- | ---: |
+| Native defaults | ASCII | 2.801 / 3.850 ms |
+| Native defaults | Arabic/combining-mark/emoji CRLF | 56.907 / 58.455 ms |
+| Literal input traits explicitly disabled | ASCII | 2.023 / 3.066 ms |
+| Literal input traits explicitly disabled | Arabic/combining-mark/emoji CRLF | 52.816 / 56.764 ms |
+
+The second diagnostic disabled inline prediction, automatic Touch Bar completion, math completion and Writing Tools using the public per-view traits described by #64. The repeated mixed-script cost remains above the unchanged 16.7 ms target in both configurations. It is not confined to the first edit, and the trait configuration alone does not establish a budget fix. The small difference between these separate diagnostic runs is not evidence of a production speedup.
+
+All samples, binary/source/evidence hashes and collection conditions are in the [numeric diagnostic record](2026-09-08-textkit-repeated-diagnostic.json). Both diagnostics ran during CI artifact uploads after that run's native tests and builds had finished. Neither used the full NoteHush interaction/launch protocol or an idle shared Mac. These results guide investigation only; no app performance acceptance, TextKit migration decision, runtime compatibility or real IME acceptance follows from them.
