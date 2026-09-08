@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import platform
 import sys
 import subprocess
 import tempfile
@@ -40,6 +41,46 @@ class AppStoreChecksTests(unittest.TestCase):
         checks.validate_entitlements(self.entitlements, self.team, self.app_id, self.profile)
         del self.entitlements["beta-reports-active"]
         checks.validate_entitlements(self.entitlements, self.team, self.app_id, self.profile)
+
+    def testSignatureRequirementIsAcceptedByNativeCompiler(self):
+        # Exercise Apple's actual requirement parser without a signing identity.
+        # codesign and csreq share the literal-versus-filename input convention.
+        compiled_requirements = []
+
+        def compile_requirement(arguments):
+            requirement = arguments[arguments.index("-R") + 1]
+            result = subprocess.run(["/usr/bin/csreq", "-r", requirement, "-t"],
+                                    capture_output=True, env=checks.tool_environment(), timeout=30)
+            self.assertEqual(result.returncode, 0,
+                             "The actual native requirement parser rejected the verifier's input")
+            compiled_requirements.append(result.stdout)
+            return b""
+
+        with mock.patch.object(checks, "command", side_effect=compile_requirement):
+            checks.verify_code_signature(Path("generated-fixture.app"), self.team)
+        self.assertEqual(len(compiled_requirements), 1)
+        self.assertIn(b"anchor apple generic", compiled_requirements[0])
+        self.assertIn(b"certificate leaf[subject.OU]", compiled_requirements[0])
+        self.assertIn(self.team.encode(), compiled_requirements[0])
+
+    def testSignatureRequirementRejectsMalformedTeamsBeforeNativeAccess(self):
+        for team in (None, "", "ABCDEFGHI", "ABCDEFGHIJK", "abcdefghij", 'AAAA\" or true',
+                     "ABCDEFGHIJ\n", "ABCDEFGHIJ/../../fixture"):
+            with self.subTest(team=team), mock.patch.object(checks, "command") as command:
+                with self.assertRaises(ValueError):
+                    checks.verify_code_signature(Path("generated-fixture.app"), team)
+                command.assert_not_called()
+
+    def testNativeCertificateExtractionNeedsNoPrivateSigningCredential(self):
+        # The installed Apple tool already has a public signature. Read it with
+        # the production extraction path; do not sign or modify system code.
+        with tempfile.TemporaryDirectory() as directory:
+            certificate = checks.extract_signing_certificate(
+                Path("/usr/bin/codesign"), platform.machine(), Path(directory))
+            parsed = subprocess.run(["/usr/bin/openssl", "x509", "-inform", "DER", "-noout"],
+                                    input=certificate, capture_output=True,
+                                    env=checks.tool_environment(), timeout=30)
+            self.assertEqual(parsed.returncode, 0, "Extracted leaf must be a real X.509 certificate")
 
     def testWrongExpiredDevelopmentAndWildcardProfilesFail(self):
         for field, value in [
