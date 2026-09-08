@@ -29,6 +29,18 @@ def validate_privacy(privacy):
         raise ValueError("Declare both user-granted and app-container file metadata access")
 
 
+
+def validate_release_isolation(info, binary):
+    if info.get("NoteHushRequiresTestWorkspace") != "NO":
+        raise ValueError("The release archive must not require a test workspace")
+    if info.get("NoteHushPerformanceBuild") != "NO":
+        raise ValueError("The release archive must not enable performance controls")
+    if any(marker in binary for marker in (
+            b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready",
+            b"PerformanceApplication", b"TypingEventDispatch", b"TabEventDispatch", b"performance-event-")):
+        raise ValueError("Test workspace controls or performance instrumentation reached the release executable")
+
+
 def main():
     version_file = (ROOT / "Config/Version.xcconfig").read_text()
     version = re.search(r"^MARKETING_VERSION = (\d+\.\d+\.\d+)$", version_file, re.M)
@@ -70,15 +82,8 @@ def main():
                 or info.get("CFBundleIconFile") != "AppIcon"
                 or not (contents / "Resources/AppIcon.icns").is_file()):
             raise ValueError("Archive must include the original app icon and audited export metadata")
-        if info.get("NoteHushRequiresTestWorkspace") != "NO":
-            raise ValueError("The release archive must not require a test workspace")
-        if info.get("NoteHushPerformanceBuild") != "NO":
-            raise ValueError("The release archive must not enable performance controls")
-        executable = contents / "MacOS/NoteHush"
-        binary = executable.read_bytes()
-        if any(marker in binary for marker in (
-                b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready")):
-            raise ValueError("Test workspace controls or readiness instrumentation reached the release executable")
+        binary = (contents / "MacOS/NoteHush").read_bytes()
+        validate_release_isolation(info, binary)
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")
     print(f"Configuration valid: NoteHush {version[1]} ({build[1]})")
