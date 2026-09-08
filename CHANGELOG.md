@@ -6,6 +6,8 @@
 
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
+- Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
+- Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
@@ -54,6 +56,8 @@ No production release has been published.
 
 ### Validation
 
+- Complete four-workload interaction baseline with 160 retained native-dispatch/automation observations and exact recovery checks; mixed-script performance and release budgets remain open.
+- Native folder-panel tests check the complete generated path and avoid redundant click/Select All setup before keyboard entry.
 - Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
 
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.
