@@ -42,6 +42,8 @@ No production release has been published.
 
 ### Fixed
 
+- Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
+
 - Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
