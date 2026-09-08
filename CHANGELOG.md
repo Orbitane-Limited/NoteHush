@@ -36,6 +36,8 @@ No production release has been published.
 
 ### Fixed
 
+- Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
+
 - Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.
 
 - Restored hidden tabs avoid eager bidirectional typesetting; the selected editor uses native anchor scrolling with on-demand layout.
@@ -47,6 +49,8 @@ No production release has been published.
 - Committing a font-size field no longer resets a pending Appearance or Zoom menu choice.
 
 ### Validation
+
+- Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
 
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.
 - Declare and validate the approved app-container file-metadata reason used by recovery fingerprints, alongside the existing user-selected-file reason.

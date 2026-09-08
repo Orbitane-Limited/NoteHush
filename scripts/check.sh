@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
 mkdir -p build/logs
 xcodebuild -version | tee build/logs/toolchain.log
 if [[ "$(head -n 1 build/logs/toolchain.log)" != "Xcode 26.6" ]]; then

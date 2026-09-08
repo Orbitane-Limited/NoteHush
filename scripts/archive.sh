@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
 mkdir -p build/logs
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration Release \
   -destination 'generic/platform=macOS' -derivedDataPath build/ReleaseDerivedData \
