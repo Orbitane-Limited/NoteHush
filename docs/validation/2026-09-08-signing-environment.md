@@ -27,3 +27,14 @@ Private local logs are `build/logs/tool-environment-before.log` and
 No native input, keychain change, profile installation, signed archive, upload or
 TestFlight acceptance ran. The local Organizer path is documentation checked
 against Apple's published instructions, not evidence that its steps succeeded.
+
+
+The follow-up audit also found that the source preflight's `gh` and `git`
+children still inherited the full parent environment when the signing driver
+rechecked the source. They now use the same allowlist; only `gh` receives the
+explicit workflow token, and a missing token fails before invoking it. Local Git
+receives no token. These calls have bounded 60/30-second timeouts. Three additional
+mocked subprocess regressions failed before this correction and pass afterward;
+the full standalone suite now passes **51 tests**. No GitHub account credentials
+or signing assets were used by those tests. The preflight authorization gates and
+required human environment review are unchanged.
