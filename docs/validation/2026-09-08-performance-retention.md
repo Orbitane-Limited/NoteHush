@@ -15,3 +15,15 @@ Cases cover environment capture, native test exit, sandbox verification, recover
 All 34 repository tests pass, along with shell syntax, configuration/relative-link and diff checks. Private before/after logs are retained as `build/logs/retention-before.log` and `retention-after.log`, with the complete repository result in `retention-repository-final.log`. Assertions, functional timeouts, fixture sizes, sample counts and timing boundaries are unchanged. No Swift/runtime source changed, so prior app-build results are not relabeled as new native validation. Full final-head CI/review and #29 native input attribution remain pending.
 
 The new interaction driver is still in pending #43 rather than main. When integrating that branch, wire its EXIT handling to the same helper and exercise the same failure-retention policy; do not copy the unmerged interaction implementation into this issue branch. Any previously removed fixture cannot be reconstructed by this fix. Failed evidence already retained from the overnight manual diagnostics remains untouched.
+
+## Prepared integration follow-up
+
+The validation branch also applies the same shared exit policy to the interaction
+driver from pending #43. Its offline tests exercise both fixture names, all
+post-processing failures, interruption exit statuses, successful cleanup and
+failed acquisition without launching a native app. The full integrated repository
+suite passes all 91 tests after the runner-storage test fixture includes the newly
+sourced helper. This is an integration adaptation, absent from the standalone
+#57 branch because the interaction driver is not on main yet. Carry this adaptation
+when #43 and #57 are integrated; neither PR's remote head or CI result is replaced
+by this validation branch. Native input/performance acceptance remains open.
