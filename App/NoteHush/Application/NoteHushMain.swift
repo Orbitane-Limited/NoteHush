@@ -16,8 +16,10 @@ enum NoteHushMain {
     #endif
     #if NOTEHUSH_PERFORMANCE_TESTING
       WorkspacePerformanceProbe.beginLaunch()
+      let application = PerformanceApplication.shared
+    #else
+      let application = NSApplication.shared
     #endif
-    let application = NSApplication.shared
     let delegate = AppDelegate()
     application.delegate = delegate
     application.setActivationPolicy(.regular)
