@@ -183,9 +183,8 @@ enum IdleResourceMeasurement {
         == (after.closedTabs ?? []).map(\.tab.selection)
     else { throw Failure.changedPresentation }
     for (expected, actual) in zip(before.tabs, after.tabs) {
-      let original = expected.scroll ?? TextScrollPosition(anchor: 0, offset: 0)
-      let recovered = actual.scroll ?? TextScrollPosition(anchor: 0, offset: 0)
-      guard original.anchor == recovered.anchor, abs(original.offset - recovered.offset) <= 1,
+      guard let original = expected.scroll, let recovered = actual.scroll,
+        original.anchor == recovered.anchor, abs(original.offset - recovered.offset) <= 1,
         abs((original.horizontalOffset ?? 0) - (recovered.horizontalOffset ?? 0)) <= 1
       else { throw Failure.changedPresentation }
     }

@@ -220,7 +220,15 @@ enum PerformanceFixtureHarness {
         }
         let open = name == "empty" ? 1 : name == "fiveMiB" ? 20 : 100
         let closed = name == "thirtyMiB" ? 20 : 0
-        let tabs = (0..<open).map { TabSnapshot(text: text($0, empty: name == "empty")) }
+        let tabs = (0..<open).map { index -> TabSnapshot in
+          var tab = TabSnapshot(text: text(index, empty: name == "empty"))
+          if scenarios == IdleResourceMeasurement.names {
+            // Give idle verification an explicit logical viewport; a missing
+            // viewport lets the app choose its default inset-relative position.
+            tab.scroll = TextScrollPosition(anchor: 0, offset: 0)
+          }
+          return tab
+        }
         let history = (0..<closed).map {
           ClosedTabSnapshot(
             tab: TabSnapshot(text: text(open + $0, empty: false)), originalIndex: $0)
