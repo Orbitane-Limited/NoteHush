@@ -124,3 +124,7 @@ upload/processing and installed TestFlight acceptance before completing #14.
 These checks used generated fixtures; no NoteHush release candidate was signed,
 launched, installed or uploaded by them. Version remains `0.1.0 (1)` and no release
 was published.
+
+Follow-up: a [signed NoteHush engineering archive and local Store export](2026-09-08-local-signed-export.md)
+subsequently passed signature and product checks. Their missing profile still
+blocks TestFlight acceptance; this later result does not change the fixture scope above.
