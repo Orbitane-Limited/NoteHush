@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How NoteHush handles local drafts, files, recovery copies, website visits and support messages.">
+  <title>Privacy — NoteHush</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="canonical" href="{{SITE_URL}}/privacy.html">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="40" height="40">NoteHush</a>
+    <nav aria-label="Main"><a href="support.html">Support</a><a href="privacy.html" aria-current="page">Privacy</a></nav>
+  </header>
+  <main id="main" class="article">
+    <p class="eyebrow">NoteHush privacy</p>
+    <h1>Your text stays yours.</h1>
+    <p class="date">Effective {{PRIVACY_EFFECTIVE_DATE}} · Published by {{PUBLISHER_NAME}}</p>
+    <p>NoteHush is a local plain-text editor for macOS. The app does not send your notes, file contents, clipboard contents or usage activity to us. It has no account system, advertisements, tracking or analytics SDK.</p>
+    <h2>Files and local recovery</h2>
+    <p>The app uses files you select and private storage inside its macOS sandbox. Recovery copies can contain open drafts, unsaved edits, recently closed tabs, file references, editing preferences and your place in the workspace. macOS bookmarks let the app reopen files you previously selected; they are stored locally and are not sent to us.</p>
+    <p>NoteHush retains up to 20 recently closed tabs. Clearing that history removes those entries from the reopen list. Earlier recovery generations, preserved damaged data, saved files and system backups may still contain copies. Clearing recent tabs is not a secure-erasure command. Contact support for help with removing local app data after you have saved the work you want to keep.</p>
+    <p>Files you save may be synced or backed up by macOS or a storage provider you choose. Printing and PDF output use the system services and destination you select. NoteHush does not operate a cloud sync or backup service.</p>
+    <h2>No automatic uploads</h2>
+    <p>NoteHush does not automatically upload notes, recovery folders, screenshots or application logs. We do not sell or share your text for advertising, tracking or AI training. Apple may separately process purchase, download or diagnostic information according to your Apple settings and its policies.</p>
+    <h2>Support messages</h2>
+    <p>If you email <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>, you choose which contact details and information to send. We use that information to respond and resolve your request. Please use invented example text where possible and do not send sensitive notes or recovery files unless you decide they are necessary.</p>
+    <p>Support messages are retained only as needed to handle the request and meet applicable obligations. You can contact us to request deletion of information you sent to support, subject to those obligations.</p>
+    <h2>This website</h2>
+    <p>These pages contain no analytics scripts, advertising pixels, contact forms or tracking cookies. Our hosting provider, {{HOSTING_PROVIDER}}, processes connection information needed to serve the pages, such as an IP address and request details. Its handling of that information is described in <a href="{{HOSTING_PRIVACY_URL}}">the hosting provider’s privacy policy</a>.</p>
+    <h2>Questions and changes</h2>
+    <p>For privacy questions, contact {{PUBLISHER_NAME}} at <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>. Changes to this policy will be published here with an updated effective date. If the app’s data practices change, its App Store privacy information will be updated as applicable.</p>
+  </main>
+  <footer><p>© {{YEAR}} {{PUBLISHER_NAME}}</p><p><a href="support.html">Support</a></p></footer>
+</body>
+</html>

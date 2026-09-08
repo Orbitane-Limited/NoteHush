@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Help with NoteHush tabs, saving, local recovery, file formats and keyboard shortcuts.">
+  <title>Support — NoteHush</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="canonical" href="{{SITE_URL}}/support.html">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="40" height="40">NoteHush</a>
+    <nav aria-label="Main"><a href="support.html" aria-current="page">Support</a><a href="privacy.html">Privacy</a></nav>
+  </header>
+  <main id="main" class="article">
+    <p class="eyebrow">NoteHush support</p>
+    <h1>Make yourself at home.</h1>
+    <p class="lead">A few essentials for tabs, files and picking up your work again.</p>
+    <h2>Tabs and shortcuts</h2>
+    <table>
+      <thead><tr><th scope="col">Action</th><th scope="col">Shortcut</th></tr></thead>
+      <tbody>
+        <tr><td>New tab</td><td><kbd>Command + N</kbd></td></tr>
+        <tr><td>Open files</td><td><kbd>Command + O</kbd></td></tr>
+        <tr><td>Save / Save As</td><td><kbd>Command + S</kbd> / <kbd>Shift + Command + S</kbd></td></tr>
+        <tr><td>Next / previous tab</td><td><kbd>Control + Tab</kbd> / <kbd>Shift + Control + Tab</kbd></td></tr>
+        <tr><td>Close tab</td><td><kbd>Command + W</kbd></td></tr>
+        <tr><td>Reopen closed tab</td><td><kbd>Shift + Command + T</kbd></td></tr>
+        <tr><td>Find</td><td><kbd>Command + F</kbd></td></tr>
+        <tr><td>Settings</td><td><kbd>Command + ,</kbd></td></tr>
+        <tr><td>Quit</td><td><kbd>Command + Q</kbd></td></tr>
+      </tbody>
+    </table>
+    <p>You can drag tabs to reorder them or use the Window menu. Reopen Closed Tab keeps up to 20 recently closed tabs. Clear that list with File → Clear Recently Closed Tabs.</p>
+    <h2>Saving and closing are separate</h2>
+    <p>Save and Save As write to the file you choose. NoteHush also keeps private recovery copies of your drafts and edits. Quitting or closing the red window control exits without an unsaved-file confirmation; reopening restores your workspace, including unsaved text.</p>
+    <p>Undo history belongs to each open tab during the current session. Closing a tab or restarting the app ends that undo history; restored text and your place in it are kept separately.</p>
+    <h2>A recovery warning appeared</h2>
+    <p>Use the warning’s Export… action to preserve the available drafts or original recovery data in a location you choose. Retry asks NoteHush to try recovery again. Keep exported recovery files private: they can contain your text and file references.</p>
+    <p>Private recovery is not a substitute for backups. A disk failure, power loss or forced termination can interrupt the latest write. Keep important work in explicitly saved files and your own backup system.</p>
+    <h2>A file moved or changed</h2>
+    <p>If a file is no longer accessible, keep your recovered draft and use the relink or Save As options. If another app changed the file, NoteHush asks how to resolve that change during an explicit save. Your private draft does not silently replace the external file.</p>
+    <h2>Supported text files</h2>
+    <p>NoteHush opens UTF-8, UTF-8 with a byte-order mark, and UTF-16 with a byte-order mark. It preserves supported source encoding and line endings. Invalid or unsupported bytes are rejected so the original file stays intact.</p>
+    <p>Files larger than 100 MiB cannot be opened. NoteHush does not display PDF, Word, rich-text or spreadsheet documents, and it does not provide cloud sync.</p>
+    <h2>Contact support</h2>
+    <p>Email <a href="mailto:{{SUPPORT_EMAIL}}">{{SUPPORT_EMAIL}}</a>. Include the NoteHush version from About NoteHush, your macOS version, what you expected and the steps that led to the problem. A short example made from invented text is useful.</p>
+    <p>Please avoid sending personal notes, private file paths or whole recovery folders. Nothing is attached or sent automatically. See our <a href="privacy.html">privacy policy</a>.</p>
+  </main>
+  <footer><p>© {{YEAR}} {{PUBLISHER_NAME}}</p><p><a href="index.html">NoteHush</a></p></footer>
+</body>
+</html>

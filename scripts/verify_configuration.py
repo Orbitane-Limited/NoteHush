@@ -43,6 +43,16 @@ def validate_undo_diagnostic_bundle(executable):
             raise ValueError("Expected a regular app code artifact")
         validate_undo_diagnostic_exclusion(artifact.read_bytes())
 
+def validate_release_isolation(info, binary):
+    if info.get("NoteHushRequiresTestWorkspace") != "NO":
+        raise ValueError("The release archive must not require a test workspace")
+    if info.get("NoteHushPerformanceBuild") != "NO":
+        raise ValueError("The release archive must not enable performance controls")
+    if any(marker in binary for marker in (
+            b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready",
+            b"PerformanceApplication", b"TypingEventDispatch", b"TabEventDispatch", b"performance-event-")):
+        raise ValueError("Test workspace controls or performance instrumentation reached the release executable")
+
 
 def main():
     version_file = (ROOT / "Config/Version.xcconfig").read_text()
@@ -59,6 +69,9 @@ def main():
         raise ValueError("Review and document any expanded entitlements before changing this allowlist")
     privacy = read_plist(ROOT / "App/NoteHush/Resources/PrivacyInfo.xcprivacy")
     validate_privacy(privacy)
+    source_info = read_plist(ROOT / "App/NoteHush/Info.plist")
+    if source_info.get("ITSAppUsesNonExemptEncryption") is not False:
+        raise ValueError("Review the SHA-only encryption audit before changing the export metadata")
     roadmap = json.loads((ROOT / "docs/roadmap.json").read_text())
     identifiers = {item["id"] for item in roadmap["issues"]}
     for item in roadmap["issues"]:
@@ -77,16 +90,15 @@ def main():
         for key, value in expected.items():
             if info.get(key) != value:
                 raise ValueError(f"Archive {key} differs from the declared product configuration")
-        if info.get("NoteHushRequiresTestWorkspace") != "NO":
-            raise ValueError("The release archive must not require a test workspace")
-        if info.get("NoteHushPerformanceBuild") != "NO":
-            raise ValueError("The release archive must not enable performance controls")
+        if (info.get("ITSAppUsesNonExemptEncryption") is not False
+                or info.get("CFBundleIconName") != "AppIcon"
+                or info.get("CFBundleIconFile") != "AppIcon"
+                or not (contents / "Resources/AppIcon.icns").is_file()):
+            raise ValueError("Archive must include the original app icon and audited export metadata")
         executable = contents / "MacOS/NoteHush"
-        binary = executable.read_bytes()
         validate_undo_diagnostic_bundle(executable)
-        if any(marker in binary for marker in (
-                b"NOTEHUSH_TEST_WORKSPACE", b"ProcessToEditorReady", b"performance-editor-ready")):
-            raise ValueError("Test workspace controls or readiness instrumentation reached the release executable")
+        binary = executable.read_bytes()
+        validate_release_isolation(info, binary)
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")
     print(f"Configuration valid: NoteHush {version[1]} ({build[1]})")

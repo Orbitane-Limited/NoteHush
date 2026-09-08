@@ -80,5 +80,58 @@ class PerformanceMetricsTests(unittest.TestCase):
             module.summarize(tests)
 
 
+class InteractionMetricsTests(unittest.TestCase):
+    def fixture(self):
+        return [{"testIdentifier": f"InteractionPerformanceTests/{name}()", "testRuns": [{"metrics": [
+            {"displayName": identity, "identifier": identity, "unitOfMeasurement": unit,
+             "measurements": [32.0] + [i / 1024 for i in range(1, 20)]}
+            for identity, unit in metrics.items()
+        ]}]} for name, metrics in module.INTERACTION_METRICS.items()]
+
+    def testPreservesEveryInteractionAndDriverObservation(self):
+        report = module.summarize(self.fixture(), suite="interaction")
+        self.assertEqual(report["suite"], "interaction")
+        self.assertEqual(len(report["scenarios"]), 4)
+        for scenario in report["scenarios"]:
+            for metric in scenario["metrics"]:
+                self.assertEqual(metric["count"], 20)
+                self.assertEqual(metric["samples"][0], 32.0)
+                self.assertEqual(metric["median"], 10.5 / 1024)
+                self.assertEqual(metric["p95"], 19 / 1024)
+                self.assertEqual(metric["unit"], "s")
+
+    def testRejectsWrongBoundaryUnitsAndDuplicatedMetrics(self):
+        for field, value in [
+            ("identifier", "com.apple.dt.XCTMetric_OSSignpost-TabEventDispatch.duration"),
+            ("identifier", "com.apple.dt.XCTMetric_OSSignpost-ProcessToEditorReady.duration"),
+            ("unitOfMeasurement", "ms"),
+            ("measurements", [1] * 19), ("measurements", [True] * 20),
+            ("measurements", [float("inf")] * 20), ("measurements", [-1] * 20),
+        ]:
+            tests = self.fixture()
+            tests[0]["testRuns"][0]["metrics"][1][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                module.summarize(tests, suite="interaction")
+        tests = self.fixture()
+        tests[0]["testRuns"][0]["metrics"] *= 2
+        with self.assertRaises(ValueError):
+            module.summarize(tests, suite="interaction")
+
+    def testRejectsPartialRetriedMixedAndWrongSuites(self):
+        fixtures = self.fixture()
+        retried = copy.deepcopy(fixtures)
+        retried[0]["testRuns"] *= 2
+        for invalid in [fixtures[:3], fixtures + fixtures[:1], retried,
+                        fixtures + PerformanceMetricsTests().fixture()]:
+            with self.assertRaises(ValueError):
+                module.summarize(invalid, suite="interaction")
+        with self.assertRaises(ValueError):
+            module.summarize(fixtures)
+        with self.assertRaises(ValueError):
+            module.summarize(PerformanceMetricsTests().fixture(), suite="interaction")
+        with self.assertRaises(ValueError):
+            module.summarize(fixtures, suite="unknown")
+
+
 if __name__ == "__main__":
     unittest.main()
