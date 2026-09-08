@@ -14,6 +14,8 @@
 - Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
+- Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.
+
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 

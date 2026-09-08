@@ -28,6 +28,8 @@ Swift 6; native AppKit; macOS 14 and newer; universal arm64/x86_64 builds. Engli
 | NH-12 | Keyboard-operable tabs, named accessibility controls, visible focus, sufficient contrast, reduced-motion support. Follow native system interactions and editable text semantics. |
 | NH-13 | Privacy policy and support accessible from app/store listing. No developer data collection; local recovery storage is explained. Never send notes in logs, crash attachments, or support requests automatically. |
 
+Help → Privacy… explains current local storage and retention in a native, read-only window that works offline. It opens on request and closes independently of the workspace. The publisher-approved public privacy policy and support links are still required before release; the local explanation does not complete those publishing gates.
+
 ## Persistence behavior matrix
 
 NH-10 counting semantics: characters and columns use extended grapheme clusters (an emoji or composed character counts once), including whitespace and line breaks. CRLF counts as one character and one logical line break. Recognize LF, CR, CRLF, NEL, line separator and paragraph separator; wrapping does not create logical lines. Line/column describe the start of the selection, use one-based numbering, and an empty document has line 1/column 1. The status counts characters touched by a nonempty selection; encoding describes the current file binding (UTF-8 for an untitled draft). Mixed endings remain unchanged. Show an updating state instead of stale counts while background analysis is pending.
