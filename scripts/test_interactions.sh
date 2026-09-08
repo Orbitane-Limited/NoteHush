@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/check_runner_storage.py
+python3 scripts/check_ui_automation.py
 mkdir -p build/logs
 derived="build/PerformanceDerivedData"
 application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
@@ -10,6 +11,7 @@ bash scripts/build_performance.sh
 swift build --product PerformanceFixtureHarness
 fixture_harness="$(swift build --show-bin-path)/PerformanceFixtureHarness"
 python3 scripts/check_runner_storage.py
+python3 scripts/check_ui_automation.py
 manifest="build/interaction-fixtures.json"
 # The host helper creates the fixture manifest without replacing existing evidence.
 # Never clean up a prior run merely because this run could not acquire ownership.

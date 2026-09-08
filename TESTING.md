@@ -18,6 +18,10 @@ Native validation requires the [runner disk-headroom preflight](docs/SELF_HOSTED
 | Performance | startup, restore, typing, tab switch, memory, energy, large files | optimized build + Instruments/signposts |
 | Distribution | sandbox access, signing, privacy resources, universal binary, archive validation | CI artifact inspection + TestFlight |
 
+## Unattended UI prerequisite
+
+Unattended XCTest entry points additionally require `python3 scripts/check_ui_automation.py`. This read-only preflight checks Apple's Automation Mode status before preparation and again after building. Disabled mode requiring administrator authentication, unreadable status or unexpected output fails before test execution. It never changes authorization, inspects system dialogs or substitutes for exclusive input/accessibility. Six offline regressions cover every known status combination, malformed/partial output, command failures, the exact bounded status-only invocation and all three shell drivers stopping before native work. See [runner authorization](docs/SELF_HOSTED_RUNNER.md#ui-automation-authorization).
+
 ## Critical scenarios
 
 1. Create three untitled tabs including emoji, combining marks and Urdu. Edit a named file. Select the middle tab, select text, scroll, resize, quit immediately after typing. Relaunch: content/order/selection/scroll/frame restored, source file unchanged, no save prompt.

@@ -105,6 +105,7 @@ class RunnerStorageTests(unittest.TestCase):
                 scripts.mkdir()
                 (scripts / name).write_text((ROOT / "scripts" / name).read_text())
                 (scripts / "build_performance.sh").write_text("#!/bin/bash\nexit 0\n")
+                (scripts / "check_ui_automation.py").write_text("raise SystemExit(0)\n")
                 # The first check passes; building consumes the available margin.
                 (scripts / "check_runner_storage.py").write_text(
                     "from pathlib import Path\n"
