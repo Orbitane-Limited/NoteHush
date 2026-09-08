@@ -23,3 +23,15 @@ Commands and full build output remain ignored under `build/check_indicator_build
 Run `TabManagementTests` and `TabManagementUITests.testPointerAndKeyboardReorderKeepSelectionAndRestoreOrder` in the confirmed exclusive-input window, along with required full CI. Visually verify the insertion indicator during native drag in light and dark appearance. Review must be resolved before squash merge. Parent #13 retains its full accessibility and supported-system acceptance.
 
 The engineering version remains `0.1.0 (1)`. No issue was closed, no PR was opened, and main was not changed by this preparation.
+
+## Native appearance inspection — 2026-09-08 UTC
+
+The exact production `TabBarView.swift` from `a00c084` was compiled into a private AppKit renderer with three generated, minimal tab models. An offscreen native window rendered the real view in Aqua and Dark Aqua at 2× scale. Only the existing insertion box was exposed at its production 2-by-26-point geometry; this is an appearance fixture, not a simulated claim of a pointer drag. No desktop/user window was captured, no input was sent, and no clipboard was read. The shipping source was unchanged.
+
+Visual inspection confirms the full accent-colored line is visible without a border in both appearances, beside readable tab titles and close/overflow controls. The fixture also confirms the actual custom box has zero border width. Existing native pointer/keyboard reorder CI remains required for real drag callbacks and restored tab order; the rendering does not replace it or parent #13 accessibility acceptance.
+
+![Light appearance](images/2026-09-08-tab-indicator-light.png)
+
+![Dark appearance](images/2026-09-08-tab-indicator-dark.png)
+
+Private renderer source, build log and numeric report remain under the root checkout's `build/tab-indicator-visual/`. The render completed successfully with no warning; no assertions or timeouts were changed.
