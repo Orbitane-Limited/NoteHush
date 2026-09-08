@@ -29,6 +29,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
 
   init(
     snapshot: TabSnapshot, preferences: EditorPreferences = EditorPreferences(),
+    scrollerStyle: NSScroller.Style? = nil,
     analyzer: any TextAnalyzing = BackgroundTextAnalyzer()
   ) {
     id = snapshot.id
@@ -53,6 +54,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor = NSTextView(frame: initialFrame, textContainer: container)
     scrollView = NSScrollView(frame: initialFrame)
     super.init()
+    if let scrollerStyle { scrollView.scrollerStyle = scrollerStyle }
     editor.isRichText = false
     editor.importsGraphics = false
     editor.allowsUndo = true
@@ -73,7 +75,9 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.setAccessibilityLabel(String(localized: "Note text"))
     editor.setAccessibilityIdentifier("note-editor")
     scrollView.hasVerticalScroller = true
-    scrollView.autohidesScrollers = true
+    // Legacy scrollbar auto-hiding can lay out the first paragraph when text
+    // is assigned. Enable it during presentation, after hidden restoration.
+    scrollView.autohidesScrollers = false
     scrollView.translatesAutoresizingMaskIntoConstraints = false
     // Attaching a populated NSTextView invalidates its content style and can
     // force expensive bidirectional layout before any tab is shown.
@@ -274,6 +278,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
       restoring = false
       observingScroll = true
     }
+    scrollView.autohidesScrollers = true
     editor.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
     configureWrapping()
     guard let layout = editor.layoutManager, editor.textContainer != nil,
