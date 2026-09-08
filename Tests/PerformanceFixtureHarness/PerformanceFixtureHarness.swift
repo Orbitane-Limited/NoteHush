@@ -47,7 +47,8 @@ enum PerformanceFixtureHarness {
   static func main() async {
     do {
       guard CommandLine.arguments.count == 4,
-        ["prepare", "verify", "cleanup", "profile"].contains(CommandLine.arguments[1])
+        ["prepare", "prepare-idle", "idle", "verify", "cleanup", "profile"].contains(
+          CommandLine.arguments[1])
       else { throw Failure.arguments }
       let command = CommandLine.arguments[1]
       let app = URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory)
@@ -60,19 +61,23 @@ enum PerformanceFixtureHarness {
           == "NoteHushPerformance"
       else { throw Failure.wrongBuild }
       try requireStopped()
-      if command == "prepare" {
+      if command == "prepare" || command == "prepare-idle" {
         guard !FileManager.default.fileExists(atPath: manifestURL.path) else {
           throw Failure.wrongManifest
         }
-        try await prepare(app, manifestURL)
+        try await prepare(
+          app, manifestURL,
+          scenarios: command == "prepare-idle" ? IdleResourceMeasurement.names : names)
       } else {
         let manifest = try JSONDecoder().decode(
           Manifest.self, from: Data(contentsOf: manifestURL))
         guard manifest.version == 1, manifest.applicationURL == app,
-          manifest.fixtures.map(\.name) == names,
-          Set(manifest.fixtures.map(\.workspace)).count == names.count
+          [names, IdleResourceMeasurement.names].contains(manifest.fixtures.map(\.name)),
+          Set(manifest.fixtures.map(\.workspace)).count == manifest.fixtures.count
         else { throw Failure.wrongManifest }
-        if command == "profile" {
+        if command == "idle" {
+          try await IdleResourceMeasurement.run(app, manifest, manifestURL)
+        } else if command == "profile" {
           try await profile(app, manifest, manifestURL)
         } else if command == "verify" {
           for fixture in manifest.fixtures { try await verify(fixture) }
@@ -163,7 +168,7 @@ enum PerformanceFixtureHarness {
     }
   }
 
-  private static func prepare(_ app: URL, _ manifestURL: URL) async throws {
+  private static func prepare(_ app: URL, _ manifestURL: URL, scenarios: [String]) async throws {
     for value in [nil, "invalid-workspace"] as [String?] {
       let child = Process()
       child.executableURL = app.appending(path: "Contents/MacOS/NoteHushPerformance")
@@ -184,7 +189,7 @@ enum PerformanceFixtureHarness {
     var owned: [UUID] = []
     do {
       var fixtures: [Fixture] = []
-      for name in names {
+      for name in scenarios {
         let workspace = UUID()
         owned.append(workspace)
         let configuration = NSWorkspace.OpenConfiguration()
@@ -192,8 +197,10 @@ enum PerformanceFixtureHarness {
         configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": workspace.uuidString]
         let process = try await NSWorkspace.shared.openApplication(
           at: app, configuration: configuration)
+        guard process.bundleURL?.standardizedFileURL == app, process.bundleIdentifier == bundleID
+        else { throw Failure.wrongBuild }
         do {
-          guard process.bundleURL?.standardizedFileURL == app else { throw Failure.wrongBuild }
+          // Failure cleanup may target only this independently identified app.
           // Observe only publication, without contending for the live writer lock.
           try await wait {
             !process.isTerminated
@@ -250,7 +257,7 @@ enum PerformanceFixtureHarness {
     }
   }
 
-  private static func verify(_ fixture: Fixture) async throws {
+  static func verify(_ fixture: Fixture) async throws {
     guard
       let recovered = try await RecoveryStore(directory: root(fixture.workspace)).load().snapshot,
       recovered.revision > fixture.seedRevision,
@@ -262,12 +269,12 @@ enum PerformanceFixtureHarness {
     else { throw Failure.fixtureMismatch }
   }
 
-  private static func requireStopped() throws {
+  static func requireStopped() throws {
     guard NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty else {
       throw Failure.appRunning
     }
   }
-  private static func root(_ workspace: UUID) -> URL {
+  static func root(_ workspace: UUID) -> URL {
     FileManager.default.homeDirectoryForCurrentUser.appending(
       path:
         "Library/Containers/\(bundleID)/Data/Library/Application Support/NoteHush/UITests/\(workspace.uuidString)"
@@ -279,7 +286,7 @@ enum PerformanceFixtureHarness {
       try FileManager.default.removeItem(at: directory)
     }
   }
-  private static func wait(_ predicate: () -> Bool) async throws {
+  static func wait(_ predicate: () -> Bool) async throws {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: .seconds(20))
     while !predicate() {
