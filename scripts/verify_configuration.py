@@ -43,6 +43,7 @@ def validate_undo_diagnostic_bundle(executable):
             raise ValueError("Expected a regular app code artifact")
         validate_undo_diagnostic_exclusion(artifact.read_bytes())
 
+
 def validate_release_isolation(info, binary):
     if info.get("NoteHushRequiresTestWorkspace") != "NO":
         raise ValueError("The release archive must not require a test workspace")
