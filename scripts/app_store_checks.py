@@ -95,7 +95,7 @@ def canonical_profile_uuid(value):
     return canonical
 
 
-def validate_profile(profile, team, certificate_sha1, now=None):
+def validate_profile(profile, team, certificate_sha1, now=None, *, manual_signing=False):
     require(re.fullmatch(r"[A-Z0-9]{10}", team), "Invalid publisher team")
     require(re.fullmatch(r"[0-9A-F]{40}", certificate_sha1), "Invalid application certificate fingerprint")
     require(profile.get("TeamIdentifier") == [team], "Profile publisher team mismatch")
@@ -124,6 +124,9 @@ def validate_profile(profile, team, certificate_sha1, now=None):
     require(certificate_sha1 in {hashlib.sha1(item).hexdigest().upper() for item in certificates},
             "Signing certificate is not authorized by the profile")
     canonical_profile_uuid(profile.get("UUID"))
+    if manual_signing:
+        require(profile.get("IsXcodeManaged", False) is False,
+                "Manual delivery requires a custom profile; use Xcode automatic signing for managed profiles")
     return identifier
 
 

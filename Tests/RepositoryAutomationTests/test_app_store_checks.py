@@ -57,6 +57,17 @@ class AppStoreChecksTests(unittest.TestCase):
             with self.subTest(value=invalid), self.assertRaises(ValueError):
                 checks.validate_profile({**self.profile, "UUID": invalid}, self.team, self.fingerprint)
 
+    def testManagedStoreProfilesAreValidButCannotSelectManualDelivery(self):
+        managed = {**self.profile, "IsXcodeManaged": True}
+        self.assertEqual(checks.validate_profile(managed, self.team, self.fingerprint), self.app_id)
+        for flag in (True, 1, "true", None):
+            with self.subTest(flag=flag), self.assertRaisesRegex(ValueError, "custom profile"):
+                checks.validate_profile({**self.profile, "IsXcodeManaged": flag},
+                                        self.team, self.fingerprint, manual_signing=True)
+        for profile in (self.profile, {**self.profile, "IsXcodeManaged": False}):
+            self.assertEqual(checks.validate_profile(profile, self.team, self.fingerprint,
+                                                    manual_signing=True), self.app_id)
+
     def testSignatureRequirementIsAcceptedByNativeCompiler(self):
         # Exercise Apple's actual requirement parser without a signing identity.
         # codesign and csreq share the literal-versus-filename input convention.

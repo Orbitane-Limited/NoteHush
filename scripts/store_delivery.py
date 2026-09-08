@@ -184,7 +184,7 @@ def deliver(assets):
     profile_path = assets.directory / "profile.provisionprofile"
     private_write(profile_path, base64.b64decode(secret("STORE_PROFILE_BASE64"), validate=True))
     profile = plistlib.loads(native(["security", "cms", "-D", "-i", str(profile_path)]))
-    validate_profile(profile, team, app_certificate)
+    validate_profile(profile, team, app_certificate, manual_signing=True)
     key_id, issuer = secret("STORE_API_KEY_ID"), secret("STORE_API_ISSUER_ID")
     require(re.fullmatch(r"[A-Z0-9]{10}", key_id), "Invalid API key identity")
     key_directory = assets.directory / "private_keys"
