@@ -15,3 +15,12 @@ xcodebuild -project NoteHush.xcodeproj -scheme NoteHushPerformance -configuratio
   build-for-testing 2>&1 | tee build/logs/performance-build.log
 codesign --force --sign - --entitlements Config/NoteHush.entitlements "$application"
 python3 scripts/verify_test_app.py "$application" --configuration ReleasePerformance
+python3 - <<'PY'
+from pathlib import Path
+import sys
+sys.path.insert(0, "scripts")
+from verify_configuration import validate_undo_diagnostic_bundle
+validate_undo_diagnostic_bundle(Path(
+    "build/PerformanceDerivedData/Build/Products/ReleasePerformance/"
+    "NoteHushPerformance.app/Contents/MacOS/NoteHushPerformance"))
+PY
