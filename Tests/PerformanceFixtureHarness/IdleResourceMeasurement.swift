@@ -42,9 +42,13 @@ enum IdleResourceMeasurement {
     let exactFixtureVerification = true
   }
 
-  private enum Failure: Error {
+  private enum Failure: String, Error {
     case wrongFixtureSet, wrongProcess, unavailableCounters, changedProcess, inactiveApp
     case evidenceWrite, invalidDuration, changedPresentation
+  }
+
+  static func failureCode(for error: Error) -> String? {
+    (error as? Failure)?.rawValue
   }
 
   static func run(_ app: URL, _ manifest: Harness.Manifest, _ manifestURL: URL) async throws {
