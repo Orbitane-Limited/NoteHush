@@ -242,6 +242,9 @@ enum PerformanceFixtureHarness {
             let anchor = 16 + (bytes / 16 / 2) * lineLength
             tab.selection = TextSelection(location: anchor + 10 * lineLength)
             tab.scroll = TextScrollPosition(anchor: anchor, offset: 3)
+          } else if scenarios == IdleResourceMeasurement.names {
+            // A declared idle viewport avoids guessing the app's inset-relative default.
+            tab.scroll = TextScrollPosition(anchor: 0, offset: 0)
           }
           return tab
         }

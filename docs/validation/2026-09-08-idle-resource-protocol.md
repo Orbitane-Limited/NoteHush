@@ -4,7 +4,7 @@ Date: 2026-09-08. Issue #56, child of #12. Starting source: main `2c786fac01a59e
 
 ## Scope and ownership
 
-`PerformanceFixtureHarness prepare-idle` uses the existing optimized, UUID-isolated app to generate exactly two workloads: one empty tab and 20 tabs of 256 KiB each, totaling 5 MiB with alternating ASCII and Arabic/combining-mark/emoji CRLF. It preserves the existing launch-guard checks and warm filesystem-cache conditions. No app runtime source, build entitlement, recovery format or functional timeout changes.
+`PerformanceFixtureHarness prepare-idle` uses the existing optimized, UUID-isolated app to generate exactly two workloads: one empty tab and 20 tabs of 256 KiB each, totaling 5 MiB with alternating ASCII and Arabic/combining-mark/emoji CRLF. Each tab has an explicit logical scroll anchor 0/offset 0; the app's missing-scroll default is inset-relative and must not be guessed by the verifier. It preserves the existing launch-guard checks and warm filesystem-cache conditions. No app runtime source, build entitlement, recovery format or functional timeout changes.
 
 The `idle` command requires those exact fixture names and the existing manifest's application URL, bundle markers and unique UUIDs. Before each case, it refuses an already-running performance app. Only the process returned by the exact LaunchServices request is eligible for counters or termination, after its bundle URL and identifier match. Each reading checks that process again, plus its unchanged kernel start identity. No task port, debugger, global process list, unrelated app, user workspace, note text, path, bookmark or clipboard data is collected by the sampler. The existing private fixture/provenance manifests contain only the generated workspace/build references.
 
@@ -20,7 +20,7 @@ RSS and physical footprint are different counters, reported separately in bytes 
 
 ## Completion and evidence
 
-Request normal app termination, require it to finish within the existing 20-second host bound, then verify all open/closed buffer digests, order and selected tab. Compare every open-tab UTF-16 selection, normalized default preferences and logical viewport/offset with the seed; zero/nil initial scroll representation is normalized, with the existing one-point viewport tolerance. Only then append the verified finish record and flush/close the private evidence file.
+Request normal app termination, require it to finish within the existing 20-second host bound, then verify all open/closed buffer digests, order and selected tab. Compare every open-tab UTF-16 selection, normalized default preferences and explicit logical viewport/offset with the seed, using the existing one-point viewport tolerance. Missing recovered scroll data is a failure. Only then append the verified finish record and flush/close the private evidence file.
 
 Raw files use exclusive creation, no-follow protection and mode 0600. The operator script creates a unique private run directory and never automatically deletes its fixtures, including after collection failure. Partial or missing files remain available. A failure stops downstream summary publication; the collector may force only its own identified process as a failed-run cleanup after ordinary termination has failed. This never counts as normal termination. Inspect retained outcomes before explicitly cleaning a generated manifest with the existing helper. The existing preparation helper's failure cleanup is separate from completed fixture collection.
 
