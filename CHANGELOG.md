@@ -5,6 +5,8 @@
 ### Added
 
 - Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
+- Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
+- Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
@@ -50,6 +52,7 @@ No production release has been published.
 
 ### Validation
 
+- Complete four-workload interaction baseline with 160 retained native-dispatch/automation observations and exact recovery checks; mixed-script performance and release budgets remain open.
 - Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
 
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.

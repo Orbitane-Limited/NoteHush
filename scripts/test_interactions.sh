@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
+source scripts/performance_fixture_exit.sh
+mkdir -p build/logs
+derived="build/PerformanceDerivedData"
+application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
+destination="platform=macOS,arch=$(uname -m)"
+bash scripts/build_performance.sh
+swift build --product PerformanceFixtureHarness
+fixture_harness="$(swift build --show-bin-path)/PerformanceFixtureHarness"
+python3 scripts/check_runner_storage.py
+manifest="build/interaction-fixtures.json"
+# The host helper creates the fixture manifest without replacing existing evidence.
+# Never clean up a prior run merely because this run could not acquire ownership.
+"$fixture_harness" prepare-interactions "$application" "$manifest"
+trap 'performance_fixture_exit "$?" "$fixture_harness" cleanup "$application" "$manifest"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+result="build/logs/Interaction-$(uuidgen).xcresult"
+python3 scripts/performance_environment.py "$manifest" "${result%.xcresult}-environment.json"
+# These opt-in tests perform 20 interactions plus exact recovery checks. Their allowance does not
+# change the functional CI suite's 30/60-second per-case limits.
+xcodebuild -project NoteHush.xcodeproj -scheme NoteHushPerformance -configuration ReleasePerformance \
+  -destination "$destination" -derivedDataPath "$derived" -resultBundlePath "$result" \
+  -only-testing:NoteHushPerformanceTests/InteractionPerformanceTests \
+  -parallel-testing-enabled NO -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 600 -maximum-test-execution-time-allowance 600 \
+  CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual test-without-building 2>&1 | tee build/logs/interaction-tests.log
+python3 scripts/verify_test_app.py "$application" --configuration ReleasePerformance
+"$fixture_harness" verify "$application" "$manifest"
+xcrun xcresulttool export metrics --path "$result" --output-path "${result%.xcresult}-metrics"
+xcrun xcresulttool get test-results metrics --path "$result" > "${result%.xcresult}-raw.json"
+python3 scripts/summarize_performance.py --suite interaction "${result%.xcresult}-raw.json" "${result%.xcresult}-summary.json"
