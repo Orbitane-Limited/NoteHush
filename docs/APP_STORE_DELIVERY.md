@@ -6,7 +6,9 @@ The separate [App Store workflow](../.github/workflows/app-store.yml) runs only 
 
 ## Publisher setup
 
-Confirm the registered seller, Apple Developer team and `pk.codehub.NoteHush` bundle identifier before reserving the explicit App ID or creating the App Store Connect record. Confirm the app's numeric Apple ID after creating that record. No app record or certificate is created by this workflow, and `-allowProvisioningUpdates` is deliberately absent: delivery uses the reviewed assets supplied to it.
+The publisher confirmed Apple Developer team **`4T674XS5MF`** on 2026-09-08 UTC. A read-only local identity check found one valid Developer ID Application identity for that team, but no valid Store application or installer identity. This confirms the selected team, not account access, the registered seller, an App ID or an App Store Connect record. See the [dated local check](validation/2026-09-08-signing-environment.md).
+
+Confirm the registered seller and `pk.codehub.NoteHush` bundle identifier before reserving the explicit App ID or creating the App Store Connect record under team `4T674XS5MF`. Confirm the app's numeric Apple ID after creating that record. No app record or certificate is created by this workflow, and `-allowProvisioningUpdates` is deliberately absent: delivery uses the reviewed assets supplied to it.
 
 Prepare an Apple Distribution or Mac App Distribution application identity, a Mac Installer Distribution identity, and a Mac App Store Connect provisioning profile for the explicit App ID. Both certificates need their private keys. Export those two identities together to a password-protected PKCS#12. A Developer ID Application identity signs software distributed outside the Store and cannot satisfy this pipeline. See Apple's [certificate roles](https://developer.apple.com/help/account/certificates/certificates-overview) and [Store profile setup](https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile/).
 
@@ -20,7 +22,7 @@ Set these **environment variables** after confirming the publisher's assets:
 
 | Variable | Value |
 | --- | --- |
-| `STORE_TEAM_ID` | Ten-character Apple Developer team ID |
+| `STORE_TEAM_ID` | `4T674XS5MF` — publisher confirmed 2026-09-08 UTC |
 | `STORE_CONFIRMED_BUNDLE_ID` | `pk.codehub.NoteHush`, after publisher confirmation |
 | `STORE_APP_ID` | Numeric Apple ID of the matching App Store Connect record |
 | `STORE_APP_CERTIFICATE_SHA1` | Exact application signing certificate fingerprint, 40 hex characters |
@@ -67,12 +69,12 @@ SIGKILL, power loss or a disconnected runner cannot guarantee executing cleanup.
 This is a prepared manual delivery path; it has not been executed. Apple supports [Xcode uploads](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/) and documents [Organizer distribution](https://help.apple.com/xcode/mac/current/en.lproj/dev442d7f2ca.html). GitHub environment protection and an App Store Connect API key are not required for the publisher to use their Xcode account. The guarded Actions workflow remains disabled until its own protection requirements are met. Do not imitate a GitHub run in local environment variables to bypass its preflight.
 
 1. Finish the issue PRs and review, then identify the exact clean main commit with successful complete CI. Record that SHA, CI run, Xcode version, marketing version and new global build number. Inspect App Store Connect's previous builds before choosing that number; serialize uploads across Organizer and automation.
-2. Confirm the publisher team, explicit App ID, Store app record and both Store signing identities. Use the publisher's local Xcode account and reviewed provisioning assets. Resolve account or certificate prompts with the publisher; do not create replacement identities, change teams or export private keys as a side effect of preparing documentation.
+2. Select the confirmed publisher team `4T674XS5MF`; verify the explicit App ID, Store app record and both Store signing identities belong to it. Use the publisher's local Xcode account and reviewed provisioning assets. Resolve account or certificate prompts with the publisher; do not create replacement identities, change teams or export private keys as a side effect of preparing documentation.
 3. Open the reviewed project, choose the production `NoteHush` scheme and its Release Archive action, and use Product → Archive. Confirm universal architectures, macOS 14 deployment, Hardened Runtime, the four product entitlements and absence of test controls. Any tracked source/configuration change goes through its issue PR and CI before rebuilding the candidate. The existing unsigned engineering archive is not the signed candidate.
 4. In Organizer, select that archive and the App Store Connect distribution method. Validate it, review the actual signing certificate, provisioning profile and entitlements, and export a Store package for inspection. Disable automatic version/build-number changes. Record the exported package checksum and inspect its embedded app with the same version, identity, sandbox, privacy and probe-exclusion checks described above. Treat any changed export/signature as a new artifact requiring verification. Apple's [archive validation instructions](https://help.apple.com/xcode/mac/current/en.lproj/dev37441e273.html) describe the account-side check; passing it alone does not prove installation.
 5. Present the concrete commit, version/build, validation results and signing summary for the publisher's upload decision. Upload that reviewed candidate with Organizer, retain its delivery receipt, and confirm the processed build matches. An ambiguous upload outcome requires checking the server before retrying. Continue with installed TestFlight acceptance below; uploading does not submit for App Review or authorize a production release.
 
-Manual delivery must retain a dated, redacted evidence report with the same candidate identity and validation outcomes as automation. Keep private signing/export diagnostics and credentials outside tracked files. Publisher confirmation, actual signing, package validation, upload, processing and installation remain unverified today.
+Manual delivery must retain a dated, redacted evidence report with the same candidate identity and validation outcomes as automation. Keep private signing/export diagnostics and credentials outside tracked files. The team is confirmed; the remaining publisher setup, actual signing, package validation, upload, processing and installation remain unverified today.
 
 ## Checks after upload
 

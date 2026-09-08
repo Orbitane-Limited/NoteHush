@@ -47,3 +47,30 @@ syntax. Help inspection performed no authentication or upload; it does not
 validate Apple's server-side acceptance of a candidate. The initial sandboxed
 help invocation failed without a usable result; the read-only tool inspection
 outside that sandbox succeeded. No system permission or account setting changed.
+
+## Publisher team confirmation
+
+On 2026-09-08 UTC the publisher explicitly confirmed Apple Developer team
+`4T674XS5MF`. A fresh read-only `security find-identity -v` check, with the same
+restricted child environment, counted the valid local identities matching that
+team without printing certificate holder names or exporting private keys:
+
+| Identity role | Valid local identities |
+| --- | ---: |
+| Apple Distribution or Mac App Distribution | 0 |
+| Mac Installer Distribution | 0 |
+| Developer ID Application | 1 |
+| Apple Development or Mac Development | 0 |
+
+This is a local availability check, not a remote certificate inventory or proof
+of authenticated Xcode/App Store Connect access. A Developer ID Application
+certificate is for distribution outside the Mac App Store; Apple's
+[certificate roles](https://developer.apple.com/help/account/certificates/certificates-overview)
+distinguish it from Store application and installer identities. No certificate,
+keychain, profile, account or repository secret was changed.
+
+The confirmed value is recorded as `STORE_TEAM_ID` in the delivery setup. The
+separately supplied membership Developer ID was not mapped to an App Store
+Connect API issuer or app ID. Seller, explicit App ID, Store app record, Store
+signing assets and live delivery remain pending under #14. Team confirmation
+does not complete that issue's combined publisher/account acceptance criterion.

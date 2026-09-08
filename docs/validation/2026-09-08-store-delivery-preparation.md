@@ -37,7 +37,7 @@ Local evidence remains ignored under this worktree's `build/logs/`: `store-repos
 
 ## Gates still open
 
-- Publisher team/bundle confirmation; matching App ID and App Store Connect app record.
+- Seller/bundle confirmation; matching App ID and App Store Connect app record. Follow-up on 2026-09-08 UTC: the publisher confirmed team `4T674XS5MF`; the [local identity check](2026-09-08-signing-environment.md) does not verify the remaining account setup.
 - Available GitHub environment protection and real reviewer setup, with settings checked and required secrets configured. A later read-only check confirmed a private repository on the organization's Free plan, which cannot provide the required environment. See the [recorded configuration constraint](../APP_STORE_DELIVERY.md). No billing/visibility change was made and no claim that source YAML enables remote protection is made.
 - Actual Store application/installer identities and profile. The observed installed Developer ID Application identity does not qualify.
 - Real archive/export/signature/profile/entitlement validation and real cleanup on this Mac with signing assets. Fixture tests do not substitute for those operations.
