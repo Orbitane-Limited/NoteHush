@@ -51,6 +51,8 @@ No production release has been published.
 - Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
+- Store quarantine verification uses macOS's native attribute tool for archives and packages, preserving the no-follow and reject-without-removal behavior.
+
 - Store signature verification passes its Apple-chain and publisher-team requirement as literal source to codesign, and uses the supported certificate-extraction argument format.
 
 - Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.

@@ -82,6 +82,56 @@ class AppStoreChecksTests(unittest.TestCase):
                                     env=checks.tool_environment(), timeout=30)
             self.assertEqual(parsed.returncode, 0, "Extracted leaf must be a real X.509 certificate")
 
+    def testNativeQuarantineInspectionRejectsRootNestedFileAndPackage(self):
+        # Real macOS attributes exercise the platform boundary. Only generated
+        # files are marked; the verifier must detect, never remove, quarantine.
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "fixture archive"
+            nested = root / "Contents" / "generated file"
+            nested.parent.mkdir(parents=True)
+            nested.write_bytes(b"generated fixture")
+            package = Path(directory) / "generated.pkg"
+            package.write_bytes(b"generated fixture")
+            for target in (root, nested, package):
+                with self.subTest(target=target.name):
+                    scope = package if target == package else root
+                    checks.verify_no_quarantine(scope)
+                    subprocess.run(["/usr/bin/xattr", "-w", "com.apple.quarantine",
+                                    "0081;00000000;NoteHushFixture;", str(target)],
+                                   check=True, capture_output=True, timeout=30)
+                    with self.assertRaises(ValueError):
+                        checks.verify_no_quarantine(scope)
+                    retained = subprocess.run(["/usr/bin/xattr", "-p", "com.apple.quarantine", str(target)],
+                                              check=True, capture_output=True, timeout=30)
+                    self.assertEqual(retained.stdout.strip(), b"0081;00000000;NoteHushFixture;")
+                    subprocess.run(["/usr/bin/xattr", "-d", "com.apple.quarantine", str(target)],
+                                   check=True, capture_output=True, timeout=30)
+                    checks.verify_no_quarantine(scope)
+
+    def testNativeQuarantineInspectionDoesNotFollowSymlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "archive"
+            root.mkdir()
+            target = Path(directory) / "outside fixture"
+            target.write_bytes(b"generated fixture")
+            subprocess.run(["/usr/bin/xattr", "-w", "com.apple.quarantine",
+                            "0081;00000000;NoteHushFixture;", str(target)],
+                           check=True, capture_output=True, timeout=30)
+            (root / "link").symlink_to(target)
+            (root / "dangling").symlink_to(Path(directory) / "missing")
+            checks.verify_no_quarantine(root)
+            root_link = Path(directory) / "root link"
+            root_link.symlink_to(target)
+            checks.verify_no_quarantine(root_link)
+
+    def testUninspectableQuarantineCannotPass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                checks.verify_no_quarantine(Path(directory) / "missing")
+            with mock.patch.object(checks, "command", side_effect=ValueError("native check failed")):
+                with self.assertRaises(ValueError):
+                    checks.verify_no_quarantine(Path(directory))
+
     def testWrongExpiredDevelopmentAndWildcardProfilesFail(self):
         for field, value in [
             ("TeamIdentifier", ["WRONGTEAM1"]), ("Platform", ["iOS"]),

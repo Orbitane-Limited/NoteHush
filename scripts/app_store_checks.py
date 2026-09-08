@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import stat
 import subprocess
 import uuid
 
@@ -170,14 +171,21 @@ def tool_environment():
 
 
 def verify_no_quarantine(root):
+    def inspect(path):
+        # Python's os.listxattr is Linux-only. macOS xattr lists names without
+        # values; -s inspects a symlink itself, preserving the no-follow policy.
+        names = command(["/usr/bin/xattr", "-s", str(Path(path).absolute())]).splitlines()
+        require(b"com.apple.quarantine" not in names,
+                "Quarantine attribute found in distribution artifacts")
+
     def unreadable(_):
         raise ValueError("Cannot inspect every distribution artifact")
+    inspect(root)
+    if not stat.S_ISDIR(Path(root).lstat().st_mode):
+        return
     for directory, folders, files in os.walk(root, followlinks=False, onerror=unreadable):
         for name in [*folders, *files]:
-            path = Path(directory) / name
-            require("com.apple.quarantine" not in os.listxattr(path, follow_symlinks=False),
-                    "Quarantine attribute found in distribution artifacts")
-    require("com.apple.quarantine" not in os.listxattr(root), "Quarantined distribution artifact")
+            inspect(Path(directory) / name)
 
 
 def verify_code_signature(path, team):

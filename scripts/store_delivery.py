@@ -228,7 +228,7 @@ def deliver(assets):
     require("3rd Party Mac Developer Installer:" in signature
             and installer_sha256 in re.sub(r"\s+", "", signature).upper(),
             "Package signature does not match the selected Store installer certificate")
-    require("com.apple.quarantine" not in os.listxattr(package), "Quarantined Store package")
+    verify_no_quarantine(package)
     expanded = output / "Expanded"
     native(["pkgutil", "--expand-full", str(package), str(expanded)])
     exported_apps = list(expanded.rglob("NoteHush.app"))
