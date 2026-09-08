@@ -27,9 +27,10 @@ final class FilePanelTests: XCTestCase {
     app.typeKey("g", modifierFlags: [.command, .shift])
     let field = app.textFields["PathTextField"]
     XCTAssertTrue(field.waitForExistence(timeout: 5))
-    field.click()
-    app.typeKey("a", modifierFlags: .command)
+    // Go to Folder focuses and selects its path; clicking would clear that selection.
     field.typeText(url.path)
+    XCTAssertTrue(
+      (field.value as? String) == url.path, "The folder field must contain the generated path")
     app.typeKey(.return, modifierFlags: [])
   }
 

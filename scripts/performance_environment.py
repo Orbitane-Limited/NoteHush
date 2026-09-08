@@ -61,7 +61,9 @@ def main():
         "swift": command("swift", "--version"),
         "powerSource": power_summary(command("pmset", "-g", "batt")),
         "displayAndThermalAtFixturePreparation": manifest["environment"],
-        "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+        "cacheConditions": ("One fresh process per scenario, then warmed repeated interactions and a final restart; warm filesystem caches."
+                            if manifest["fixtures"][0]["name"] == "typingASCII" else
+                            "Fresh processes; warm filesystem caches after host fixture preparation."),
         "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately.",
     }
     args.output.write_text(json.dumps(report, indent=2) + "\n")

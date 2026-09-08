@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
 mkdir -p build/logs
 derived="build/PerformanceDerivedData"
 application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
@@ -8,6 +9,7 @@ destination="platform=macOS,arch=$(uname -m)"
 bash scripts/build_performance.sh
 swift build --product PerformanceFixtureHarness
 fixture_harness="$(swift build --show-bin-path)/PerformanceFixtureHarness"
+python3 scripts/check_runner_storage.py
 manifest="build/performance-fixtures.json"
 # The host helper creates the fixture manifest without replacing existing evidence.
 # Never clean up a prior run merely because this run could not acquire ownership.
@@ -22,6 +24,7 @@ python3 scripts/performance_environment.py "$manifest" "${result%.xcresult}-envi
 # change the functional CI suite's 30/60-second per-case limits.
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHushPerformance -configuration ReleasePerformance \
   -destination "$destination" -derivedDataPath "$derived" -resultBundlePath "$result" \
+  -only-testing:NoteHushPerformanceTests/LaunchPerformanceTests \
   -parallel-testing-enabled NO -test-timeouts-enabled YES \
   -default-test-execution-time-allowance 600 -maximum-test-execution-time-allowance 600 \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual test-without-building 2>&1 | tee build/logs/performance-tests.log

@@ -9,6 +9,7 @@ import NoteHushCore
 enum PerformanceFixtureHarness {
   static let bundleID = "pk.codehub.NoteHush.PerformanceTesting"
   static let names = ["empty", "fiveMiB", "thirtyMiB"]
+  static let interactionNames = ["typingASCII", "typingMixed", "switchASCII", "switchMixed"]
 
   struct Fixture: Codable {
     let name: String
@@ -19,6 +20,9 @@ enum PerformanceFixtureHarness {
     let closedIDs: [UUID]
     let closedDigests: [Data]
     let seedRevision: UInt64
+    let targetTab: UUID?
+    let tabSelections: [TextSelection]
+    let tabScrolls: [TextScrollPosition?]
   }
   struct Manifest: Codable {
     let version: Int
@@ -47,7 +51,8 @@ enum PerformanceFixtureHarness {
   static func main() async {
     do {
       guard CommandLine.arguments.count == 4,
-        ["prepare", "verify", "cleanup", "profile"].contains(CommandLine.arguments[1])
+        ["prepare", "prepare-interactions", "verify", "cleanup", "profile"].contains(
+          CommandLine.arguments[1])
       else { throw Failure.arguments }
       let command = CommandLine.arguments[1]
       let app = URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory)
@@ -60,17 +65,18 @@ enum PerformanceFixtureHarness {
           == "NoteHushPerformance"
       else { throw Failure.wrongBuild }
       try requireStopped()
-      if command == "prepare" {
+      if command == "prepare" || command == "prepare-interactions" {
         guard !FileManager.default.fileExists(atPath: manifestURL.path) else {
           throw Failure.wrongManifest
         }
-        try await prepare(app, manifestURL)
+        try await prepare(
+          app, manifestURL, scenarios: command == "prepare" ? names : interactionNames)
       } else {
         let manifest = try JSONDecoder().decode(
           Manifest.self, from: Data(contentsOf: manifestURL))
         guard manifest.version == 1, manifest.applicationURL == app,
-          manifest.fixtures.map(\.name) == names,
-          Set(manifest.fixtures.map(\.workspace)).count == names.count
+          [names, interactionNames].contains(manifest.fixtures.map(\.name)),
+          Set(manifest.fixtures.map(\.workspace)).count == manifest.fixtures.count
         else { throw Failure.wrongManifest }
         if command == "profile" {
           try await profile(app, manifest, manifestURL)
@@ -163,7 +169,7 @@ enum PerformanceFixtureHarness {
     }
   }
 
-  private static func prepare(_ app: URL, _ manifestURL: URL) async throws {
+  private static func prepare(_ app: URL, _ manifestURL: URL, scenarios: [String]) async throws {
     for value in [nil, "invalid-workspace"] as [String?] {
       let child = Process()
       child.executableURL = app.appending(path: "Contents/MacOS/NoteHushPerformance")
@@ -184,7 +190,7 @@ enum PerformanceFixtureHarness {
     var owned: [UUID] = []
     do {
       var fixtures: [Fixture] = []
-      for name in names {
+      for name in scenarios {
         let workspace = UUID()
         owned.append(workspace)
         let configuration = NSWorkspace.OpenConfiguration()
@@ -192,8 +198,12 @@ enum PerformanceFixtureHarness {
         configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": workspace.uuidString]
         let process = try await NSWorkspace.shared.openApplication(
           at: app, configuration: configuration)
+        guard process.bundleURL?.standardizedFileURL == app, process.bundleIdentifier == bundleID
+        else {
+          throw Failure.wrongBuild
+        }
         do {
-          guard process.bundleURL?.standardizedFileURL == app else { throw Failure.wrongBuild }
+          // Only this verified fixture process is eligible for failure cleanup.
           // Observe only publication, without contending for the live writer lock.
           try await wait {
             !process.isTerminated
@@ -211,15 +221,31 @@ enum PerformanceFixtureHarness {
         guard let initial = try await store.load().snapshot, initial.revision < UInt64.max else {
           throw Failure.checkpointMissing
         }
-        let open = name == "empty" ? 1 : name == "fiveMiB" ? 20 : 100
-        let closed = name == "thirtyMiB" ? 20 : 0
-        let tabs = (0..<open).map { TabSnapshot(text: text($0, empty: name == "empty")) }
+        let interaction = interactionNames.contains(name)
+        let typing = name.hasPrefix("typing")
+        let open =
+          interaction ? (typing ? 2 : 20) : name == "empty" ? 1 : name == "fiveMiB" ? 20 : 100
+        let closed = interaction ? 2 : name == "thirtyMiB" ? 20 : 0
+        let tabs = (0..<open).map { index -> TabSnapshot in
+          let bytes = typing ? 1024 * 1024 : 256 * 1024
+          var tab = TabSnapshot(text: text(index, empty: name == "empty", bytes: bytes))
+          if interaction {
+            let lineLength = (index % 2 == 0 ? "generated line\r\n" : "خط e\u{301} 📝.\r\n").utf16
+              .count
+            let anchor = 16 + (bytes / 16 / 2) * lineLength
+            tab.selection = TextSelection(location: anchor + 10 * lineLength)
+            tab.scroll = TextScrollPosition(anchor: anchor, offset: 3)
+          }
+          return tab
+        }
+        let target = interaction ? (name.hasSuffix("ASCII") ? open - 2 : open - 1) : open - 1
+        let selected = interaction && !typing ? (target == open - 1 ? open - 2 : open - 1) : target
         let history = (0..<closed).map {
           ClosedTabSnapshot(
             tab: TabSnapshot(text: text(open + $0, empty: false)), originalIndex: $0)
         }
         let snapshot = WorkspaceSnapshot(
-          revision: initial.revision + 1, tabs: tabs, selectedTabID: tabs[open - 1].id,
+          revision: initial.revision + 1, tabs: tabs, selectedTabID: tabs[selected].id,
           closedTabs: history)
         try await store.commit(snapshot)
         fixtures.append(
@@ -228,7 +254,8 @@ enum PerformanceFixtureHarness {
             tabIDs: tabs.map(\.id), tabDigests: tabs.map { digest($0.text) },
             closedIDs: history.map { $0.tab.id },
             closedDigests: history.map { digest($0.tab.text) },
-            seedRevision: snapshot.revision))
+            seedRevision: snapshot.revision, targetTab: interaction ? tabs[target].id : nil,
+            tabSelections: tabs.map(\.selection), tabScrolls: tabs.map(\.scroll)))
       }
       let environment = Environment(
         capturedAt: Date(), lowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled,
@@ -260,6 +287,24 @@ enum PerformanceFixtureHarness {
       (recovered.closedTabs ?? []).map({ $0.tab.id }) == fixture.closedIDs,
       (recovered.closedTabs ?? []).map({ digest($0.tab.text) }) == fixture.closedDigests
     else { throw Failure.fixtureMismatch }
+    if fixture.targetTab != nil {
+      guard recovered.tabs.map(\.selection) == fixture.tabSelections,
+        recovered.tabs.count == fixture.tabScrolls.count
+      else { throw Failure.fixtureMismatch }
+      for (tab, expected) in zip(recovered.tabs, fixture.tabScrolls) {
+        guard let expected, let actual = tab.scroll,
+          logicalLine(tab.text, expected.anchor) >= 0,
+          logicalLine(tab.text, actual.anchor) == logicalLine(tab.text, expected.anchor),
+          abs(actual.offset - expected.offset) <= 1,
+          abs(actual.horizontalOffset ?? 0) <= 1
+        else { throw Failure.fixtureMismatch }
+      }
+    }
+  }
+
+  private static func logicalLine(_ text: String, _ offset: Int) -> Int {
+    guard (0...text.utf16.count).contains(offset) else { return -1 }
+    return text.utf16.prefix(offset).filter { $0 == 0x0A }.count
   }
 
   private static func requireStopped() throws {
@@ -287,9 +332,8 @@ enum PerformanceFixtureHarness {
       try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
     }
   }
-  private static func text(_ index: Int, empty: Bool) -> String {
+  private static func text(_ index: Int, empty: Bool, bytes: Int = 256 * 1024) -> String {
     if empty { return "" }
-    let bytes = 256 * 1024
     let line = index % 2 == 0 ? "generated line\r\n" : "خط e\u{301} 📝.\r\n"
     let text =
       String(format: "tab-%010d\r\n", index)
