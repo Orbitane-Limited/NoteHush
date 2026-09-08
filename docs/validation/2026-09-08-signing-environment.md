@@ -38,3 +38,12 @@ mocked subprocess regressions failed before this correction and pass afterward;
 the full standalone suite now passes **51 tests**. No GitHub account credentials
 or signing assets were used by those tests. The preflight authorization gates and
 required human environment review are unchanged.
+
+
+The installed uploader's local `altool --help` completed successfully with the
+restricted environment. It confirms this driver's `--validate-app <filepath>`,
+`--upload-package <filepath>`, `--api-key`, `--api-issuer` and owned-key lookup
+syntax. Help inspection performed no authentication or upload; it does not
+validate Apple's server-side acceptance of a candidate. The initial sandboxed
+help invocation failed without a usable result; the read-only tool inspection
+outside that sandbox succeeded. No system permission or account setting changed.
