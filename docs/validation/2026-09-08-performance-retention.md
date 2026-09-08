@@ -14,4 +14,11 @@ Cases cover environment capture, native test exit, sandbox verification, recover
 
 All 34 repository tests pass, along with shell syntax, configuration/relative-link and diff checks. Private before/after logs are retained as `build/logs/retention-before.log` and `retention-after.log`, with the complete repository result in `retention-repository-final.log`. Assertions, functional timeouts, fixture sizes, sample counts and timing boundaries are unchanged. No Swift/runtime source changed, so prior app-build results are not relabeled as new native validation. Full final-head CI/review and #29 native input attribution remain pending.
 
-The new interaction driver is still in pending #43 rather than main. When integrating that branch, wire its EXIT handling to the same helper and exercise the same failure-retention policy; do not copy the unmerged interaction implementation into this issue branch. Any previously removed fixture cannot be reconstructed by this fix. Failed evidence already retained from the overnight manual diagnostics remains untouched.
+The final retention PR depends on #49 (storage checks) and #44 (the interaction protocol). Its prepared branch includes those related dependencies and now applies the same exit handling to all three drivers. Merge both dependency PRs into main first, then verify this PR’s diff contains only retention changes before merging it. Any previously removed fixture cannot be reconstructed by this fix; retained overnight evidence remains untouched.
+
+
+## Prepared dependency integration — 2026-09-08 UTC
+
+Current main `94ad233` includes the passing hidden-editor correction. The prepared retention branch also includes the reviewed storage and interaction dependency heads. The interaction driver uses the shared exit handler, and the same six retention regressions now exercise both launch/interaction drivers plus attached profiling.
+
+The first integrated run executed 47 repository tests. Its only failed test had three subcases: the storage-after-build fixture had not copied the newly sourced exit helper, so each script stopped before its second capacity check. Copying the real helper into that disposable fixture restores the intended scenario. All seven storage tests then passed, including the unchanged assertion that capacity is checked twice and no fixture is launched after the second check fails. The other 40 repository tests had already passed. Configuration, shell syntax and diff checks pass. Full final-head CI remains required; no native app was launched by these offline tests.
