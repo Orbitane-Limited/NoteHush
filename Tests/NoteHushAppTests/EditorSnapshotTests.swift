@@ -5,6 +5,47 @@ import XCTest
 
 @MainActor
 final class EditorSnapshotTests: XCTestCase {
+  func testScrollbarStylesKeepHiddenInitialTextUnlaid() throws {
+    _ = NSApplication.shared
+    let texts = [
+      mixedScriptEditorFixture(1),
+      String(repeating: "خط e\u{301} 📝. ", count: 4096),
+    ]
+    for style in [NSScroller.Style.overlay, .legacy] {
+      for text in texts {
+        // Set only this instance's native style before restoration. The app
+        // keeps AppKit's default style when no instance override is supplied.
+        let selection = NSRange(location: text.utf16.count - 2, length: 0)
+        let snapshot = TabSnapshot(
+          text: text, selection: TextSelection(location: selection.location))
+        let tab = EditorTab(snapshot: snapshot, scrollerStyle: style)
+        let layout = try XCTUnwrap(tab.editor.layoutManager)
+        XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+        XCTAssertEqual(tab.scrollView.scrollerStyle, style)
+        let font = try XCTUnwrap(
+          tab.editor.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
+        // AppKit may select a fallback face for the Arabic first paragraph.
+        // Preserve the configured point size without rejecting native fallback.
+        XCTAssertEqual(font.pointSize, 14)
+        var preferences = EditorPreferences()
+        preferences.fontSize = 18
+        preferences.wordWrap = false
+        tab.applyPreferences(preferences)
+        XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+        XCTAssertEqual(tab.editor.selectedRange(), selection)
+        XCTAssertTrue(tab.snapshot(isVisible: false).text.utf8.elementsEqual(text.utf8))
+
+        tab.restoreScroll()
+        XCTAssertTrue(tab.scrollView.autohidesScrollers)
+        XCTAssertTrue(tab.scrollView.hasVerticalScroller)
+        XCTAssertTrue(tab.scrollView.hasHorizontalScroller)
+        XCTAssertEqual(tab.scrollView.scrollerStyle, style)
+        XCTAssertEqual(tab.editor.selectedRange(), selection)
+        XCTAssertTrue(tab.snapshot(isVisible: true).text.utf8.elementsEqual(text.utf8))
+      }
+    }
+  }
+
   func testLargeMixedScriptEditorsStayUnlaidWhileHidden() throws {
     _ = NSApplication.shared
     let snapshots = (0..<20).map { index in
