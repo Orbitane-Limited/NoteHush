@@ -51,3 +51,37 @@ run-loop entry processed eleven. This small experiment did not launch an app or
 inspect other processes. It provides no evidence for replacing the collector's
 entry point and does not explain the inactive sample. Its source and measured
 counts are retained under the repository's ignored `build/runloop-diagnostic/`.
+
+## Bounded activation observation after native CI resumed
+
+At 07:40–07:41 UTC, a separate host-only diagnostic observed a **new empty UUID
+workspace** using the unchanged optimized executable identified above. PR #47's
+native tests and builds had finished; its artifact upload was still running.
+This diagnostic collected no CPU/memory acceptance data and did not send keys,
+read the clipboard, inspect another app or change the original failed fixtures.
+
+LaunchServices requested activation with its documented default. The returned
+NoteHush process was initially unfinished/inactive, active at observations 1–19,
+and inactive at observations 20–30. One explicit `activate(options: [])` request
+was accepted; all ten subsequent one-second observations reported active. Normal
+termination and exact empty-buffer/selection/default-preference recovery passed.
+The foreground change is now directly observed, but its origin remains
+unattributed. Apple's [macOS activation notes](https://developer.apple.com/documentation/macos-release-notes/appkit-release-notes-for-macos-14)
+explain that activation is a request, not a guaranteed state. This is not evidence
+that a persistence defect or the old interruption cause has been fixed.
+
+The diagnostic's first implementation constructed the expected app URL without
+an explicit directory hint and failed identity comparison before observing it.
+A separate scoped check with `.isDirectory` verified the exact returned URL/path
+and stopped that newly launched process normally. The corrected diagnostic used
+a new UUID. Both fresh empty workspaces and their checksummed recovery/blob data
+were verified and retained. The production fixture harness already uses the
+correct directory hint; no shipping or collector source changed for this check.
+Private source, plans, all observations and failure evidence remain under the
+root checkout's ignored `build/idle-activation-diagnostic/` directory.
+
+PR #47 subsequently completed full CI and was merged as `94ad233`; its 62 native
+AppKit/UI cases passed. The original idle attempt remains rejected, and a complete
+60-second two-workload idle observation is still required. Continue unrelated
+issue integration while preserving the collector's active-state and recovery
+requirements.
