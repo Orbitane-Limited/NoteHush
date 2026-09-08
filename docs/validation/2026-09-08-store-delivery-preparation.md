@@ -45,3 +45,7 @@ Local evidence remains ignored under this worktree's `build/logs/`: `store-repos
 - Public store materials and remaining v1 acceptance, App Review and release gates.
 
 No issue was closed, no branch was merged and no release was created based on these checks. A PR has not yet been opened because this repository's PR event immediately starts the native self-hosted CI suite, whose exclusive-input window remains pending.
+
+## Integrated validation after main protocol merge
+
+Main `bb49b49c5cb3ead161f774d087d9fd26481f73e1` is integrated at `5e6fd70`. All 74 repository tests pass in 6.950 seconds, including the native public-requirement compiler, certificate-extraction arguments and generated quarantine cases. Configuration/link and whitespace checks pass. The retained official actionlint 1.7.12 binary validates the Store workflow with its documented optional ShellCheck/pyflakes integrations unavailable; neither is claimed. Full final-head CI is still required. The previously inspected engineering archive/export and missing exact App Store profile status are unchanged; there is no TestFlight upload or v1 release.
