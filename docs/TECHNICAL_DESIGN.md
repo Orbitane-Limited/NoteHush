@@ -35,6 +35,8 @@ Session metadata uses stable UUIDs, ordered tabs and active tab ID. Selection of
 
 ## Editor layout and scroll restoration
 
+Each editor explicitly disables inline prediction and automatic Touch Bar completion. On macOS 15 and later it also disables math completion and opts out of Writing Tools, matching v1’s literal-text/no-AI scope. These are per-view public AppKit settings; the optional spell-check preference continues through `EditorPreferences`.
+
 Attach each empty `NSTextView` to a positively sized `NSScrollView` before assigning recovered text. Applying preferences while empty avoids invalidating the content style of an already populated, detached text view. A generated 256 KiB Arabic/combining-mark/emoji draft exposed prolonged bidirectional typesetting in that former attachment order; changing only the scroll view dimensions did not resolve it.
 
 Keep scrollbar auto-hiding disabled during hidden construction. With legacy scrollbars, enabling it before the initial text assignment can typeset the entire first paragraph, even with noncontiguous layout and background layout disabled. Enable native auto-hiding at the start of `restoreScroll()`, before deriving the presented viewport dimensions. The default scrollbar style remains AppKit's; an optional instance style lets the construction regression cover both overlay and legacy behavior without changing system preferences. See the [scrollbar investigation](validation/2026-09-07-hidden-editor-scrollbars.md).
