@@ -4,6 +4,8 @@
 
 ### Added
 
+- Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
+
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.
 - Swift 6 AppKit development shell, Foundation core model and Unicode-safe validation tests.
