@@ -5,6 +5,7 @@
 ### Added
 
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
+- Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
 
 - Product research, requirements, technical design, testing and App Store release plan.
 - Milestone-based GitHub delivery process.

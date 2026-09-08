@@ -187,6 +187,29 @@ class AppStoreChecksTests(unittest.TestCase):
         self.assertNotIn("GITHUB_TOKEN", environment)
         self.assertEqual(environment["DEVELOPER_DIR"], "/fixture/Xcode")
 
+    def testChildEnvironmentContainsOnlyDeclaredToolInputs(self):
+        permitted = {"PATH": "/usr/bin:/bin", "HOME": "/fixture/home", "TMPDIR": "/fixture/tmp",
+                     "USER": "fixture", "LOGNAME": "fixture", "DEVELOPER_DIR": "/fixture/Xcode",
+                     "LANG": "en_US.UTF-8", "__CF_USER_TEXT_ENCODING": "0x1F5:0:0"}
+        unrelated = {"UNRELATED_SERVICE_TOKEN": "fixture token", "AWS_SECRET_ACCESS_KEY": "fixture key",
+                     "ACTIONS_RUNTIME_TOKEN": "fixture token", "API_PRIVATE_KEYS_DIR": "/unreviewed/keys",
+                     "PYTHONPATH": "/unreviewed/python", "DYLD_LIBRARY_PATH": "/unreviewed/libraries",
+                     "XCODE_XCCONFIG_FILE": "/unreviewed/config", "TOOLCHAINS": "unreviewed-toolchain",
+                     "SDKROOT": "/unreviewed/sdk", "LC_ALL": "fixture-locale"}
+        with mock.patch.dict(os.environ, {**permitted, **unrelated}, clear=True):
+            self.assertEqual(checks.tool_environment(), {**permitted, "LC_ALL": "C"})
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(checks.tool_environment(), {"LC_ALL": "C"})
+
+    def testNativeVerifierChildCannotReadUnrelatedParentCredential(self):
+        # A real, harmless child verifies the subprocess boundary. Only a fixed
+        # success marker is returned; neither parent nor child prints values.
+        program = ("import os; "
+                   "assert 'UNRELATED_SERVICE_TOKEN' not in os.environ; "
+                   "assert os.environ['LC_ALL'] == 'C'; print('verified')")
+        with mock.patch.dict(os.environ, {"UNRELATED_SERVICE_TOKEN": "generated fixture credential"}):
+            self.assertEqual(checks.command([sys.executable, "-c", program]), b"verified\n")
+
 
 if __name__ == "__main__":
     unittest.main()
