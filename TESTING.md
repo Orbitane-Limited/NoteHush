@@ -79,6 +79,8 @@ The scrollbar construction regression explicitly selects overlay and legacy styl
 
 ## Performance protocol
 
+Issue #56 adds the [settled CPU/RSS/physical-footprint protocol](docs/validation/2026-09-08-idle-resource-protocol.md). Its Swift host and strict offline parser are covered by normal compilation/repository tests. `NOTEHUSH_EXCLUSIVE_INPUT=1 bash scripts/measure_idle_resources.sh` is an operator-run native measurement after exclusive-input conditions are established; it is not run by ordinary CI. Both generated workloads, all 61 samples per window, exact recovery and normal termination are required. Failed recordings/fixtures remain retained, and Mach ticks are converted with the recorded timebase. A summary does not establish energy or release acceptance.
+
 Use PRD budgets, Release optimization, no debugger. Record hardware, OS, power state, file sizes, character distributions and cache conditions. Run >=20 repetitions and report median/p95. Use a mix of 1 KiB, 1 MiB, 10 MiB and 100 MiB files, a long unbroken line, 100+ tabs, RTL, CRLF and Unicode. Distinguish process launch from first editable frame. Use Instruments Time Profiler, Allocations and Energy; verify no serialization on the main thread. Flaky shared-runner wall-time tests are informational; reproducible reference-hardware regressions gate release.
 
 `swift run -c release TextMetricsBenchmark` runs 20 repetitions per generated 1 KiB, 1 MiB, 10 MiB and 100 MiB fixture, including mixed Unicode/CRLF and an unbroken line. It reports median/p95 index construction and batches of caret/selection/line queries. This is an informational microbenchmark; it does not measure app startup, typing latency, native Find, RSS or energy, and does not close M5 performance gates.

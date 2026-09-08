@@ -51,8 +51,9 @@ enum PerformanceFixtureHarness {
   static func main() async {
     do {
       guard CommandLine.arguments.count == 4,
-        ["prepare", "prepare-interactions", "verify", "cleanup", "profile"].contains(
-          CommandLine.arguments[1])
+        ["prepare", "prepare-interactions", "prepare-idle", "idle", "verify", "cleanup", "profile"]
+          .contains(
+            CommandLine.arguments[1])
       else { throw Failure.arguments }
       let command = CommandLine.arguments[1]
       let app = URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory)
@@ -65,20 +66,26 @@ enum PerformanceFixtureHarness {
           == "NoteHushPerformance"
       else { throw Failure.wrongBuild }
       try requireStopped()
-      if command == "prepare" || command == "prepare-interactions" {
+      if ["prepare", "prepare-interactions", "prepare-idle"].contains(command) {
         guard !FileManager.default.fileExists(atPath: manifestURL.path) else {
           throw Failure.wrongManifest
         }
         try await prepare(
-          app, manifestURL, scenarios: command == "prepare" ? names : interactionNames)
+          app, manifestURL,
+          scenarios: command == "prepare-idle"
+            ? IdleResourceMeasurement.names
+            : command == "prepare" ? names : interactionNames)
       } else {
         let manifest = try JSONDecoder().decode(
           Manifest.self, from: Data(contentsOf: manifestURL))
         guard manifest.version == 1, manifest.applicationURL == app,
-          [names, interactionNames].contains(manifest.fixtures.map(\.name)),
+          [names, interactionNames, IdleResourceMeasurement.names].contains(
+            manifest.fixtures.map(\.name)),
           Set(manifest.fixtures.map(\.workspace)).count == manifest.fixtures.count
         else { throw Failure.wrongManifest }
-        if command == "profile" {
+        if command == "idle" {
+          try await IdleResourceMeasurement.run(app, manifest, manifestURL)
+        } else if command == "profile" {
           try await profile(app, manifest, manifestURL)
         } else if command == "verify" {
           for fixture in manifest.fixtures { try await verify(fixture) }
@@ -277,7 +284,7 @@ enum PerformanceFixtureHarness {
     }
   }
 
-  private static func verify(_ fixture: Fixture) async throws {
+  static func verify(_ fixture: Fixture) async throws {
     guard
       let recovered = try await RecoveryStore(directory: root(fixture.workspace)).load().snapshot,
       recovered.revision > fixture.seedRevision,
@@ -307,12 +314,12 @@ enum PerformanceFixtureHarness {
     return text.utf16.prefix(offset).filter { $0 == 0x0A }.count
   }
 
-  private static func requireStopped() throws {
+  static func requireStopped() throws {
     guard NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).isEmpty else {
       throw Failure.appRunning
     }
   }
-  private static func root(_ workspace: UUID) -> URL {
+  static func root(_ workspace: UUID) -> URL {
     FileManager.default.homeDirectoryForCurrentUser.appending(
       path:
         "Library/Containers/\(bundleID)/Data/Library/Application Support/NoteHush/UITests/\(workspace.uuidString)"
@@ -324,7 +331,7 @@ enum PerformanceFixtureHarness {
       try FileManager.default.removeItem(at: directory)
     }
   }
-  private static func wait(_ predicate: () -> Bool) async throws {
+  static func wait(_ predicate: () -> Bool) async throws {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: .seconds(20))
     while !predicate() {

@@ -9,6 +9,7 @@
 
 ### Added
 
+- Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
