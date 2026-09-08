@@ -1,5 +1,7 @@
 # Settled CPU and memory measurement protocol
 
+The [complete native baseline](2026-09-08-idle-resource-baseline.md) subsequently passed both workloads, all 122 samples and exact recovery on clean `5f2d32c`. Both measured CPU windows and the 20-tab RSS target pass on the recorded M4 Pro; the empty RSS target remains exceeded. The earlier preparation and rejected attempt below retain their original context. Full final-head CI and parent release gates remain open.
+
 Date: 2026-09-08. Issue #56, child of #12. Starting source: main `2c786fac01a59e548475c20f985050c0a430e992`. This is host-only measurement preparation; no NoteHush idle result or release budget pass is claimed.
 
 ## Scope and ownership
