@@ -34,6 +34,8 @@ No production release has been published.
 
 ### Fixed
 
+- Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
+
 - Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.
 
 - Restored hidden tabs avoid eager bidirectional typesetting; the selected editor uses native anchor scrolling with on-demand layout.
