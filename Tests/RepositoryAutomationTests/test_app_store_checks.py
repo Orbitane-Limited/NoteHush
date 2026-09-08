@@ -42,6 +42,21 @@ class AppStoreChecksTests(unittest.TestCase):
         del self.entitlements["beta-reports-active"]
         checks.validate_entitlements(self.entitlements, self.team, self.app_id, self.profile)
 
+    def testStoreProfileAcceptsCanonicalUUIDInEitherCase(self):
+        original = self.profile["UUID"]
+        for value in (original, original.lower(), "2430fc6E-A49b-4BfF-bF70-340558c71Fd7"):
+            with self.subTest(value=value):
+                profile = {**self.profile, "UUID": value}
+                self.assertEqual(checks.validate_profile(profile, self.team, self.fingerprint), self.app_id)
+                self.assertEqual(profile["UUID"], value)
+
+    def testProfileUUIDRejectsNoncanonicalAndMalformedForms(self):
+        value = self.profile["UUID"]
+        for invalid in (None, 123, "-" * 36, value.replace("-", ""), "{" + value + "}",
+                        "urn:uuid:" + value, value + "\n", "../" + value):
+            with self.subTest(value=invalid), self.assertRaises(ValueError):
+                checks.validate_profile({**self.profile, "UUID": invalid}, self.team, self.fingerprint)
+
     def testSignatureRequirementIsAcceptedByNativeCompiler(self):
         # Exercise Apple's actual requirement parser without a signing identity.
         # codesign and csreq share the literal-versus-filename input convention.

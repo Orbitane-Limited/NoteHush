@@ -62,6 +62,25 @@ class SigningCleanupTests(unittest.TestCase):
         self.assertEqual(installed.stat().st_ino, inode)
         self.assertEqual(installed.read_bytes(), b"fixture provisioning profile")
 
+    def testLowercaseProfileUUIDUsesCanonicalOwnedFilenameAndCleansUp(self):
+        self.assets.install_profile(self.profile, PROFILE_UUID.lower())
+        installed = self.assets.profile_directory / f"{PROFILE_UUID}.provisionprofile"
+        self.assertEqual(installed.stat().st_ino, self.profile.stat().st_ino)
+        state = json.loads((self.assets.directory / "profile.json").read_text())
+        self.assertEqual(state["name"], installed.name)
+        self.assets.cleanup()
+        self.assertFalse(installed.exists())
+        self.assertFalse(self.assets.directory.exists())
+
+    def testInvalidProfileUUIDCannotPublishAnOwnershipRecord(self):
+        for invalid in (None, 123, "-" * 36, PROFILE_UUID.replace("-", ""),
+                        "{" + PROFILE_UUID + "}", "../" + PROFILE_UUID):
+            with self.subTest(value=invalid), self.assertRaises(ValueError):
+                self.assets.install_profile(self.profile, invalid)
+            self.assertFalse((self.assets.directory / "profile.json").exists())
+            self.assertFalse(self.assets.profile_directory.exists())
+        self.assertEqual(self.commands, [])
+
     def testDifferentExistingOrSymlinkedProfileIsPreservedOnFailure(self):
         self.assets.profile_directory.mkdir()
         installed = self.assets.profile_directory / f"{PROFILE_UUID}.provisionprofile"

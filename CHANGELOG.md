@@ -39,6 +39,8 @@ No production release has been published.
 
 ### Fixed
 
+- Accept valid Store-profile UUID casing and canonicalize only the owned installation filename; reject malformed identifiers before publishing profile ownership.
+
 - Store quarantine verification uses macOS's native attribute tool for archives and packages, preserving the no-follow and reject-without-removal behavior.
 
 - Store signature verification passes its Apple-chain and publisher-team requirement as literal source to codesign, and uses the supported certificate-extraction argument format.

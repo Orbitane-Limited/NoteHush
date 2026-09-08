@@ -20,7 +20,7 @@ import subprocess
 import sys
 import uuid
 
-from app_store_checks import BUNDLE_ID, require, tool_environment, validate_profile, verify_app, verify_no_quarantine, version_settings
+from app_store_checks import BUNDLE_ID, canonical_profile_uuid, require, tool_environment, validate_profile, verify_app, verify_no_quarantine, version_settings
 from store_connect import StoreConnect
 from store_preflight import ROOT, verify as verify_source
 
@@ -61,7 +61,7 @@ class SigningAssets:
     def install_profile(self, profile_path, profile_uuid):
         # Link a file whose inode we already own. The cleanup record can be
         # durable before publication, without claiming an existing profile.
-        require(re.fullmatch(r"[0-9A-F-]{36}", profile_uuid), "Invalid profile filename")
+        profile_uuid = canonical_profile_uuid(profile_uuid)
         self.profile_directory.mkdir(parents=True, exist_ok=True)
         destination = self.profile_directory / f"{profile_uuid}.provisionprofile"
         source = profile_path.stat()

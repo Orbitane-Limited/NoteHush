@@ -85,6 +85,16 @@ def validate_build_numbers(candidate, builds):
     return previous
 
 
+def canonical_profile_uuid(value):
+    require(isinstance(value, str), "Invalid profile UUID")
+    try:
+        canonical = str(uuid.UUID(value)).upper()
+    except ValueError:
+        raise ValueError("Invalid profile UUID") from None
+    require(canonical == value.upper(), "Invalid profile UUID")
+    return canonical
+
+
 def validate_profile(profile, team, certificate_sha1, now=None):
     require(re.fullmatch(r"[A-Z0-9]{10}", team), "Invalid publisher team")
     require(re.fullmatch(r"[0-9A-F]{40}", certificate_sha1), "Invalid application certificate fingerprint")
@@ -113,9 +123,7 @@ def validate_profile(profile, team, certificate_sha1, now=None):
             "Invalid profile certificates")
     require(certificate_sha1 in {hashlib.sha1(item).hexdigest().upper() for item in certificates},
             "Signing certificate is not authorized by the profile")
-    profile_uuid = profile.get("UUID")
-    require(isinstance(profile_uuid, str) and str(uuid.UUID(profile_uuid)).upper() == profile_uuid,
-            "Invalid profile UUID")
+    canonical_profile_uuid(profile.get("UUID"))
     return identifier
 
 
