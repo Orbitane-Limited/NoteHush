@@ -33,6 +33,16 @@ Check current availability through the canonical scope:
 gh api repos/Orbitane-Limited/NoteHush/actions/runners --jq '.runners[] | {name,status,busy}'
 ```
 
+## Disk headroom and retained evidence
+
+CI, engineering delivery and performance workflows run `python3 scripts/check_runner_storage.py` before native work. The full check, standalone app-test/archive/performance-build scripts and measurement/profile scripts also enforce it for local invocations. Measurement/profile and app-test scripts check again after building before launching fixtures. Before a manual Xcode command, run the same preflight yourself.
+
+Both the workspace and temporary-file filesystem must have at least **20 GiB and 10% of total capacity**, whichever requires more available bytes. This is NoteHush's engineering headroom policy, not an Apple-defined purge threshold or a guarantee against later resource pressure. Capacity uses currently available bytes, without counting hypothetical purgeable storage. Unreadable/invalid capacity or inability to retain the report fails the gate. There is no bypass flag. Each invocation writes a fresh `build/logs/runner-storage-<UUID>.json` with time, capacity, requirement and result; it records no user/device names or document paths. Workflows retain these reports even when preflight stops validation.
+
+The policy follows confirmed macOS `0xBADDD15C` cache-reclamation terminations of NoteHush's UI runner; see [the investigation](validation/2026-09-07-runner-storage.md). A failed preflight is an infrastructure failure, not a passing/skipped test suite. After restoring headroom, require complete exact-head validation and assess any remaining UI failures separately. Do not retry unchanged native tests while the known storage condition persists.
+
+Cleanup is never automatic. Completed NoteHush checkouts' ignored compiler caches (`ModuleCache.noindex`, `Build/Intermediates.noindex`, `Index.noindex`, `SDKStatCaches.noindex` inside their DerivedData directories) can be regenerated after confirming no process uses that checkout. Keep `Build/Products`, `Logs`, `.xcresult`, traces, archives, recorded metrics and failed recovery evidence. Do not remove the active runner checkout, normal app storage, unknown UUID fixtures, unrelated project caches or user files. If this bounded cleanup is insufficient, the operator must free additional storage before native validation resumes.
+
 ## References
 
 - [GitHub: add a self-hosted runner](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)
