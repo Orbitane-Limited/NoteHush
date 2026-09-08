@@ -180,6 +180,23 @@ def verify_no_quarantine(root):
     require("com.apple.quarantine" not in os.listxattr(root), "Quarantined distribution artifact")
 
 
+def verify_code_signature(path, team):
+    require(isinstance(team, str) and re.fullmatch(r"[A-Z0-9]{10}", team),
+            "Invalid publisher team")
+    # Without the leading '=', codesign treats the expression as a file path.
+    command(["/usr/bin/codesign", "--verify", "--deep", "--strict", "-R",
+             f'=anchor apple generic and certificate leaf[subject.OU] = "{team}"', str(path)])
+
+
+def extract_signing_certificate(path, architecture, scratch):
+    require(architecture in ("arm64", "x86_64"), "Unexpected signed architecture")
+    prefix = scratch / f"certificate-{uuid.uuid4()}-"
+    # This option's value is optional, so it must use --name=value syntax.
+    command(["/usr/bin/codesign", "-d", "--arch", architecture,
+             f"--extract-certificates={prefix}", str(path)])
+    return Path(str(prefix) + "0").read_bytes()
+
+
 def verify_app(app, root, team, certificate_sha1, scratch):
     version, build = version_settings(root)
     contents = app / "Contents"
@@ -194,8 +211,7 @@ def verify_app(app, root, team, certificate_sha1, scratch):
     binary = contents / "MacOS/NoteHush"
     require(set(command(["/usr/bin/lipo", "-archs", str(binary)]).decode().split())
             == {"arm64", "x86_64"}, "Store executable must be universal")
-    command(["/usr/bin/codesign", "--verify", "--deep", "--strict", "-R",
-             f'anchor apple generic and certificate leaf[subject.OU] = "{team}"', str(app)])
+    verify_code_signature(app, team)
     for architecture in ("arm64", "x86_64"):
         result = subprocess.run(["/usr/bin/codesign", "-dvv", "--arch", architecture, str(app)],
                                 capture_output=True, check=False, env=tool_environment(), timeout=60)
@@ -210,10 +226,7 @@ def verify_app(app, root, team, certificate_sha1, scratch):
         signed = plistlib.loads(command(["/usr/bin/codesign", "-d", "--arch", architecture,
                                         "--entitlements", ":-", str(app)]))
         validate_entitlements(signed, team, application_id, profile)
-        prefix = scratch / f"certificate-{uuid.uuid4()}-"
-        command(["/usr/bin/codesign", "-d", "--arch", architecture,
-                 "--extract-certificates", str(prefix), str(app)])
-        require(hashlib.sha1(Path(str(prefix) + "0").read_bytes()).hexdigest().upper()
+        require(hashlib.sha1(extract_signing_certificate(app, architecture, scratch)).hexdigest().upper()
                 == certificate_sha1, "Signed leaf certificate differs from the selected identity")
     verify_no_quarantine(app)
     for code in (contents / "MacOS").iterdir():
