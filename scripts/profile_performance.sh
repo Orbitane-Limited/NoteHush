@@ -1,10 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+python3 scripts/check_runner_storage.py
 source scripts/performance_fixture_exit.sh
 bash scripts/build_performance.sh
 swift build --product PerformanceFixtureHarness
 fixture_harness="$(swift build --show-bin-path)/PerformanceFixtureHarness"
+python3 scripts/check_runner_storage.py
 application="build/PerformanceDerivedData/Build/Products/ReleasePerformance/NoteHushPerformance.app"
 manifest="build/performance-fixtures.json"
 "$fixture_harness" prepare "$application" "$manifest"
