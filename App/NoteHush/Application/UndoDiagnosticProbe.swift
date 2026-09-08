@@ -2,13 +2,14 @@
   import AppKit
   import Darwin
 
-  /// Opt-in evidence for the isolated native Find test, never a shipping logger.
-  /// No event is consumed or changed; records contain only fixed labels and state flags.
+  /// Opt-in evidence for isolated native input, never a shipping logger.
+  /// No event is consumed or changed. No typed character or key code is retained.
   @MainActor
   final class UndoDiagnosticProbe: NSObject {
     private enum Event: String, Codable, Sendable {
       case installed, commandZ, nextMainQueueTurn, willUndo, didUndo
       case becameActive, resignedActive, shutdownRequested, limitReached
+      case nextTab, previousTab, otherKey
     }
 
     private enum FixtureState: String, Codable, Sendable {
@@ -27,6 +28,9 @@
       let editorIsUndoing: Bool
       let notificationFromEditor: Bool?
       let fixtureState: FixtureState
+      let keyEventIsRepeat: Bool?
+      let keyEventTargetsWorkspace: Bool?
+      let keyEventSourceProcessID: Int32?
     }
 
     private weak var workspace: WorkspaceWindowController?
@@ -59,9 +63,17 @@
         MainActor.assumeIsolated {
           let modifiers = event.modifierFlags.intersection([.command, .shift, .control, .option])
           if modifiers == .command, event.charactersIgnoringModifiers?.lowercased() == "z" {
-            self?.record(.commandZ)
+            self?.record(.commandZ, keyEvent: event)
             // A queue turn does not guarantee nested event processing or display has finished.
             DispatchQueue.main.async { [weak self] in self?.record(.nextMainQueueTurn) }
+          } else if modifiers == .control || modifiers == [.control, .shift],
+            event.charactersIgnoringModifiers == "\t"
+              || event.charactersIgnoringModifiers == "\u{19}"
+          {
+            self?.record(modifiers == .control ? .nextTab : .previousTab, keyEvent: event)
+          } else {
+            // "Other" deliberately does not identify letters, key codes or payloads.
+            self?.record(.otherKey, keyEvent: event)
           }
         }
         return event
@@ -91,12 +103,17 @@
     @objc private func becameActive() { record(.becameActive) }
     @objc private func resignedActive() { record(.resignedActive) }
 
-    private func record(_ event: Event, manager: UndoManager? = nil) {
+    private func record(_ event: Event, manager: UndoManager? = nil, keyEvent: NSEvent? = nil) {
       guard !stopped, sequence < 256 else { return }
       let tab = workspace?.selectedTab
       let editor = tab?.editor
       let history = tab.flatMap { $0.undoManager(for: $0.editor) }
       let window = workspace?.window
+      let sourceProcessID = keyEvent?.cgEvent.flatMap { event -> Int32? in
+        let raw = event.getIntegerValueField(.eventSourceUnixProcessID)
+        guard let identifier = Int32(exactly: raw), identifier >= 0 else { return nil }
+        return identifier
+      }
       let elapsed = started.duration(to: .now).components
       let value = Record(
         sequence: sequence,
@@ -109,7 +126,10 @@
         editorCanUndo: history?.canUndo == true,
         editorIsUndoing: history?.isUndoing == true,
         notificationFromEditor: manager.map { $0 === history },
-        fixtureState: fixtureState(editor))
+        fixtureState: fixtureState(editor),
+        keyEventIsRepeat: keyEvent.map(\.isARepeat),
+        keyEventTargetsWorkspace: keyEvent.map { window != nil && $0.window === window },
+        keyEventSourceProcessID: sourceProcessID)
       sequence += 1
       let previous = lastWrite
       let writer = writer

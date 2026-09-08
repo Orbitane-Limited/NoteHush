@@ -34,6 +34,10 @@ class UndoDiagnosticSummaryTests(unittest.TestCase):
         self.assertEqual(result["editorUndoCount"], 1)
         self.assertEqual(result["otherUndoCount"], 0)
         self.assertFalse(result["shutdownObserved"])
+        self.assertFalse(result["keyMetadataObserved"])
+        self.assertEqual(result["keySourceProcessIDs"], [])
+        self.assertEqual(result["nextTabCount"], 0)
+        self.assertNotIn("passed", result)
         self.assertEqual(result["observations"][-1]["fixtureState"], "original")
         rows = copy.deepcopy(self.rows)
         rows[-1]["notificationFromEditor"] = False
@@ -63,6 +67,79 @@ class UndoDiagnosticSummaryTests(unittest.TestCase):
         rows = copy.deepcopy(self.rows)
         rows[-1]["event"] = "limitReached"
         self.assertTrue(module.summarize(self.encoded(rows))["limitReached"])
+
+    def key_rows(self):
+        rows = copy.deepcopy(self.rows)
+        rows[1].update(keyEventIsRepeat=False, keyEventTargetsWorkspace=True,
+                       keyEventSourceProcessID=123)
+        for event, identifier in [("nextTab", 123), ("previousTab", 0), ("otherKey", None)]:
+            row = dict(rows[1], sequence=len(rows), elapsedSeconds=float(len(rows)), event=event)
+            if identifier is None:
+                row.pop("keyEventSourceProcessID")
+            else:
+                row["keyEventSourceProcessID"] = identifier
+            rows.append(row)
+        return rows
+
+    def testKeyMetadataPreservesUnknownSourcesWithoutIdentifyingCharacters(self):
+        rows = self.key_rows()
+        rows[-1].update(keyEventIsRepeat=True, keyEventTargetsWorkspace=False)
+        result = module.summarize(self.encoded(rows))
+        self.assertEqual(result["schema"], 2)
+        self.assertTrue(result["keyMetadataObserved"])
+        self.assertEqual(result["keySourceProcessIDs"], [0, 123])
+        self.assertEqual(result["commandZCount"], 1)
+        self.assertEqual(result["nextTabCount"], 1)
+        self.assertEqual(result["previousTabCount"], 1)
+        self.assertEqual(result["otherKeyCount"], 1)
+        self.assertNotIn("keyEventSourceProcessID", result["observations"][-1])
+        self.assertTrue(result["observations"][-1]["keyEventIsRepeat"])
+        self.assertFalse(result["observations"][-1]["keyEventTargetsWorkspace"])
+        self.assertFalse(result["shutdownObserved"])
+        self.assertNotIn("passed", result)
+
+    def testMalformedSourceIdentifiersAreRejected(self):
+        for value in [True, False, -1, 1.5, "123", None, 2**31]:
+            rows = self.key_rows()
+            rows[-1]["keyEventSourceProcessID"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                module.summarize(self.encoded(rows))
+
+    def testKeyFlagsMustBeCompleteAndOnlyOnKeyEvents(self):
+        for field in module.KEY_FLAGS:
+            for value in [None, 0, "false"]:
+                rows = self.key_rows()
+                rows[-1][field] = value
+                with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                    module.summarize(self.encoded(rows))
+            rows = self.key_rows()
+            rows[-1].pop(field)
+            with self.subTest(missing=field), self.assertRaises(ValueError):
+                module.summarize(self.encoded(rows))
+        for event in module.EVENTS - module.KEY_EVENTS - {"limitReached"}:
+            rows = self.key_rows()
+            rows[-1]["event"] = event
+            with self.subTest(event=event), self.assertRaises(ValueError):
+                module.summarize(self.encoded(rows))
+        rows = self.key_rows()
+        rows[-1] = {key: value for key, value in rows[-1].items() if key not in module.KEY_FIELDS}
+        with self.assertRaises(ValueError):
+            module.summarize(self.encoded(rows))
+
+    def testPayloadAndKeyCodeFieldsRemainForbiddenOnKeyObservations(self):
+        for field in ["characters", "charactersIgnoringModifiers", "keyCode", "clipboard", "path"]:
+            rows = self.key_rows()
+            rows[-1][field] = "not permitted"
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                module.summarize(self.encoded(rows))
+
+    def testKeyAtRecordLimitIsReportedAsIncompleteEvidence(self):
+        rows = self.key_rows()
+        rows[-1]["event"] = "limitReached"
+        result = module.summarize(self.encoded(rows))
+        self.assertTrue(result["limitReached"])
+        self.assertFalse(result["shutdownObserved"])
+        self.assertEqual(result["otherKeyCount"], 0)
 
 
 if __name__ == "__main__":

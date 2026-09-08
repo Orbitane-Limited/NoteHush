@@ -5,6 +5,7 @@
 ### Validation
 
 - Add opt-in, isolated native Undo diagnostics and strict trace validation; verify their exclusion from shipping and performance code, including Xcode's separate Debug code library. The intermittent Find/Undo diagnosis remains open.
+- Extend the isolated diagnostic with tab-command categories, repeat/target flags and optional event-source process IDs, without retaining characters or key codes. Unexpected fixture input remains unexplained; this does not change shipping behavior.
 
 ### Added
 
