@@ -9,12 +9,16 @@ import stat
 
 MAX_BYTES = 256 * 1024
 EVENTS = {"installed", "commandZ", "nextMainQueueTurn", "willUndo", "didUndo",
-          "becameActive", "resignedActive", "shutdownRequested", "limitReached"}
+          "becameActive", "resignedActive", "shutdownRequested", "limitReached",
+          "nextTab", "previousTab", "otherKey"}
 STATES = {"noEditor", "original", "singleFirst", "singleLast", "caseSensitiveAll",
           "caseInsensitiveAll", "other"}
 FLAGS = {"applicationActive", "workspaceKey", "editorFirstResponder",
          "firstResponderIsFieldEditor", "editorCanUndo", "editorIsUndoing"}
 REQUIRED = FLAGS | {"sequence", "elapsedSeconds", "event", "fixtureState"}
+KEY_FLAGS = {"keyEventIsRepeat", "keyEventTargetsWorkspace"}
+KEY_FIELDS = KEY_FLAGS | {"keyEventSourceProcessID"}
+KEY_EVENTS = {"commandZ", "nextTab", "previousTab", "otherKey"}
 
 
 def summarize(raw):
@@ -30,7 +34,7 @@ def summarize(raw):
     for index, record in enumerate(records):
         if not isinstance(record, dict) or not REQUIRED.issubset(record):
             raise ValueError("Missing diagnostic fields")
-        if set(record) - REQUIRED - {"notificationFromEditor"}:
+        if set(record) - REQUIRED - {"notificationFromEditor"} - KEY_FIELDS:
             raise ValueError("Unexpected diagnostic fields")
         if type(record["sequence"]) is not int or record["sequence"] != index:
             raise ValueError("Incomplete or reordered diagnostic sequence")
@@ -47,14 +51,32 @@ def summarize(raw):
             raise ValueError("Invalid Undo notification classification")
         if record["event"] in {"willUndo", "didUndo"} and "notificationFromEditor" not in record:
             raise ValueError("Missing Undo notification classification")
+        key_fields = KEY_FIELDS.intersection(record)
+        if key_fields:
+            if record["event"] not in KEY_EVENTS | {"limitReached"}:
+                raise ValueError("Key metadata on a non-key event")
+            if not KEY_FLAGS.issubset(record) or any(type(record[key]) is not bool for key in KEY_FLAGS):
+                raise ValueError("Missing or invalid key-event flags")
+            if "keyEventSourceProcessID" in record:
+                identifier = record["keyEventSourceProcessID"]
+                if type(identifier) is not int or not 0 <= identifier <= 2**31 - 1:
+                    raise ValueError("Invalid key-event source identifier")
+        if record["event"] in {"nextTab", "previousTab", "otherKey"} and not KEY_FLAGS.issubset(record):
+            raise ValueError("Missing key-event observation")
     if records[0]["event"] != "installed":
         raise ValueError("Missing diagnostic installation record")
     return {
-        "schema": 1,
+        "schema": 2,
         "recordCount": len(records),
         "limitReached": any(row["event"] == "limitReached" for row in records),
         "shutdownObserved": any(row["event"] == "shutdownRequested" for row in records),
         "commandZCount": sum(row["event"] == "commandZ" for row in records),
+        "nextTabCount": sum(row["event"] == "nextTab" for row in records),
+        "previousTabCount": sum(row["event"] == "previousTab" for row in records),
+        "otherKeyCount": sum(row["event"] == "otherKey" for row in records),
+        "keyMetadataObserved": any(KEY_FIELDS.intersection(row) for row in records),
+        "keySourceProcessIDs": sorted({row["keyEventSourceProcessID"] for row in records
+                                       if "keyEventSourceProcessID" in row}),
         "editorUndoCount": sum(row["event"] == "didUndo" and row.get("notificationFromEditor") is True
                                for row in records),
         "otherUndoCount": sum(row["event"] == "didUndo" and row.get("notificationFromEditor") is False

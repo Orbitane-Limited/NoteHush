@@ -2,6 +2,8 @@
 
 Date: 2026-09-07. Issue #29. Candidate branch: `issue-29/undo-diagnostics`, starting from main `2c786fac01a59e548475c20f985050c0a430e992`. This is diagnostic preparation, not a confirmed fix for the retained native Find failure. No native diagnostic result or full passing CI is claimed here.
 
+The [2026-09-08 supplement](2026-09-08-input-diagnostic.md) adds bounded event-source metadata after a later generated switching fixture changed unexpectedly. The original preparation results below refer to the earlier probe.
+
 ## Failure boundary to distinguish
 
 The [combined CI](https://github.com/Orbitane-Limited/NoteHush/actions/runs/34136196487) failed the original native Find case after a single replacement, Done and Cmd+Z. Its synthesized event targets the identified app, but the original text expectation fails. Both retained recovery generations contain the exact single-replacement fixture with valid checksums/encoding. A later unchanged focused case passed. See the [immutable combined report](https://github.com/Orbitane-Limited/NoteHush/blob/f18976483642dd8da8dae1bc28d1636e00ce7aae/docs/validation/2026-09-07-m5-integration.md).
