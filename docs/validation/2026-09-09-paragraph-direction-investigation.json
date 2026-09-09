@@ -14698,7 +14698,7 @@
       "finishedAt": "2026-09-09T00:40:33.189361+00:00"
     }
   },
-  "updatedAt": "2026-09-09T00:42:36.629372+00:00",
+  "updatedAt": "2026-09-09T00:53:51.463238+00:00",
   "finalAppKitUnitRun": {
     "provenance": {
       "startedAt": "2026-09-09T00:45:05.644861+00:00",
@@ -14862,5 +14862,138 @@
     "result": "pass",
     "formatAndConfiguration": "pass",
     "fullCI": "pending"
-  }
+  },
+  "headlessValidation": {
+    "sourceRevision": "7281ad2db63ed6442f4dec9731c429c3f6fd3c2c",
+    "sourceClean": true,
+    "startedAt": "2026-09-09T00:50:31.695136+00:00",
+    "nativeUIRun": false,
+    "uploaded": false,
+    "steps": [
+      {
+        "name": "core",
+        "command": [
+          "swift",
+          "test",
+          "--enable-code-coverage"
+        ],
+        "startedAt": "2026-09-09T00:50:31.774004+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:50:43.545262+00:00"
+      },
+      {
+        "name": "crash-debug",
+        "command": [
+          "python3",
+          "scripts/test_crash_recovery.py"
+        ],
+        "startedAt": "2026-09-09T00:50:43.577949+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:50:52.017224+00:00"
+      },
+      {
+        "name": "crash-release",
+        "command": [
+          "python3",
+          "scripts/test_crash_recovery.py",
+          "--configuration",
+          "release"
+        ],
+        "startedAt": "2026-09-09T00:50:52.049618+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:51:01.092241+00:00"
+      },
+      {
+        "name": "debug",
+        "command": [
+          "xcodebuild",
+          "-project",
+          "NoteHush.xcodeproj",
+          "-scheme",
+          "NoteHush",
+          "-configuration",
+          "Debug",
+          "-destination",
+          "generic/platform=macOS",
+          "-derivedDataPath",
+          "build/DerivedData",
+          "CODE_SIGNING_ALLOWED=NO",
+          "build"
+        ],
+        "startedAt": "2026-09-09T00:51:01.122776+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:51:14.292438+00:00"
+      },
+      {
+        "name": "archive",
+        "command": [
+          "bash",
+          "scripts/archive.sh"
+        ],
+        "startedAt": "2026-09-09T00:51:14.334905+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:51:28.511883+00:00"
+      },
+      {
+        "name": "optimized",
+        "command": [
+          "bash",
+          "scripts/build_performance.sh"
+        ],
+        "startedAt": "2026-09-09T00:51:28.542520+00:00",
+        "timeoutSeconds": 300,
+        "exitCode": 0,
+        "finishedAt": "2026-09-09T00:51:45.344631+00:00"
+      }
+    ],
+    "finishedAt": "2026-09-09T00:51:45.344946+00:00",
+    "artifactDirectory": "build/worktrees/issue-45/build/ParagraphHeadless-03919ABB-392B-42F3-A6B6-1C8A56609419",
+    "logSHA256": {
+      "archive.log": "a76812246e6cf274fd41836484dec9d80dd5bcf72af65f9a791b755c658c0382",
+      "core.log": "16e6ab0a5141fad95df2a2620a747522aaf18dc9f27b9bd54283b9fa01aa7ed5",
+      "crash-debug.log": "4c3f71e87c1067e0c20bf4333f8abde9c876471cd8cb06ed62275df7311813db",
+      "crash-release.log": "98386e6c355df5868b0a4fec359d7ca4db5c4ba695ad831dcaa06bfe0c43534b",
+      "debug.log": "a702cddcea86dae942fe882e2db7ae0c2c67f1a29c0262ab9693acaee399a634",
+      "optimized.log": "03e48240b0bbc86915793feba4489a28ef4b19e05e014068e458d1464e8c8b19"
+    },
+    "coreTests": 85,
+    "crashDrills": {
+      "debug": 83,
+      "release": 83
+    },
+    "fullCI": false,
+    "binaries": {
+      "optimized": {
+        "relativePath": "build/PerformanceDerivedData/Build/Products/ReleasePerformance/NoteHushPerformance.app/Contents/MacOS/NoteHushPerformance",
+        "sha256": "1e6ffbb76570fc087600d617bb10bb8d7368d6f0683878d5b895ed59e28ec4dc"
+      },
+      "archive": {
+        "relativePath": "build/NoteHush-unsigned.xcarchive/Products/Applications/NoteHush.app/Contents/MacOS/NoteHush",
+        "sha256": "6961135966d21a5b82721c413cfcceb83f0f9cf5e09235f024ba9bcabc03ffa7"
+      }
+    }
+  },
+  "actualAppColdRegression": {
+    "sourceRevision": "7281ad2db63ed6442f4dec9731c429c3f6fd3c2c",
+    "sourceClean": true,
+    "startedAt": "2026-09-09T00:48:34.889885+00:00",
+    "timeoutSeconds": 150,
+    "hostSHA256": "6ad79cd2761300f58f60816c9d9162df4b79ff3e83a11035cd1f8c5ecbc9982f",
+    "appSHA256": "4626b11fab692c8cce4bbf0c43f416ef8bb54066348eaf763f009f6033b7e570",
+    "host": "Original full ColdLaunchHarness checks with private failure retention and UUID recording only",
+    "nativeXCTest": false,
+    "exitCode": 0,
+    "finishedAt": "2026-09-09T00:48:38.594713+00:00",
+    "unchangedBinary": true,
+    "exactProductEntitlementsBeforeAfter": true,
+    "artifactDirectory": "build/worktrees/issue-45/build/ParagraphCold-BA5B4BDD-3554-4A1F-AF13-32EEA7931DB9",
+    "logSHA256": "578f0eba732718ad119679ef76418f563d3854325d97e27fc1c7056d216aa4d8",
+    "performanceAcceptance": false
+  },
+  "proposedImplementationCommit": "7281ad2db63ed6442f4dec9731c429c3f6fd3c2c"
 }
