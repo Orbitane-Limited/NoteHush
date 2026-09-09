@@ -2348,5 +2348,36 @@
       "x86_64-otool.log": "fd463c33bcb77277702df5fc4a954d8bad5c9f056bfed6feac85102de8e88626"
     },
     "privateArtifactDirectory": "build/MinimumOSLinkInspection-333523E8-FE01-44C9-A5C7-3D1415E2639C"
+  },
+  "subsequentDeliveryGuards": {
+    "integratedSource": "d0686adf45e88a6b568c5d6fdba72feb41fb0e70",
+    "issue": 52,
+    "pr": 61,
+    "prHead": "3a6a1e5301ee37466fe53c85b9cef3f1c2ec7fd1",
+    "repository": {
+      "sourceRevision": "d0686adf45e88a6b568c5d6fdba72feb41fb0e70",
+      "workingTreeClean": true,
+      "exitCode": 0,
+      "summary": [
+        "Ran 130 tests in 69.095s",
+        "OK"
+      ],
+      "recordedAt": "2026-09-09T05:19:42.078298+00:00"
+    },
+    "existingPackageMetadataAndResources": {
+      "recordedAt": "2026-09-09T05:14:51.049248+00:00",
+      "packageSHA256": "5102f181b28447192836529659cfcda5022ae58d5e52ff34db5e3051cefc88c6",
+      "metadataAndResourcesPassed": true,
+      "version": "0.1.0",
+      "build": "1",
+      "appCodeChanged": false,
+      "nativeCommandsExecuted": false,
+      "uploaded": false,
+      "appStoreReady": false,
+      "compiledIconBytes": 13099
+    },
+    "appCoreConfigProjectUnchanged": true,
+    "newNativeAppWorkload": false,
+    "fullNativeCIPassed": false
   }
 }

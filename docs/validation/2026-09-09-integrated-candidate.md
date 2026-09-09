@@ -2,7 +2,9 @@
 
 **Do not merge this validation branch into main.** It combines independent issue PRs to expose integration failures before their required CI/review/individual squash merges. It is not an approved release candidate.
 
-## Latest ten-PR candidate
+## Current candidate
+
+Delivery-only integration at clean `d0686adf45e88a6b568c5d6fdba72feb41fb0e70` adds PR #61's [exported-resource and current-capacity guards](2026-09-09-store-bundle-guards.md). All **130 integrated repository tests pass** in 69.095 seconds, with configuration/link and whitespace checks passing. App, core, entitlements/configuration and the Xcode project are byte-for-byte unchanged from the signed `9557aec` source. The existing Store package also passes the additional metadata/resource checks without rebuilding, resigning or launching it. This does not replace pending native UI CI, performance or release gates.
 
 Subsequent host-only integration at `30a7b7e` adds PR #74's large-file protocol. The [complete before/after comparison](2026-09-09-large-file-opening-comparison.md) passes all 40 observations per build: mixed-script request-to-checkpoint p95 falls from 9,654.208 to 349.982 ms, while ASCII p95 increases from 414.136 to 586.623 ms and all outliers remain retained. All 125 integrated repository tests/88 Swift tests and the original native shared-reader cold/recovery regression pass. App/core/configuration source is unchanged from `9557aec`. A separate long-paragraph diagnostic still fails on both main and candidate and is tracked in #75; physical responsiveness and full UI/release gates remain open.
 
