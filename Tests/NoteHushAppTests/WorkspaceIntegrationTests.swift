@@ -27,17 +27,16 @@ final class WorkspaceIntegrationTests: XCTestCase {
     XCTAssertEqual(active.id, selected.id)
     XCTAssertTrue(active.editor.string.utf8.elementsEqual(selected.text.utf8))
     XCTAssertEqual(active.editor.selectedRange(), NSRange(location: anchor, length: 0))
-    let layout = try XCTUnwrap(active.editor.layoutManager)
-    XCTAssertLessThan(layout.firstUnlaidCharacterIndex(), selected.text.utf16.count)
-    let line = layout.lineFragmentRect(
-      forGlyphAt: layout.glyphIndexForCharacter(at: anchor), effectiveRange: nil)
-    let caretY = line.midY + active.editor.textContainerInset.height
+    let layout = try XCTUnwrap(active.editor.textLayoutManager)
+    XCTAssertLessThan(try firstUnlaidTextOffset(layout), selected.text.utf16.count)
+    let line = try editorLineRect(active.editor, at: anchor)
+    let caretY = line.midY
     let viewport = active.scrollView.contentView.bounds
     XCTAssertGreaterThan(viewport.minY, 1000)
     XCTAssertGreaterThanOrEqual(caretY, viewport.minY)
     XCTAssertLessThanOrEqual(caretY, viewport.maxY)
     for tab in controller.tabs where tab.id != selected.id {
-      XCTAssertEqual(tab.editor.layoutManager?.firstUnlaidCharacterIndex(), 0)
+      XCTAssertEqual(try firstUnlaidTextOffset(XCTUnwrap(tab.editor.textLayoutManager)), 0)
     }
     await controller.prepareToQuit()
     controller.close()
@@ -45,10 +44,8 @@ final class WorkspaceIntegrationTests: XCTestCase {
     let recovered = try XCTUnwrap(loaded.snapshot)
     XCTAssertEqual(recovered.selectedTabID, selected.id)
     let savedPosition = try XCTUnwrap(recovered.tabs.last?.scroll)
-    let savedLine = layout.lineFragmentRect(
-      forGlyphAt: layout.glyphIndexForCharacter(at: savedPosition.anchor), effectiveRange: nil)
-    let savedVisibleOffset =
-      viewport.minY - savedLine.minY - active.editor.textContainerInset.height
+    let savedLine = try editorLineRect(active.editor, at: savedPosition.anchor)
+    let savedVisibleOffset = viewport.minY - savedLine.minY
     XCTAssertEqual(savedPosition.offset, savedVisibleOffset, accuracy: 1)
     for (actual, original) in zip(recovered.tabs, tabs) {
       XCTAssertEqual(actual.id, original.id)
@@ -60,20 +57,16 @@ final class WorkspaceIntegrationTests: XCTestCase {
     reopened.window?.displayIfNeeded()
     let restored = try XCTUnwrap(reopened.selectedTab)
     XCTAssertEqual(restored.editor.selectedRange(), NSRange(location: anchor, length: 0))
-    let restoredLayout = try XCTUnwrap(restored.editor.layoutManager)
-    let restoredLine = restoredLayout.lineFragmentRect(
-      forGlyphAt: restoredLayout.glyphIndexForCharacter(at: savedPosition.anchor),
-      effectiveRange: nil)
+    let restoredLine = try editorLineRect(restored.editor, at: savedPosition.anchor)
     let restoredViewport = restored.scrollView.contentView.bounds
     // Noncontiguous layout estimates total document height. Compare the same
     // text line within the viewport, not its estimated distance from the top.
     XCTAssertEqual(
-      restoredViewport.minY - restoredLine.minY - restored.editor.textContainerInset.height,
+      restoredViewport.minY - restoredLine.minY,
       savedVisibleOffset, accuracy: 1)
-    let restoredCaretLine = restoredLayout.lineFragmentRect(
-      forGlyphAt: restoredLayout.glyphIndexForCharacter(at: anchor), effectiveRange: nil)
+    let restoredCaretLine = try editorLineRect(restored.editor, at: anchor)
     XCTAssertEqual(
-      restoredCaretLine.midY + restored.editor.textContainerInset.height - restoredViewport.minY,
+      restoredCaretLine.midY - restoredViewport.minY,
       caretY - viewport.minY, accuracy: 1)
     await reopened.prepareToQuit()
     reopened.close()

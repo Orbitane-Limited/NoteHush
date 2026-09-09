@@ -15,6 +15,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var analysisTask: Task<Void, Never>?
   private var statusActive = false
   private(set) var metrics: TextMetrics?
+  private let paragraphPresenter = ParagraphDirectionPresenter()
   let editor: NSTextView
   let scrollView: NSScrollView
   var onChange: (() -> Void)?
@@ -26,6 +27,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var preferences = EditorPreferences()
   private var capturedSnapshot: TabSnapshot
   private var textCaptureInvalidated = false
+  private var contentNotificationPending = false
 
   init(
     snapshot: TabSnapshot, preferences: EditorPreferences = EditorPreferences(),
@@ -40,20 +42,21 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     isDirty = !snapshot.text.isEmpty
     savedScroll = snapshot.scroll
     capturedSnapshot = snapshot
-    let storage = NSTextStorage()
-    let layout = NSLayoutManager()
-    // Hidden tabs must not eagerly typeset their full text. AppKit lays out
-    // visible or explicitly requested character ranges when they are needed.
-    layout.allowsNonContiguousLayout = true
-    layout.backgroundLayoutEnabled = false
-    let container = NSTextContainer(
-      containerSize: NSSize(width: 900, height: CGFloat.greatestFiniteMagnitude))
-    storage.addLayoutManager(layout)
-    layout.addTextContainer(container)
     let initialFrame = NSRect(x: 0, y: 0, width: 900, height: 500)
-    editor = NSTextView(frame: initialFrame, textContainer: container)
+    editor = NSTextView(usingTextLayoutManager: true)
+    editor.frame = initialFrame
+    guard let storage = editor.textStorage, let container = editor.textContainer,
+      editor.textLayoutManager != nil
+    else {
+      preconditionFailure("Native TextKit 2 editor construction failed")
+    }
     scrollView = NSScrollView(frame: initialFrame)
     super.init()
+    if let content = editor.textLayoutManager?.textContentManager as? NSTextContentStorage,
+      content.delegate == nil
+    {
+      content.delegate = paragraphPresenter
+    }
     if let scrollerStyle { scrollView.scrollerStyle = scrollerStyle }
     editor.isRichText = false
     editor.importsGraphics = false
@@ -90,11 +93,32 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     NotificationCenter.default.addObserver(
       self, selector: #selector(storageDidProcessEditing),
       name: NSTextStorage.didProcessEditingNotification, object: storage)
+    // TextKit 2 updates storage during Undo/Redo without consistently sending
+    // NSTextView's text-change notification. Reconcile only an observed pending
+    // character edit when the tab's own undo transaction finishes.
+    for name in [
+      NSNotification.Name.NSUndoManagerDidUndoChange,
+      NSNotification.Name.NSUndoManagerDidRedoChange,
+    ] {
+      NotificationCenter.default.addObserver(
+        self, selector: #selector(historyDidChange), name: name, object: history)
+    }
     scrollView.contentView.postsBoundsChangedNotifications = true
     NotificationCenter.default.addObserver(
       self, selector: #selector(scrolled), name: NSView.boundsDidChangeNotification,
       object: scrollView.contentView)
     refreshDirtyState()
+  }
+
+  isolated deinit {
+    NotificationCenter.default.removeObserver(self)
+    editor.delegate = nil
+    // Removing the document view can ask TextKit for viewport geometry. Keep
+    // the paragraph delegate alive during that work; releasing the scroll view
+    // later must not fall back to document-wide direction inference.
+    withExtendedLifetime(paragraphPresenter) {
+      scrollView.documentView = nil
+    }
   }
 
   func applyPreferences(_ value: EditorPreferences) {
@@ -141,8 +165,16 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     // Covers direct storage changes, undo and input-method edits as well as
     // NSTextView delegate callbacks. Presentation-only changes keep the text identity.
     textCaptureInvalidated = true
+    contentNotificationPending = true
   }
+
+  @objc private func historyDidChange(_ notification: Notification) {
+    if contentNotificationPending { textDidChange(notification) }
+  }
+
   func textDidChange(_ notification: Notification) {
+    guard contentNotificationPending else { return }
+    contentNotificationPending = false
     contentRevision &+= 1
     isDirty = file != nil || !editor.string.isEmpty
     refreshDirtyState()
@@ -281,7 +313,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     scrollView.autohidesScrollers = true
     editor.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
     configureWrapping()
-    guard let layout = editor.layoutManager, editor.textContainer != nil,
+    guard let layout = editor.textLayoutManager, let content = layout.textContentManager,
       !editor.string.isEmpty
     else {
       editor.setFrameOrigin(.zero)
@@ -297,12 +329,21 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     // layout request can leave that offset pointing at a different line.
     editor.scrollRangeToVisible(NSRange(location: anchor, length: 1))
     editor.sizeToFit()
-    let glyph = layout.glyphIndexForCharacter(at: anchor)
-    let line = layout.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
+    layout.textViewportLayoutController.layoutViewport()
+    guard let location = content.location(content.documentRange.location, offsetBy: anchor),
+      let end = content.location(location, offsetBy: 1),
+      let range = NSTextRange(location: location, end: end)
+    else { return }
+    layout.ensureLayout(for: range)
+    guard let fragment = layout.textLayoutFragment(for: location),
+      let line = fragment.textLineFragment(for: location, isUpstreamAffinity: false)
+    else { return }
     // NSText sizes about its previous top edge while detached. The scroll
     // document must start at zero before clip-view constraints are applied.
     editor.setFrameOrigin(.zero)
-    let y = line.minY + editor.textContainerInset.height + max(-1000, min(position.offset, 1000))
+    let y =
+      fragment.layoutFragmentFrame.minY + line.typographicBounds.minY
+      + editor.textContainerOrigin.y + max(-1000, min(position.offset, 1000))
     let clip = scrollView.contentView
     let horizontal = position.horizontalOffset ?? 0
     let x = !preferences.wordWrap && horizontal.isFinite ? max(0, horizontal) : 0
@@ -320,16 +361,26 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   }
 
   private func captureScroll() {
-    guard !restoring, let layout = editor.layoutManager, let container = editor.textContainer,
-      layout.numberOfGlyphs > 0
+    guard !restoring, let layout = editor.textLayoutManager,
+      let content = layout.textContentManager,
+      let length = editor.textStorage?.length, length > 0
     else { return }
     let y = scrollView.contentView.bounds.minY
-    let point = NSPoint(x: 0, y: max(0, y - editor.textContainerInset.height))
-    let glyph = min(layout.glyphIndex(for: point, in: container), layout.numberOfGlyphs - 1)
-    let line = layout.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
+    let point = NSPoint(x: 0, y: max(0, y - editor.textContainerOrigin.y))
+    guard let fragment = layout.textLayoutFragment(for: point),
+      let line = fragment.textLineFragment(
+        forVerticalOffset: point.y - fragment.layoutFragmentFrame.minY, requiresExactMatch: false)
+    else { return }
+    let elementOffset = content.offset(
+      from: content.documentRange.location, to: fragment.rangeInElement.location)
+    guard elementOffset != NSNotFound, elementOffset >= 0, elementOffset <= length,
+      line.characterRange.location <= length - elementOffset
+    else { return }
+    let anchor = min(length - 1, elementOffset + line.characterRange.location)
     savedScroll = TextScrollPosition(
-      anchor: layout.characterIndexForGlyph(at: glyph),
-      offset: y - line.minY - editor.textContainerInset.height,
+      anchor: anchor,
+      offset: y - fragment.layoutFragmentFrame.minY - line.typographicBounds.minY
+        - editor.textContainerOrigin.y,
       horizontalOffset: scrollView.contentView.bounds.minX)
   }
 }

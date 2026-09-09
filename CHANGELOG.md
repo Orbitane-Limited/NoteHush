@@ -2,6 +2,10 @@
 
 ## Unreleased — 0.1.0 development
 
+### Changed
+
+- Propose TextKit 2 paragraph presentation to avoid repeated document-wide natural-direction work on macOS 26, preserving backing text and explicit directions; include safe editor teardown and Undo/Redo state reconciliation. Full release validation remains open.
+
 ### Added
 
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
