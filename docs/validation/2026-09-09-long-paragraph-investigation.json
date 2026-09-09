@@ -2468,5 +2468,54 @@
     "newHostWrapperNativeCaseCompleted": false,
     "hostFaultChecks": 8,
     "hostCheckEvidence": "build/issue75-reproducer-host-verification.json"
+  },
+  "pendingDiagnostics": {
+    "notCompiledOrRun": true,
+    "fontPolicy": {
+      "sizesUTF8Bytes": [
+        262144,
+        1048576
+      ],
+      "variants": [
+        "fixFonts",
+        "arabicBase",
+        "arabicOnly",
+        "emojiOnly"
+      ],
+      "sourceSHA256": "f11316620d6e49158424755d63da96bc09db1d0bfd87ea8f4965862e9e3ac38e",
+      "boundary": "typesetter creation and first native line, not complete rendering"
+    },
+    "fragmentRange": {
+      "sizesUTF8Bytes": [
+        16384,
+        262144,
+        1048576
+      ],
+      "variants": [
+        "native",
+        "partial"
+      ],
+      "sourceSHA256": "8a0065fee9e6bd9898358e95306846bf9a50933e21c949306eda33770664b97e",
+      "boundary": "full native UTF-16 line coverage and geometry with unchanged source; not whole-app acceptance"
+    },
+    "readiness": {
+      "artifact": "CoreTextFontPolicyReadiness-EE721002-C25A-4630-AF04-5973B6F6B5A6",
+      "samples": 193,
+      "maximumAvailableBytes": 48665387008,
+      "minimumRequiredBytes": 49438479565,
+      "lastSample": {
+        "time": "2026-09-09T05:23:31.908055+00:00",
+        "freeBytes": 41538887680,
+        "requiredBytes": 49438479565,
+        "nativeProcessCount": 0,
+        "consecutiveReady": 0
+      },
+      "rawSHA256": "c76bb45fafcc03977b1aa202e91edd18c5b6bf18c87191fed8d58294b040eec7",
+      "driverStarted": false,
+      "nativeCaseStarted": false,
+      "stoppedBeforeOriginalDeadline": true,
+      "boundedReserveUnchanged": true,
+      "safePauseEvidence": "FontPolicyPause-C25528D3-3762-4FBC-8829-BDF8128D0205"
+    }
   }
 }
