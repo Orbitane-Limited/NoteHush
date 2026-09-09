@@ -56,6 +56,8 @@ No production release has been published.
 
 - Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 - Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
+- Store delivery rechecks disk headroom before signing, export and package expansion, and verifies the exported bundle's original icon and audited encryption declaration.
+
 - Accept valid Store-profile UUID casing and canonicalize only the owned installation filename; reject malformed identifiers before publishing profile ownership.
 
 - Store quarantine verification uses macOS's native attribute tool for archives and packages, preserving the no-follow and reject-without-removal behavior.
