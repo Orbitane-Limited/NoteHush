@@ -2163,6 +2163,280 @@
         "finishedAt": "2026-09-09T03:17:21.046979+00:00"
       },
       "observation": "Mixed paragraphs retained estimated usage state and 8 pending operations after 40 main-actor ticks; full layout completion not established. ASCII 10 MiB reached layoutAvailable with exact contiguous line coverage."
+    },
+    "fallbackRunMatrix": {
+      "directory": "build/CoreTextFallbackProbe-C0E3F35D-A12B-4007-B085-6208E6C69B90",
+      "hashes": {
+        "plan.json": "53e4e1c0e1e77d7388880959ba53e6eff6e9fea998edb627ebfb87784d5a6095",
+        "result.json": "075b7be27c7b271644fc38428dabd5cf8cfdae6fe4dc7a7d4deb0278dba77331",
+        "CoreTextFallbackProbe.swift": "de681a054a12c884bc5a7652373cd0b9b3959d3e551610302d1aecb4d43eeba5",
+        "Probe": "979eb29edf188913fe129453f4a145cd69383e05220107e9669888d52ba7fc21"
+      },
+      "result": {
+        "kind": "Standalone generated fallback-font/attributed-run hypothesis matrix; no app window or product behavior change",
+        "sourceSHA256": "de681a054a12c884bc5a7652373cd0b9b3959d3e551610302d1aecb4d43eeba5",
+        "sizes": [
+          16384,
+          262144,
+          1048576
+        ],
+        "variants": [
+          "native",
+          "explicitFallback",
+          "separateAttributes",
+          "chunkedAttributes"
+        ],
+        "oneObservationPerCell": true,
+        "timeoutPerCellSeconds": 10,
+        "notPerformanceAcceptance": true,
+        "startedAt": "2026-09-09T03:42:25.276231+00:00",
+        "results": [
+          {
+            "bytes": 16384,
+            "variant": "native",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "phase": "beforeAttributes",
+                "variant": "native"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "coveredUTF16": 86,
+                "wholeParagraphRenderingVerified": false,
+                "exactText": true,
+                "phase": "firstLineAvailable"
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "explicitFallback",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "phase": "beforeAttributes",
+                "variant": "explicitFallback"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "exactText": true,
+                "coveredUTF16": 86,
+                "wholeParagraphRenderingVerified": false,
+                "phase": "firstLineAvailable"
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "separateAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "variant": "separateAttributes",
+                "phase": "beforeAttributes"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "coveredUTF16": 86,
+                "phase": "firstLineAvailable",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "chunkedAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "phase": "beforeAttributes",
+                "bytes": 16384
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "exactText": true,
+                "phase": "firstLineAvailable",
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "native",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "native"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "phase": "firstLineAvailable",
+                "exactText": true,
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "explicitFallback",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "explicitFallback"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "exactText": true,
+                "coveredUTF16": 86,
+                "phase": "firstLineAvailable",
+                "wholeParagraphRenderingVerified": false
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "separateAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "separateAttributes"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "exactText": true,
+                "phase": "firstLineAvailable",
+                "wholeParagraphRenderingVerified": false,
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "chunkedAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "phase": "beforeAttributes",
+                "bytes": 262144
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "phase": "firstLineAvailable",
+                "coveredUTF16": 86,
+                "exactText": true,
+                "wholeParagraphRenderingVerified": false
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "native",
+            "timeout": true,
+            "records": [
+              {
+                "variant": "native",
+                "phase": "beforeAttributes",
+                "bytes": 1048576
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "explicitFallback",
+            "timeout": true,
+            "records": [
+              {
+                "bytes": 1048576,
+                "phase": "beforeAttributes",
+                "variant": "explicitFallback"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "separateAttributes",
+            "timeout": true,
+            "records": [
+              {
+                "bytes": 1048576,
+                "variant": "separateAttributes",
+                "phase": "beforeAttributes"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "chunkedAttributes",
+            "timeout": true,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "bytes": 1048576,
+                "phase": "beforeAttributes"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          }
+        ],
+        "binarySHA256": "979eb29edf188913fe129453f4a145cd69383e05220107e9669888d52ba7fc21",
+        "finishedAt": "2026-09-09T03:43:37.786874+00:00"
+      },
+      "attributeDifference": "Only font; no explicit paragraphStyle unlike original CoreTextLongProbe. Not a rerun or pooled comparison.",
+      "conclusion": "No variant demonstrates correction; first line only, all1MiB timed out."
     }
   },
   "privatePrototype": {
