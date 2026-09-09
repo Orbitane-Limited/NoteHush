@@ -67,6 +67,17 @@ The implementation was committed as `7281ad2db63ed6442f4dec9731c429c3f6fd3c2c`. 
 
 The same clean implementation also passed the complete original `ColdLaunchHarness` regression at 00:48:34–00:48:38 UTC in `ParagraphCold-BA5B4BDD-3554-4A1F-AF13-32EEA7931DB9`. The private host changes only failure retention and UUID recording; it retains every original assertion and ten-second observation bound. The run verifies mandatory workspace isolation, cold file requests, exact dirty/untitled/closed recovery, unchanged external bytes, and independent caret/viewport restoration across restart. The exact app binary and product entitlements remained unchanged before and after. This is a functional cold-launch check, not the optimized launch performance protocol or a signed installation check.
 
+## Original idle protocol on the proposed implementation
+
+Clean branch `16fad24` (documentation only after implementation `7281ad2`) passed the unchanged two-workload idle collector from #56: thirty seconds of settling, 61 active samples spanning at least sixty seconds, normal Quit and independent exact recovery/selection/viewport verification for each case. The optimized binary built from `7281ad2` and its exact product sandbox remained unchanged throughout. The host and summarizer were unchanged from the earlier baseline implementation; separate host/app hashes and all 122 observations are retained in [the complete idle record](2026-09-09-paragraph-idle-impact.json). The wrapper used the already-built verified app and original host directly; it did not change any collection boundary, assertion or sample count.
+
+| Workload | Maximum RSS | Maximum physical footprint | Average CPU, one core |
+| --- | ---: | ---: | ---: |
+| One empty tab | 99.219 MiB | 30.782 MiB | 0.00189% |
+| Twenty 256 KiB tabs, 5 MiB total | 132.172 MiB | 61.267 MiB | 0.00199% |
+
+The empty RSS remains **19.219 MiB above** its unchanged 80 MiB target. The twenty-tab RSS is below its 150 MiB target on this Mac; both CPU windows are below 1%. The earlier separate baseline observed 99.984 / 149.234 MiB RSS. These are one window per case on the same M4 Pro with warm caches, not repeated independent process measurements or proof that every difference is caused by the code change. Physical footprint is reported separately and never substituted for RSS. Issue #67's empty-memory miss, physical energy, M1 reference hardware and other release gates stay open.
+
 ## Conditions and outstanding gates
 
 M4 Pro/24 GiB, macOS 26.6.2 (25G83), Xcode 26.6 (17F113), macOS 26.5 SDK. The user reserved the Mac from 2026-09-08 22:04:56 through 2026-09-09 06:04:56 UTC. Native work and compilation were serialized; CI routing remained held because Automation Mode required owner authentication. Caches were warm. These were fresh diagnostic processes, not continuous thermal or energy observations.
