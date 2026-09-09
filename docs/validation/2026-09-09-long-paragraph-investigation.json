@@ -361,6 +361,100 @@
           ]
         }
       ]
+    },
+    "asyncRealApp": {
+      "directory": "build/AsyncParagraphNative-E389D5FE-3A35-4A90-A5E2-B2A093CC1694",
+      "hashes": {
+        "plan.json": "80c0af873e04c0155ffdda4831c9f4dfc8b050cea48b1466e87c8b9e07d08bab",
+        "result.json": "80c02c62377272cf7f916f7b174a606ef65971815901d2ce2500f4da2a9b6421",
+        "storage.json": "f9e4ce65f4bef64ba5e198559be1d2eedf77dcdce220f5b0afac030e6d37c41e",
+        "run.log": "edc6c01f14ad90e0192f5be7fa225916da00717be974a651217d0a99040416d7"
+      },
+      "journalSHA256": "492f2953636f066cbb6fb587eaf60bf7005161ba77dc9af4c7daacfb35cd619d",
+      "result": {
+        "kind": "Private real-app asynchronous-fragment prototype; unchanged two-case diagnostic, no complete-rendering claim",
+        "sourceRevision": "0b8d3b49f85b0132b339440ca09981182a9893af",
+        "sourceClean": true,
+        "buildEvidence": "AsyncParagraphApp-FDD0D2A9-E429-4CC1-83C6-72198ABB1C6E",
+        "observationBoundSeconds": 10,
+        "normalQuitBoundSeconds": 20,
+        "outerBoundSeconds": 150,
+        "allFixturesRetained": true,
+        "startedAt": "2026-09-09T03:03:07.830467+00:00",
+        "appWorkloadStarted": true,
+        "appSHA256": "96491f1cd13a05af5dce5dcaf7a2e1a2fa9aa2a533377d32cb06363804f36129",
+        "hostSHA256": "d6468de92f65e4d6494388fac048d52ca6f6e77cb2072ece2c6abb7c5abadac4",
+        "signatureBeforeExitCode": 0,
+        "appWorkloadExitCode": 0,
+        "signatureAfterExitCode": 0,
+        "unchangedBinary": true,
+        "sourceAfter": "0b8d3b49f85b0132b339440ca09981182a9893af",
+        "workingTreeCleanAfter": true,
+        "finishedAt": "2026-09-09T03:03:11.008192+00:00"
+      },
+      "records": [
+        {
+          "normalQuitBoundSeconds": 20,
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "kind": "header",
+          "observationsPerWorkload": 1,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "bytesPerFile": 10485760,
+          "observationBoundNanoseconds": 10000000000,
+          "unit": "nanoseconds",
+          "schema": 1,
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic"
+        },
+        {
+          "withinObservationBound": true,
+          "workload": "ascii",
+          "launchServicesReturnNanoseconds": 37379750,
+          "requestToCheckpointNanoseconds": 233130083,
+          "kind": "observation",
+          "index": 0
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "selectionAndViewport": true,
+          "activeDuringObservation": true,
+          "completeRecovery": true,
+          "kind": "verification",
+          "unchangedSourceBytes": true,
+          "index": 0,
+          "tabOrderAndWindow": true,
+          "workload": "ascii",
+          "normalQuit": true
+        },
+        {
+          "withinObservationBound": true,
+          "workload": "mixed",
+          "launchServicesReturnNanoseconds": 18276875,
+          "requestToCheckpointNanoseconds": 299804458,
+          "kind": "observation",
+          "index": 0
+        },
+        {
+          "normalQuit": true,
+          "kind": "verification",
+          "fileBindingAndIdentity": true,
+          "selectionAndViewport": true,
+          "unchangedSourceBytes": true,
+          "tabOrderAndWindow": true,
+          "activeDuringObservation": true,
+          "completeRecovery": true,
+          "index": 0,
+          "workload": "mixed"
+        },
+        {
+          "verifiedObservations": 2,
+          "kind": "finish"
+        }
+      ],
+      "renderingCompletionVerified": false,
+      "readinessEvidence": "build/AsyncParagraphReadiness-D87BF9B8-33AB-4EE3-81E4-4739F5F59F47"
     }
   },
   "privatePrototype": {
@@ -373,7 +467,7 @@
   "preparationStatus": {
     "prototypeSource": "0b8d3b49f85b0132b339440ca09981182a9893af",
     "optimizedBuildPassed": true,
-    "nativePrototypeWorkloadStarted": false,
+    "nativePrototypeWorkloadStarted": true,
     "shippingPolicyAdopted": false,
     "cacheReclamation": {
       "evidence": "build/issue75-cache-reclamation-result.json",
@@ -381,7 +475,16 @@
       "unusedDirectories": 10,
       "productsFixturesOrEvidenceRemoved": false
     },
-    "laterNativeRunsPaused": "Disk below unchanged ten-percent reserve and competing unrelated native builds",
-    "renderingCompletionRequired": "Fragment state layoutAvailable and verified line/glyph coverage; checkpoint/main-actor progress alone are insufficient"
+    "laterNativeRunsPaused": "The real-app diagnosis resumed after storage recovered and two quiet preflight samples; later standalone work continues to check changing conditions",
+    "renderingCompletionRequired": "Fragment state layoutAvailable and verified line/glyph coverage; checkpoint/main-actor progress alone are insufficient",
+    "nativePrototypeWorkloadPassed": true
+  },
+  "reproducer": {
+    "sourcePath": "docs/validation/reproducers/CoreTextLongProbe.swift",
+    "sourceSHA256": "f95846721e71de03eb173e85ff458e835c2b4282f3212a1a88e3b35d8fb45cb8",
+    "exactOriginalMatrixSource": true,
+    "newHostWrapperNativeCaseCompleted": false,
+    "hostFaultChecks": 8,
+    "hostCheckEvidence": "build/issue75-reproducer-host-verification.json"
   }
 }
