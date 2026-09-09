@@ -2322,5 +2322,31 @@
     "unchangedTwentyTabTargetMiB": 150,
     "physicalFootprintSubstituted": false,
     "specificPRCausationEstablished": false
+  },
+  "minimumOSStaticLinkInspection": {
+    "kind": "Read-only static inspection of the retained signed engineering executable; no compile or app launch",
+    "startedAt": "2026-09-09T04:05:16.829525+00:00",
+    "sourceRevision": "9557aecfdd7fed533cdf7fb2553b0f62aa866cb8",
+    "executableSHA256": "29c563b7e046b8d7beed589b9de276797924a7da76418b6ab26639cf55c4d87b",
+    "architectures": {
+      "arm64": {
+        "macOS26APIWeakImport": "(undefined) weak external _CFAttributedStringGetStatisticalWritingDirections (from CoreFoundation)",
+        "minimumOS": "14.0"
+      },
+      "x86_64": {
+        "macOS26APIWeakImport": "(undefined) weak external _CFAttributedStringGetStatisticalWritingDirections (from CoreFoundation)",
+        "minimumOS": "14.0"
+      }
+    },
+    "runtimeCompatibilityVerified": false,
+    "binaryUnchanged": true,
+    "finishedAt": "2026-09-09T04:05:16.916114+00:00",
+    "rawSHA256": {
+      "arm64-nm.log": "9d358c4530e4f770f26d52555245b5f08491e8d90cb748d3f7672840a65eb9bb",
+      "arm64-otool.log": "0562cabb07e3af3fa7e527dfa307aa573cd86a9dea96f21e78a34880379411e8",
+      "x86_64-nm.log": "99ab3dc8d697f7ddab1ef88dcfd3959f9257e4c85d5d59d8cc2071a35ce5e5a2",
+      "x86_64-otool.log": "fd463c33bcb77277702df5fc4a954d8bad5c9f056bfed6feac85102de8e88626"
+    },
+    "privateArtifactDirectory": "build/MinimumOSLinkInspection-333523E8-FE01-44C9-A5C7-3D1415E2639C"
   }
 }

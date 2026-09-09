@@ -39,3 +39,9 @@ No package was installed/uploaded, credentials exported, tag created or release 
 Remaining gates: native XCTest/CI and PR review/merges; mixed-script performance and empty RSS targets (#45/#67); supported OS/hardware and VoiceOver/IME acceptance (#13); authenticated App Store Connect record, processing and installed TestFlight (#14); verified public policy/support links, publisher-specific metadata and final screenshots (#15); release approval (#16).
 
 The runner is online and idle. Its `notehush` routing label is temporarily held because Apple's read-only Automation Mode tool reports disabled/requires administrator authentication, and the latest native run timed out before UI cases. No macOS authorization was changed. Restoring the label and rerunning native CI requires that prerequisite and a valid exclusive-input window. Private build, cold-launch, signed-export and earlier failure evidence is retained locally; no failed timing sample or assertion was discarded.
+
+## Static minimum-OS linkage inspection
+
+A read-only inspection on 2026-09-09 at 04:05 UTC used the exact previously verified Store-exported executable (`29c563b7e046b8d7beed589b9de276797924a7da76418b6ab26639cf55c4d87b`, source `9557aec`). Both arm64 and x86_64 load commands declare macOS 14.0, and both mark `CFAttributedStringGetStatisticalWritingDirections` as a weak external import. The source gates this macOS 26 optimization with its availability check. Raw `nm`/`otool` output hashes and the private artifact location are included in the existing numeric evidence index. The binary remained unchanged; no compiler or app was launched.
+
+This checks deployment metadata and that specific optional API's linkage. It does not establish actual macOS 14 execution, physical Intel compatibility, VoiceOver/IME behavior, or the older system's performance. Those #13 gates remain unverified.
