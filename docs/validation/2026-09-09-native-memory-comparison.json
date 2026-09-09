@@ -2167,5 +2167,62 @@
   "interpretation": "No demonstrated icon-driven RSS saving; nonmonotonic RSS between distinct fresh processes does not establish a theoretical minimum or authorize a product-budget change.",
   "productCodeChanged": false,
   "originalIdleProtocolReplacement": false,
-  "privateArtifactDirectory": "build/native-memory-floor-946D0221-A22D-4A41-AAAA-43B2112C9722"
+  "privateArtifactDirectory": "build/native-memory-floor-946D0221-A22D-4A41-AAAA-43B2112C9722",
+  "retainedArtifactReverification": {
+    "hashes": {
+      "plan.json": "9e7e8d5b03545fe60530b1b7ab22658bf213f9a9e29a7d1ad4aab563c70541dd",
+      "run.json": "91697eed3e85a211bf9e5def34d1328409ef5a544d867553942413100a172969",
+      "NativeMemoryFloor.swift": "e993337371e917abb7007b05bd1b6f05c5558ba242245ad551fcfacc1894118c",
+      "window.jsonl": "735b22790d2d6a29ba7e2cf3592e4d8947164c91c5a0c8721682206e36f33da7",
+      "editor.jsonl": "6dad4fe3643c8cccc481fc2288f96cf90f63b5849c4daf36807a0e88d6e61646",
+      "symbols.jsonl": "51800d6e7ca68d1c5ab1bb79f514c850b5054585556a05f7ba6272d818555f55",
+      "NativeMemoryFloor.app/Contents/MacOS/NativeMemoryFloor": "bace9260b60d2e8e5f1237acad1e2d3821669b1648690e55b47d005ccce3cdcb"
+    },
+    "metricsByVariant": {
+      "window": {
+        "residentBytes": {
+          "min": 71385088,
+          "median": 80052224,
+          "p95": 80052224,
+          "max": 80052224
+        },
+        "physicalFootprintBytes": {
+          "min": 19268448,
+          "median": 19268448,
+          "p95": 19776352,
+          "max": 19776352
+        }
+      },
+      "editor": {
+        "residentBytes": {
+          "min": 86360064,
+          "median": 86458368,
+          "p95": 86458368,
+          "max": 86474752
+        },
+        "physicalFootprintBytes": {
+          "min": 23823200,
+          "median": 24150880,
+          "p95": 24167264,
+          "max": 24167264
+        }
+      },
+      "symbols": {
+        "residentBytes": {
+          "min": 83197952,
+          "median": 83525632,
+          "p95": 83558400,
+          "max": 83558400
+        },
+        "physicalFootprintBytes": {
+          "min": 25314144,
+          "median": 25314144,
+          "p95": 25314144,
+          "max": 25314144
+        }
+      }
+    },
+    "sameOriginalObservations": true,
+    "additionalNativeRuns": 0
+  }
 }

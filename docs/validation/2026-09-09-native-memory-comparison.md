@@ -15,3 +15,5 @@ The symbol case has a higher observed physical footprint but lower RSS than the 
 No production optimization follows from this experiment. The combined app's separately verified empty RSS remains 91.891 MiB, exceeding the unchanged 80 MiB target by 11.891 MiB. Physical footprint is not substituted for RSS; M1/minimum hardware, energy and full CI remain open.
 
 Two storage preflights stopped preparation before any compiler/app launch. Their source/plans remain private. Headroom was restored by removing six verified-unused `ModuleCache.noindex` directories from completed NoteHush builds, with no open files. All products, packages, archives, source, traces and test evidence were preserved. The unchanged storage guard passed before the one compiled three-case run. No failed native observation was retried or discarded.
+
+A subsequent artifact audit reverified all 183 existing observations and seven source/product/raw-output hashes; it executed no additional native case. Nearest-rank resident p95 is 76.344 / 82.453 / 79.688 MiB for window/editor/symbols respectively. The numeric index preserves these recomputed summaries alongside the unchanged original observations.
