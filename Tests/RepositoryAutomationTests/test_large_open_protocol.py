@@ -20,8 +20,11 @@ def load(name):
     return module
 
 
-summary = load("summarize_large_open")
-runner = load("test_large_open")
+try:
+    summary = load("summarize_large_open")
+    runner = load("test_large_open")
+finally:
+    sys.path.remove(str(SCRIPTS))
 
 
 def fixture():
