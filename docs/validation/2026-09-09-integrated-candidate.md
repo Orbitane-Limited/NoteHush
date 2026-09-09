@@ -4,6 +4,8 @@
 
 ## Latest ten-PR candidate
 
+Subsequent host-only integration at `30a7b7e` adds PR #74's large-file protocol. The [complete before/after comparison](2026-09-09-large-file-opening-comparison.md) passes all 40 observations per build: mixed-script request-to-checkpoint p95 falls from 9,654.208 to 349.982 ms, while ASCII p95 increases from 414.136 to 586.623 ms and all outliers remain retained. All 125 integrated repository tests/88 Swift tests and the original native shared-reader cold/recovery regression pass. App/core/configuration source is unchanged from `9557aec`. A separate long-paragraph diagnostic still fails on both main and candidate and is tracked in #75; physical responsiveness and full UI/release gates remain open.
+
 Clean tested implementation: `9557aecfdd7fed533cdf7fb2553b0f62aa866cb8`. It includes the nine earlier PRs below plus #72 at `8bc1692` for native TextKit 2 paragraph presentation, viewport restoration and Undo/teardown corrections. Integration retained the explicit input-policy settings, Privacy/diagnostic/presenter project sources and each changelog entry. Main remains `bb49b49`; version remains **0.1.0 (1)**.
 
 [Complete numeric results and artifact provenance](2026-09-09-integrated-paragraph-candidate.json) record these separate checks:
