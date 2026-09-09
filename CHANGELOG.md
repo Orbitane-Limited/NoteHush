@@ -19,6 +19,7 @@
 - Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
 - Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
 - Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.
+- Opt-in native 10 MiB ASCII/Unicode file-opening protocol with complete post-Quit recovery/source verification, retained failures and strict evidence validation. Its request-to-checkpoint timing includes host and recovery overhead; interactive-window and reference-hardware acceptance remain open.
 
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.

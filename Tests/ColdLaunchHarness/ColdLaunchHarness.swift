@@ -1,4 +1,5 @@
 import AppKit
+import NativeFixtureSupport
 import NoteHushCore
 
 /// Host-only integration driver. Never linked into the app. It launches only the

@@ -95,6 +95,8 @@ Use PRD budgets, Release optimization, no debugger. Record hardware, OS, power s
 
 ## Manual acceptance and evidence
 
+The separate [native 10 MiB file-opening protocol](docs/LARGE_FILE_OPENING.md) measures host open request through a complete durable checkpoint, with 20 fresh processes each for ASCII and mixed Unicode/CRLF. Run `NOTEHUSH_EXCLUSIVE_INPUT=1 python3 scripts/test_large_open.py` only after arranging exclusive, awake GUI use and finishing other native jobs. Every observation verifies all recovered buffers, file binding/source bytes, selection/viewport and normal Quit. Partial/failing runs and all generated fixtures remain retained; the strict summarizer requires complete evidence and unchanged source, binary and sandbox scope. This includes host/recovery overhead and does not certify physical-frame timing or interactive-window acceptance. CI compiles the host and tests its fixture/evidence logic without running this opt-in measurement.
+
 - VoiceOver navigation and tab names; full keyboard access, focus, contrast, reduced motion; 200% text size.
 - Multiple monitors/disconnected display, dark/light appearance, minimum window dimensions.
 - Fresh installation, upgrade, corrupted store, disk denied, logout, Force Quit and reopen.
