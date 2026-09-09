@@ -168,6 +168,10 @@ def native(arguments, *, environment=None):
 
 def deliver(assets):
     revision = verify_source()
+    # A previously successful CI run does not establish current disk headroom.
+    # Stop before reading signing inputs or starting Xcode, retaining the same
+    # capacity report and policy used by the ordinary native checks.
+    native(["python3", "scripts/check_runner_storage.py"])
     version, build = version_settings(ROOT)
     team = secret("STORE_TEAM_ID")
     app_certificate = secret("STORE_APP_CERTIFICATE_SHA1").upper()
@@ -219,6 +223,7 @@ def deliver(assets):
     options_path = assets.directory / "ExportOptions.plist"
     private_write(options_path, plistlib.dumps(export_options))
     export = output / "Export"
+    native(["python3", "scripts/check_runner_storage.py"])
     native(["xcodebuild", "-exportArchive", "-archivePath", str(archive), "-exportPath", str(export),
             "-exportOptionsPlist", str(options_path)])
     packages = list(export.glob("*.pkg"))
@@ -230,6 +235,7 @@ def deliver(assets):
             "Package signature does not match the selected Store installer certificate")
     verify_no_quarantine(package)
     expanded = output / "Expanded"
+    native(["python3", "scripts/check_runner_storage.py"])
     native(["pkgutil", "--expand-full", str(package), str(expanded)])
     exported_apps = list(expanded.rglob("NoteHush.app"))
     require(len(exported_apps) == 1, "Expected exactly one NoteHush app in the package")

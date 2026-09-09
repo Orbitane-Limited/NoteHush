@@ -27,11 +27,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Verify current disk headroom
+        run: python3 scripts/check_runner_storage.py
       - name: Verify complete main CI and protected environment
         env:
           GH_TOKEN: ${{ github.token }}
           NOTEHUSH_CI_RUN_ID: ${{ inputs.ci_run_id }}
         run: python3 scripts/store_preflight.py
+      - name: Retain capacity reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NoteHush-store-preflight-storage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/logs/runner-storage-*.json
+          if-no-files-found: error
+          retention-days: 14
 
   sign-and-upload:
     name: Sign and upload Store candidate
@@ -66,6 +76,14 @@ jobs:
       - name: Remove this run's signing assets
         if: always()
         run: python3 scripts/store_delivery.py --cleanup
+      - name: Retain capacity reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NoteHush-store-native-storage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/logs/runner-storage-*.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Retain only verified candidate and report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

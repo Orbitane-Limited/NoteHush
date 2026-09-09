@@ -155,10 +155,22 @@ def validate_info(info, version, build):
         "CFBundleIdentifier": BUNDLE_ID, "CFBundleShortVersionString": version,
         "CFBundleVersion": build, "LSMinimumSystemVersion": "14.0",
         "NoteHushRequiresTestWorkspace": "NO", "NoteHushPerformanceBuild": "NO",
-        "CFBundleExecutable": "NoteHush",
+        "CFBundleExecutable": "NoteHush", "CFBundleIconName": "AppIcon",
+        "CFBundleIconFile": "AppIcon",
     }
     require(all(info.get(key) == value for key, value in expected.items()),
             "Signed bundle does not match the declared Release configuration")
+    require(info.get("ITSAppUsesNonExemptEncryption") is False,
+            "Signed bundle must retain the audited encryption declaration")
+
+
+def validate_resources(contents, root):
+    icon = contents / "Resources/AppIcon.icns"
+    require(icon.is_file() and not icon.is_symlink() and icon.stat().st_size > 0,
+            "Signed bundle must include the compiled original app icon")
+    require(plistlib.loads((contents / "Resources/PrivacyInfo.xcprivacy").read_bytes())
+            == plistlib.loads((root / "App/NoteHush/Resources/PrivacyInfo.xcprivacy").read_bytes()),
+            "Bundled privacy manifest differs from the audited source")
 
 
 def command(arguments):
@@ -221,9 +233,7 @@ def verify_app(app, root, team, certificate_sha1, scratch):
     contents = app / "Contents"
     info = plistlib.loads((contents / "Info.plist").read_bytes())
     validate_info(info, version, build)
-    require(plistlib.loads((contents / "Resources/PrivacyInfo.xcprivacy").read_bytes())
-            == plistlib.loads((root / "App/NoteHush/Resources/PrivacyInfo.xcprivacy").read_bytes()),
-            "Bundled privacy manifest differs from the audited source")
+    validate_resources(contents, root)
     profile = plistlib.loads(command(["/usr/bin/security", "cms", "-D", "-i",
                                      str(contents / "embedded.provisionprofile")]))
     application_id = validate_profile(profile, team, certificate_sha1)

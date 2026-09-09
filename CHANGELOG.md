@@ -39,6 +39,8 @@ No production release has been published.
 
 ### Fixed
 
+- Store delivery rechecks disk headroom before signing, export and package expansion, and verifies the exported bundle's original icon and audited encryption declaration.
+
 - Accept valid Store-profile UUID casing and canonicalize only the owned installation filename; reject malformed identifiers before publishing profile ownership.
 
 - Store quarantine verification uses macOS's native attribute tool for archives and packages, preserving the no-follow and reject-without-removal behavior.
