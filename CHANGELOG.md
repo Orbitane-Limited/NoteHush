@@ -4,6 +4,8 @@
 
 ### Added
 
+- Opt-in native 10 MiB ASCII/Unicode file-opening protocol with complete post-Quit recovery/source verification, retained failures and strict evidence validation. Its request-to-checkpoint timing includes host and recovery overhead; interactive-window and reference-hardware acceptance remain open.
+
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 
