@@ -2,6 +2,8 @@
 
 Issue #73 adds an opt-in diagnostic for the open-file and durable-recovery path. It does not change shipping code, supported file limits, functional CI timeouts or the existing launch, interaction and idle protocols. Its measurements contribute to #12; they do not alone satisfy the PRD's one-second, interactive-window target.
 
+The [first complete baseline](validation/2026-09-09-large-file-opening-baseline.md) passes all 40 correctness observations. ASCII/mixed-script request-to-checkpoint p95 is 414.136/9,654.208 ms on the recorded M4 Pro. Every sample remains retained; mixed-script and interactive-window performance still require work and final validation.
+
 ## Workload and timing boundary
 
 `NOTEHUSH_EXCLUSIVE_INPUT=1 python3 scripts/test_large_open.py` builds the existing `ReleasePerformance` app and the optimized, host-only `LargeFileOpenHarness`. Arrange exclusive, awake GUI use and finish CI, compiler and profiling jobs first. The wrapper requires a clean committed source tree, exact optimized app identity and product sandbox permissions. It checks the existing disk policy plus 1 GiB build headroom before building, then plus 512 MiB for retained fixtures before launching. This is an operator protocol; the environment flag is an attestation, not automatic proof of exclusivity.
