@@ -64,6 +64,6 @@ Primary guidance rechecked 2026-09-08: [App Review Guidelines](https://developer
 | 4.1 originality | Original geometric NoteHush icon and distinct app branding | Name reservation and publisher rights confirmation |
 | 5.1 privacy | Local-only implementation and audited manifest; prepared public policy | Publisher-approved policy, public URLs and accessible in-app policy link |
 | Human interface / accessibility | Native controls/shortcuts and original icon asset catalog | Supported OS/architecture, VoiceOver/IME/contrast, appearance and icon runtime checks |
-| Distribution / legal | Versioning and unsigned archive checks; signed pipeline prepared separately in #52 under #14 | Correct identities, upload/processing/TestFlight, legal fields and App Review |
+| Distribution / legal | Versioning, installed signing identities and an engineering universal Store archive/package verified; [exact evidence and limits](../validation/2026-09-09-integrated-candidate.md) | Revalidate the final reviewed main candidate; App Store Connect access, upload/processing/installed TestFlight, publisher legal fields and App Review |
 
 Keep #15 open until the public, in-app, publisher and final screenshot gates are actually complete. Version 1 and a GitHub release remain gated by #16.
