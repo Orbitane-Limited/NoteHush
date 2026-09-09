@@ -1,0 +1,387 @@
+{
+  "schema": 1,
+  "issue": 75,
+  "status": "Unresolved; no production fix adopted",
+  "artifacts": {
+    "candidate": {
+      "directory": "build/LongParagraphStudy-D9EB8750-5334-485C-891E-3D044E115FB2",
+      "hashes": {
+        "plan.json": "b4eb90a45ff54b3c0b92561f4f270f84a3e6c6f3ab14afe8b9ffe43a78943b4b",
+        "long-verification.json": "ac26695bbb026fefc0e130d63152aaf939d6d75f1882f29c6f46239626cd7c23",
+        "retention-clarification.json": "a2058501f60a0d4f15292a12ed0030b1c1720ad11ab308bf008909b3f53a161e",
+        "cold-verification.json": "208c4dc9021862c2ad3cfb25a3faac192e5813072d7348574237fabd073d07ff"
+      },
+      "journalSHA256": "3e47befce7705c9f7ca7acc0a517a43fa037b003c399992c8c8cd9bc25988c6a",
+      "records": [
+        {
+          "normalQuitBoundSeconds": 20,
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic",
+          "bytesPerFile": 10485760,
+          "schema": 1,
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "observationsPerWorkload": 1,
+          "unit": "nanoseconds",
+          "observationBoundNanoseconds": 10000000000,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "kind": "header"
+        },
+        {
+          "workload": "ascii",
+          "index": 0,
+          "withinObservationBound": true,
+          "requestToCheckpointNanoseconds": 3034922917,
+          "kind": "observation",
+          "launchServicesReturnNanoseconds": 35137709
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "workload": "ascii",
+          "kind": "verification",
+          "selectionAndViewport": true,
+          "tabOrderAndWindow": true,
+          "completeRecovery": true,
+          "index": 0,
+          "activeDuringObservation": true,
+          "unchangedSourceBytes": true,
+          "normalQuit": true
+        },
+        {
+          "code": "checkpointTimeout",
+          "kind": "failure"
+        }
+      ]
+    },
+    "profile": {
+      "directory": "build/LongParagraphProfile-C6E74D53-72E1-40A7-B407-6ECD6B8E2463",
+      "hashes": {
+        "plan.json": "0288c24508349e84cca44d5e1b070ca754401d02792a519f1ad51454cd9314a5",
+        "result.json": "c8d4726b7e31f8a6471adb89a256d075d26fc7bd15cc1563ce89c1ebada98096",
+        "run.log": "22d3142db6d5a8be609e4d62ebb7ed1637d1274c71b2686adde80a043822af5b"
+      },
+      "journalSHA256": "c076762fc1f6229f71176694610109ad7ab884e794aa9fc4c0d04875b2ca3200",
+      "records": [
+        {
+          "unit": "nanoseconds",
+          "observationsPerWorkload": 1,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "fixtureShape": "headerThenUnbrokenParagraphProfileAfterFailedDeadline",
+          "bytesPerFile": 10485760,
+          "kind": "header",
+          "normalQuitBoundSeconds": 20,
+          "schema": 1,
+          "observationBoundNanoseconds": 10000000000,
+          "workloads": [
+            "mixed"
+          ]
+        },
+        {
+          "kind": "failure",
+          "code": "checkpointTimeout"
+        }
+      ],
+      "sampleSHA256": "6f305f39967402a3fd2257ed701988e087c8b0a3fcccec33cad31201d073d7b3",
+      "mainThreadSamples": 1453,
+      "samplesAtNextRunRange": 1451,
+      "sampleAfterFailedObservation": true
+    },
+    "main": {
+      "directory": "build/LegacyLongParagraph-F756D318-D8C1-4AA8-B518-14683105980D",
+      "hashes": {
+        "plan.json": "edcfecd44b563a2cb7ca46f99a283b6b2b467af55d6d0184794eb6ddda5688a4",
+        "result.json": "3093860bac298e8793117a2a626d54899ade27b241087a6c49d756c02c780da6",
+        "run.log": "b57c3f880fd51715976696b67d52bf22da9ad51f18495b618c364de1f9b00ef1"
+      },
+      "journalSHA256": "e0c296ba0d01d327a0bc0a5318df6b30d93ada1cd660797fdb019d2ae9a1bb1e",
+      "records": [
+        {
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "normalQuitBoundSeconds": 20,
+          "kind": "header",
+          "bytesPerFile": 10485760,
+          "observationsPerWorkload": 1,
+          "unit": "nanoseconds",
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic",
+          "schema": 1,
+          "observationBoundNanoseconds": 10000000000
+        },
+        {
+          "withinObservationBound": true,
+          "launchServicesReturnNanoseconds": 43702916,
+          "requestToCheckpointNanoseconds": 1693466625,
+          "kind": "observation",
+          "workload": "ascii",
+          "index": 0
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "kind": "verification",
+          "index": 0,
+          "selectionAndViewport": true,
+          "normalQuit": true,
+          "tabOrderAndWindow": true,
+          "unchangedSourceBytes": true,
+          "activeDuringObservation": true,
+          "workload": "ascii",
+          "completeRecovery": true
+        },
+        {
+          "code": "checkpointTimeout",
+          "kind": "failure"
+        }
+      ]
+    },
+    "coreText": {
+      "directory": "build/CoreTextLongProbe-9BA3FAAC-8553-402B-AB70-F857264E9686",
+      "hashes": {
+        "plan.json": "6538b5f1be5209ca31df9de4bf9f34d3a20bc7dd4e06eb8fe49847f3635eca7b",
+        "result.json": "cd9a29548576555733ed1d2f141f4112159512434f1fad1e0eff17328ec4677d"
+      },
+      "results": [
+        {
+          "bytes": 262144,
+          "variant": "native",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "variant": "native",
+              "bytes": 262144,
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "rtl",
+          "timeout": true,
+          "records": [
+            {
+              "bytes": 262144,
+              "variant": "rtl",
+              "kind": "begin",
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "noLigatures",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "bytes": 262144,
+              "variant": "noLigatures",
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "forcedRTL",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "variant": "forcedRTL",
+              "utf16": 131072,
+              "bytes": 262144
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "bounded",
+          "exitCode": 0,
+          "records": [
+            {
+              "utf16": 131072,
+              "variant": "bounded",
+              "bytes": 262144,
+              "kind": "begin"
+            },
+            {
+              "kind": "result",
+              "nanoseconds": 191206000,
+              "variant": "bounded",
+              "createdTypesetter": false,
+              "bytes": 262144
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "native",
+          "timeout": true,
+          "records": [
+            {
+              "bytes": 1048576,
+              "kind": "begin",
+              "utf16": 524288,
+              "variant": "native"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "rtl",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "rtl"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "noLigatures",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "noLigatures"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "forcedRTL",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "forcedRTL"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "bounded",
+          "exitCode": 0,
+          "records": [
+            {
+              "utf16": 524288,
+              "kind": "begin",
+              "variant": "bounded",
+              "bytes": 1048576
+            },
+            {
+              "bytes": 1048576,
+              "nanoseconds": 236128000,
+              "variant": "bounded",
+              "kind": "result",
+              "createdTypesetter": false
+            }
+          ]
+        }
+      ]
+    },
+    "asyncWindow": {
+      "directory": "build/AsyncLayoutProbe-CC53AE8C-3832-4754-B807-DE44D7A7D290",
+      "hashes": {
+        "plan.json": "8aa1f0215e96912a189ad750d61b8152427964075384a52b63fe044e6ab6d53e",
+        "result.json": "7608b390497ed88cccb9dfa072aa557c5c71d16048577f1738dc0b7250e93737"
+      },
+      "results": [
+        {
+          "variant": "manager",
+          "workspace": "6F96D34A-23D9-473B-A39A-8ADAF68B9FAB",
+          "timeout": true,
+          "records": [
+            {
+              "utf8Bytes": 262144,
+              "variant": "manager",
+              "phase": "beforeText"
+            },
+            {
+              "phase": "beforeLayout"
+            }
+          ]
+        },
+        {
+          "variant": "fragment",
+          "workspace": "9131C1FD-9ACF-4E28-8A51-B79AF8E389EA",
+          "exitCode": 0,
+          "records": [
+            {
+              "phase": "beforeText",
+              "variant": "fragment",
+              "utf8Bytes": 262144
+            },
+            {
+              "phase": "beforeLayout"
+            },
+            {
+              "operations": 8,
+              "exactText": true,
+              "phase": "layoutReturned"
+            },
+            {
+              "index": 0,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 1,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 2,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 3,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 4,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "phase": "beforeNormalTerminate"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "privatePrototype": {
+    "branch": "validation/issue75-async-layout",
+    "source": "0b8d3b49f85b0132b339440ca09981182a9893af",
+    "built": true,
+    "nativeAppTestStarted": false,
+    "note": "Host path preparation error retained; corrected attempt then stopped at disk preflight. Compiler activity also blocked cache reclamation before deletion."
+  },
+  "preparationStatus": {
+    "prototypeSource": "0b8d3b49f85b0132b339440ca09981182a9893af",
+    "optimizedBuildPassed": true,
+    "nativePrototypeWorkloadStarted": false,
+    "shippingPolicyAdopted": false,
+    "cacheReclamation": {
+      "evidence": "build/issue75-cache-reclamation-result.json",
+      "sha256": "4dd2d7f8fe3314af6060825ea559f49ede2f2e2002381455545a746f84413018",
+      "unusedDirectories": 10,
+      "productsFixturesOrEvidenceRemoved": false
+    },
+    "laterNativeRunsPaused": "Disk below unchanged ten-percent reserve and competing unrelated native builds",
+    "renderingCompletionRequired": "Fragment state layoutAvailable and verified line/glyph coverage; checkpoint/main-actor progress alone are insufficient"
+  }
+}
