@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "sourceRevision": "984df3737918b38120eb66b968511d1dfd26e391",
+  "binarySHA256": "a8f394cd2fa802b4f04a4c82fa45bde6c64fb290ad8e5fad086bfd9d9897d06f",
+  "kind": "App-only instrumented diagnostic; not unprofiled acceptance timing or display scan-out",
+  "scenario": "typingMixed",
+  "intervalName": "TypingEventDispatch",
+  "intervalCount": 20,
+  "intervalsDoNotOverlap": true,
+  "allExportedCPUAndSignpostRowsBelongToTarget": true,
+  "totalCPUSamples": 1487,
+  "samplesInsideTypingIntervals": 573,
+  "mainThreadSamplesInsideTypingIntervals": 572,
+  "inclusiveMainThreadSamples": {
+    "nativeBidirectionalLayout": 508,
+    "caretRectangleUpdate": 521,
+    "ensureLayoutForBoundingRectangle": 518,
+    "appTextDidChange": 8
+  },
+  "inclusiveCountsOverlap": true,
+  "profiledDispatchDurationsNanoseconds": [
+    41929917,
+    29709542,
+    29629667,
+    28778375,
+    28392459,
+    28587542,
+    29788625,
+    29563667,
+    30121666,
+    27772458,
+    31791375,
+    30185709,
+    29808458,
+    30026208,
+    30182916,
+    29891917,
+    29126916,
+    31548333,
+    31602375,
+    28603125
+  ],
+  "normalQuitAndExactGeneratedFixtureVerification": "passed",
+  "limitations": [
+    "No unprofiled baseline from this run",
+    "Later switching session had unexplained fixture input",
+    "M1/8 GiB reference hardware unavailable",
+    "No full CI or independent review implied"
+  ]
+}
