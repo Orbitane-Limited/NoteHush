@@ -455,6 +455,1714 @@
       ],
       "renderingCompletionVerified": false,
       "readinessEvidence": "build/AsyncParagraphReadiness-D87BF9B8-33AB-4EE3-81E4-4739F5F59F47"
+    },
+    "asyncCompletionInterrupted": {
+      "directory": "build/AsyncLayoutCompletionProbe-EC8D6DE1-F527-4730-871A-7B0C1582E9B7",
+      "hashes": {
+        "plan.json": "19d19c4f7a5dda5151b47fefba5d4f28c52eca3474512ee4a84c95deb2fce8dd",
+        "interruption.json": "7fbcfe02cd150ac4dca70c2b0ecebed8e75a103557ac5096c7801fbdd7768157",
+        "ascii-262144.log": "3a7088304e983c55cf921dec10cab7e33c3702421783ba34e8638f3fa09979f2",
+        "AsyncLayoutCompletionProbe.swift": "83df0f5e073f5e6efb4deec85bb567857e7499b3d48fb6d54d86f014c0b0dd39"
+      },
+      "outcome": "Operator scheduling interruption during first case; incomplete; not a normal-termination pass; not retried"
+    },
+    "asyncCompletionRemaining": {
+      "directory": "build/AsyncCompletionRemaining-37108386-95EB-4341-9474-FAC64770C951",
+      "hashes": {
+        "plan.json": "06fa18ee9c07bf512207056082d60252dfb0ec6f4c74980ba18ddf892a30ebb5",
+        "result.json": "6ece6b2847b75c56aabca4e598cfe263e0802e7cb2ae193b90f4700f72eef44a",
+        "readiness.json": "35b7e45df917992cbc0b7386ee1c836464ceb1fd45da8eac4d7d1ccf8c131679"
+      },
+      "result": {
+        "kind": "Only the three previously unlaunched fragment-completion cases; original interrupted first case retained separately",
+        "priorArtifact": "AsyncLayoutCompletionProbe-EC8D6DE1-F527-4730-871A-7B0C1582E9B7",
+        "cases": [
+          [
+            "mixed",
+            262144
+          ],
+          [
+            "ascii",
+            10485760
+          ],
+          [
+            "mixed",
+            10485760
+          ]
+        ],
+        "caseBoundSeconds": 10,
+        "originalMatrixComplete": false,
+        "nativeCasesRetried": false,
+        "sourceSHA256": "83df0f5e073f5e6efb4deec85bb567857e7499b3d48fb6d54d86f014c0b0dd39",
+        "binarySHA256": "be2931317040f35458bd9f60e96a2955e3a868d888f6d4cf74a7615a8e3e0f5e",
+        "startedAt": "2026-09-09T03:16:54.075030+00:00",
+        "signatureBefore": true,
+        "results": [
+          {
+            "variant": "mixed",
+            "bytes": 262144,
+            "workspace": "DC822CDE-A456-4442-A49E-8187C7AAD597",
+            "ownedPID": 43609,
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeText",
+                "utf8Bytes": 262144,
+                "variant": "mixed"
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "exactText": true,
+                "operations": 8,
+                "phase": "layoutReturned"
+              },
+              {
+                "index": 0,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 1,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 2,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 3,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 4,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 5,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 6,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 7,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 8,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 9,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 10,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 11,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 12,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 13,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 14,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 15,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 16,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 17,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 18,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 19,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 20,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 21,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 22,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 23,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 24,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 25,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 26,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 27,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 28,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 29,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 30,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 31,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 32,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 33,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 34,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 35,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 36,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 37,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 38,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 39,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "exactText": true,
+                "phase": "beforeNormalTerminate",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "variant": "ascii",
+            "bytes": 10485760,
+            "workspace": "49B9DB6B-A979-4EB9-8995-B35FD3257F20",
+            "ownedPID": 44527,
+            "exitCode": 0,
+            "records": [
+              {
+                "utf8Bytes": 10485760,
+                "phase": "beforeText",
+                "variant": "ascii"
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "phase": "layoutReturned",
+                "operations": 8,
+                "exactText": true
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "index": 0,
+                "phase": "mainActorTick",
+                "operations": 8
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "index": 1,
+                "phase": "mainActorTick",
+                "operations": 8
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 2
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 3,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 4
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 5,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 6
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 7,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 8
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 9,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 10
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 11,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 12
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 13,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 14
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 15,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 16
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 17,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 18
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 19,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 20
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 21,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 22
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 23,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 24
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 25,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 26
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 27,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 28
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 29,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 30
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 31,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 32
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 33,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 34
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 35,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 36
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 37,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 38
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 39,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "beforeNormalTerminate",
+                "exactText": true,
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0
+              }
+            ]
+          },
+          {
+            "variant": "mixed",
+            "bytes": 10485760,
+            "workspace": "AC1DE21D-2C9A-431C-AA19-F8ADEB06F2B6",
+            "ownedPID": 46151,
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "mixed",
+                "phase": "beforeText",
+                "utf8Bytes": 10485760
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "exactText": true,
+                "phase": "layoutReturned",
+                "operations": 8
+              },
+              {
+                "index": 0,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 1,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 2,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 3,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 4,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 5,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 6,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 7,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 8,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 9,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 10,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 11,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 12,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 13,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 14,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 15,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 16,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 17,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 18,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 19,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 20,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 21,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 22,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 23,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 24,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 25,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 26,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 27,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 28,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 29,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 30,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 31,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 32,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 33,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 34,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 35,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 36,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 37,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 38,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 39,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "exactText": true,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "beforeNormalTerminate"
+              }
+            ]
+          }
+        ],
+        "signatureAfter": true,
+        "unchangedBinaryAndSource": true,
+        "finishedAt": "2026-09-09T03:17:21.046979+00:00"
+      },
+      "observation": "Mixed paragraphs retained estimated usage state and 8 pending operations after 40 main-actor ticks; full layout completion not established. ASCII 10 MiB reached layoutAvailable with exact contiguous line coverage."
     }
   },
   "privatePrototype": {
