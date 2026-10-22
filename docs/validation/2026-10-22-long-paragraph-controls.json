@@ -1,0 +1,296 @@
+{
+  "dateUTC": "2026-10-22",
+  "issue": 75,
+  "notPerformanceAcceptance": true,
+  "singleObservationPerCell": true,
+  "timeoutPerCellSeconds": 10,
+  "applicationChanged": false,
+  "probes": [
+    {
+      "sourceSHA256": "f11316620d6e49158424755d63da96bc09db1d0bfd87ea8f4965862e9e3ac38e",
+      "binarySHA256": "4869b844b9d8897bb37a04d6ee320143d9315cd62ad6143a5068cbe7ac0b885e",
+      "startedAt": "2026-10-22T22:16:55.110191+00:00",
+      "finishedAt": "2026-10-22T22:17:38.841078+00:00",
+      "sizes": [
+        262144,
+        1048576
+      ],
+      "variants": [
+        "fixFonts",
+        "arabicBase",
+        "arabicOnly",
+        "emojiOnly"
+      ],
+      "kind": "coretext-font-policy",
+      "artifactDirectory": "CoreTextFontPolicyProbe-3DEA42AD-18E4-422B-ADD7-E4DF6C6D9848",
+      "driverSHA256": "13f40b7856a81afa5ecdf5986c493573caa86cd776743f48268e04eb3d010306",
+      "resultSHA256": "c63cb901c43ebe2942c43719b0eb3a8a3cf2b34505deec01f3a4d66aa68f54c9",
+      "results": [
+        {
+          "bytes": 262144,
+          "variant": "fixFonts",
+          "exitCode": 0,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter",
+            "typesetterCreated",
+            "firstLineAvailable"
+          ],
+          "firstLine": {
+            "exactText": true,
+            "coveredUTF16": 86,
+            "wholeParagraphRenderingVerified": false
+          }
+        },
+        {
+          "bytes": 262144,
+          "variant": "arabicBase",
+          "timeout": true,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter"
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "arabicOnly",
+          "exitCode": 0,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter",
+            "typesetterCreated",
+            "firstLineAvailable"
+          ],
+          "firstLine": {
+            "exactText": true,
+            "wholeParagraphRenderingVerified": false,
+            "coveredUTF16": 95
+          }
+        },
+        {
+          "bytes": 262144,
+          "variant": "emojiOnly",
+          "exitCode": 0,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter",
+            "typesetterCreated",
+            "firstLineAvailable"
+          ],
+          "firstLine": {
+            "wholeParagraphRenderingVerified": false,
+            "exactText": true,
+            "coveredUTF16": 80
+          }
+        },
+        {
+          "bytes": 1048576,
+          "variant": "fixFonts",
+          "timeout": true,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter"
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "arabicBase",
+          "timeout": true,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter"
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "arabicOnly",
+          "exitCode": 0,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter",
+            "typesetterCreated",
+            "firstLineAvailable"
+          ],
+          "firstLine": {
+            "wholeParagraphRenderingVerified": false,
+            "exactText": true,
+            "coveredUTF16": 95
+          }
+        },
+        {
+          "bytes": 1048576,
+          "variant": "emojiOnly",
+          "exitCode": 0,
+          "phases": [
+            "beforeFontPreparation",
+            "beforeTypesetter",
+            "typesetterCreated",
+            "firstLineAvailable"
+          ],
+          "firstLine": {
+            "wholeParagraphRenderingVerified": false,
+            "coveredUTF16": 80,
+            "exactText": true
+          }
+        }
+      ],
+      "readiness": [
+        {
+          "stage": "before-compile",
+          "freeBytes": 96729706496,
+          "requiredBytes": 49438479565,
+          "nativeProcessCount": 0
+        },
+        {
+          "stage": "before-matrix",
+          "freeBytes": 96669216768,
+          "requiredBytes": 49438479565,
+          "nativeProcessCount": 0
+        }
+      ]
+    },
+    {
+      "sourceSHA256": "8a0065fee9e6bd9898358e95306846bf9a50933e21c949306eda33770664b97e",
+      "binarySHA256": "c9f3af52c8970d68c5dbe23d6087ca8b2c9f13d4686d1db2f31a58022ca4936e",
+      "startedAt": "2026-10-22T22:18:05.312155+00:00",
+      "finishedAt": "2026-10-22T22:18:48.387840+00:00",
+      "sizes": [
+        16384,
+        262144,
+        1048576
+      ],
+      "variants": [
+        "native",
+        "partial"
+      ],
+      "kind": "textkit-fragment-range",
+      "artifactDirectory": "TextKitFragmentRangeProbe-4FB783BD-1F16-4C3C-98CA-7AD9D52C304E",
+      "driverSHA256": "1fd9827d45265a25a035a99507d32a2f8764593481416a41b8927fc6e664ecc6",
+      "resultSHA256": "3b84b1d42953efcd6b39f88373de38cd6d2b441698c016742998063323a841b1",
+      "results": [
+        {
+          "bytes": 16384,
+          "variant": "native",
+          "exitCode": 0,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout",
+            "layoutReturned",
+            "coverage"
+          ],
+          "coverage": {
+            "completeCoverage": true,
+            "geometryEquivalenceVerified": false,
+            "coveredUTF16": 8192,
+            "exactText": true,
+            "exactAttributedText": true,
+            "delegateCalls": [
+              {
+                "requestedOffset": 0,
+                "paragraphUTF16": 8192,
+                "returnedLength": 8192
+              }
+            ],
+            "fragments": [
+              {
+                "end": 8192,
+                "start": 0,
+                "state": 3,
+                "lineCount": 86
+              }
+            ]
+          }
+        },
+        {
+          "bytes": 16384,
+          "variant": "partial",
+          "exitCode": 65,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout",
+            "layoutReturned",
+            "coverage"
+          ],
+          "coverage": {
+            "completeCoverage": false,
+            "exactAttributedText": true,
+            "coveredUTF16": 4032,
+            "geometryEquivalenceVerified": false,
+            "delegateCalls": [
+              {
+                "returnedLength": 4096,
+                "paragraphUTF16": 8192,
+                "requestedOffset": 0
+              }
+            ],
+            "exactText": true,
+            "fragments": [
+              {
+                "start": 0,
+                "end": 4096,
+                "state": 3,
+                "lineCount": 86
+              }
+            ]
+          }
+        },
+        {
+          "bytes": 262144,
+          "variant": "native",
+          "timeout": true,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout"
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "partial",
+          "timeout": true,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout"
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "native",
+          "timeout": true,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout"
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "partial",
+          "timeout": true,
+          "phases": [
+            "beforeStorage",
+            "beforeLayout"
+          ]
+        }
+      ],
+      "readiness": [
+        {
+          "stage": "before-compile",
+          "freeBytes": 96674213888,
+          "requiredBytes": 49438479565,
+          "nativeProcessCount": 0
+        },
+        {
+          "stage": "before-matrix",
+          "freeBytes": 96674095104,
+          "requiredBytes": 49438479565,
+          "nativeProcessCount": 0
+        }
+      ],
+      "controlComparison": {
+        "sizeBytes": 16384,
+        "bothFullCoverage": false,
+        "sameNativeLineGeometry": false,
+        "doesNotEstablishWholeAppEditingOrRendering": true
+      }
+    }
+  ]
+}
