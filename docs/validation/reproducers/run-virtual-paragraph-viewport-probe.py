@@ -58,9 +58,16 @@ def sha(path: Path) -> str:
 
 
 cases = [
-    {"bytes": 10_485_760, "chunkUTF16": chunk, "mode": mode, "timeoutSeconds": 10}
-    for chunk in (384, 768, 1_536, 4_032)
-    for mode in ("viewport-header", "viewport-start", "viewport-middle", "viewport-end")
+    {
+        "bytes": 10_485_760,
+        "chunkUTF16": chunk,
+        "mode": mode,
+        "limitSuspicious": limited,
+        "timeoutSeconds": 10,
+    }
+    for chunk in (0, 4_032)
+    for mode in ("full", "viewport-start", "viewport-middle", "viewport-end")
+    for limited in (False, True)
 ]
 plan = {
     "kind": "Generated AppKit TextKit 2 custom-content-manager viewport experiment",
@@ -83,7 +90,10 @@ with (RUN / "observations.jsonl").open("w") as journal:
         started = time.monotonic()
         try:
             proc = subprocess.run(
-                [str(BINARY), str(case["bytes"]), str(case["chunkUTF16"]), case["mode"]],
+                [
+                    str(BINARY), str(case["bytes"]), str(case["chunkUTF16"]),
+                    case["mode"], str(case["limitSuspicious"]).lower(),
+                ],
                 cwd=ROOT,
                 env={
                     "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
