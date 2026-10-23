@@ -25,6 +25,15 @@ def workflow_steps(path):
 
 
 class CIArtifactPolicyTests(unittest.TestCase):
+    def test_ci_uses_public_hosted_macos_with_xcode_26_6(self):
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        self.assertIn("runs-on: macos-26", workflow)
+        self.assertIn(
+            "DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer",
+            workflow,
+        )
+        self.assertNotIn("runs-on: [self-hosted", workflow)
+
     def test_ci_uploads_complete_logs_only_after_failure_or_cancellation(self):
         steps = workflow_steps(ROOT / ".github/workflows/ci.yml")
         step = steps["Upload verification logs after failure or cancellation"]
