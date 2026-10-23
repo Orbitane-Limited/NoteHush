@@ -4,6 +4,7 @@
 
 ### Added
 
+- Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
 - Opt-in native typing/tab-switch measurement protocol with separate app-dispatch and automation timing, strict sample extraction and exact recovery oracles; native validation remains pending.
 - Original NoteHush app icon with all macOS asset sizes, audited export metadata, and draft Store/privacy/support materials. Publisher confirmation, public hosting, in-app policy links and final screenshots remain release gates.
 
@@ -38,7 +39,7 @@ No production release has been published.
 ### Fixed
 
 - Xcode project regeneration preserves the existing audited encryption declaration.
-
+- Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
 
 - Restore the selected viewport before keyboard focus to reduce initial mixed-script layout work while preserving offscreen caret positions.
