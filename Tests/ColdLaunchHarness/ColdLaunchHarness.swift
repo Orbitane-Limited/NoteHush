@@ -39,6 +39,7 @@ enum ColdLaunchHarness {
     let tabCount: Int?
     let selectedTabIndex: Int?
     let predicateMatched: Bool?
+    let checkpointDetails: String?
 
     var description: String {
       "appActive=\(applicationActive), appTerminated=\(applicationTerminated), "
@@ -46,7 +47,8 @@ enum ColdLaunchHarness {
         + "revision=\(revision.map(String.init) ?? "none"), "
         + "tabCount=\(tabCount.map(String.init) ?? "none"), "
         + "selectedTabIndex=\(selectedTabIndex.map(String.init) ?? "none"), "
-        + "predicateMatched=\(predicateMatched.map(String.init) ?? "none")"
+        + "predicateMatched=\(predicateMatched.map(String.init) ?? "none"), "
+        + "checkpointDetails=\(checkpointDetails ?? "none")"
     }
   }
 
@@ -196,6 +198,9 @@ private final class Scenario {
         _ = try await checkpoint(stage: stage) {
           Self.matches($0, expected)
             && Self.matchesScroll($0, caret: caret, visibleLine: visibleLine, offset: offset)
+        } failureDetails: { snapshot in
+          Self.checkpointDetails(
+            snapshot, expected: expected, caret: caret, visibleLine: visibleLine, offset: offset)
         }
         try await quit()
         guard let saved = try await store.load().snapshot, Self.matches(saved, expected),
@@ -269,7 +274,8 @@ private final class Scenario {
   }
 
   private func checkpoint(
-    stage: CheckpointStage, matches: (WorkspaceSnapshot) -> Bool
+    stage: CheckpointStage, matches: (WorkspaceSnapshot) -> Bool,
+    failureDetails: ((WorkspaceSnapshot) -> String)? = nil
   ) async throws -> WorkspaceSnapshot {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: .seconds(10))
@@ -281,7 +287,9 @@ private final class Scenario {
       revision: nil,
       tabCount: nil,
       selectedTabIndex: nil,
-      predicateMatched: nil)
+      predicateMatched: nil,
+      checkpointDetails: nil)
+    var lastSnapshot: WorkspaceSnapshot?
     while clock.now < deadline {
       guard application?.isTerminated == false else { throw Failure.launchRejected }
       // Do not create storage for a failed environment handoff; wait for the app.
@@ -292,6 +300,7 @@ private final class Scenario {
         // Read the atomically replaced primary without taking the writer's lock;
         // test observation must not cause a production busy error.
         if let snapshot = try CheckpointReader.read(recoveryURL) {
+          lastSnapshot = snapshot
           let selectedTabIndex = snapshot.tabs.firstIndex {
             $0.id == snapshot.selectedTabID
           }
@@ -304,7 +313,8 @@ private final class Scenario {
             revision: snapshot.revision,
             tabCount: snapshot.tabs.count,
             selectedTabIndex: selectedTabIndex,
-            predicateMatched: predicateMatched)
+            predicateMatched: predicateMatched,
+            checkpointDetails: nil)
           if predicateMatched { return snapshot }
         } else {
           lastObservation = CheckpointObservation(
@@ -315,7 +325,8 @@ private final class Scenario {
             revision: nil,
             tabCount: nil,
             selectedTabIndex: nil,
-            predicateMatched: nil)
+            predicateMatched: nil,
+            checkpointDetails: nil)
         }
       } else {
         lastObservation = CheckpointObservation(
@@ -326,11 +337,63 @@ private final class Scenario {
           revision: nil,
           tabCount: nil,
           selectedTabIndex: nil,
-          predicateMatched: nil)
+          predicateMatched: nil,
+          checkpointDetails: nil)
       }
       try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
     }
+    if let lastSnapshot, let failureDetails {
+      lastObservation = CheckpointObservation(
+        applicationActive: lastObservation.applicationActive,
+        applicationTerminated: lastObservation.applicationTerminated,
+        recoveryFileExists: lastObservation.recoveryFileExists,
+        snapshotReadable: lastObservation.snapshotReadable,
+        revision: lastObservation.revision,
+        tabCount: lastObservation.tabCount,
+        selectedTabIndex: lastObservation.selectedTabIndex,
+        predicateMatched: lastObservation.predicateMatched,
+        checkpointDetails: failureDetails(lastSnapshot))
+    }
     throw Failure.checkpointNotObserved(stage: stage, observation: lastObservation)
+  }
+
+  private static func checkpointDetails(
+    _ actual: WorkspaceSnapshot, expected: WorkspaceSnapshot, caret: Int, visibleLine: Int,
+    offset: Double
+  ) -> String {
+    let tabIDsMatch = actual.tabs.map(\.id) == expected.tabs.map(\.id)
+    let tabContentsMatch =
+      actual.tabs.count == expected.tabs.count
+      && zip(actual.tabs, expected.tabs).allSatisfy {
+        $0.text.utf8.elementsEqual($1.text.utf8)
+      }
+    let firstTab = actual.tabs.first
+    let actualScroll = firstTab?.scroll
+    let anchorLine =
+      if let firstTab, let actualScroll {
+        String(fixtureLineNumber(in: firstTab.text, at: actualScroll.anchor))
+      } else {
+        "none"
+      }
+    let actualOffset = actualScroll.map { String(format: "%.3f", $0.offset) } ?? "none"
+    let firstTabSelectionMatches = firstTab?.selection == TextSelection(location: caret)
+    let anchorLineMatches =
+      firstTab.flatMap { tab in
+        actualScroll.map { fixtureLineNumber(in: tab.text, at: $0.anchor) == visibleLine }
+      } ?? false
+    let offsetMatches = actualScroll.map { abs($0.offset - offset) <= 1 } ?? false
+
+    return "revisionAdvanced=\(actual.revision > expected.revision), "
+      + "tabOrderMatches=\(tabIDsMatch), tabContentsMatch=\(tabContentsMatch), "
+      + "selectedTabMatches=\(actual.selectedTabID == expected.selectedTabID), "
+      + "firstSelectionMatches=\(firstTabSelectionMatches), "
+      + "lastSelectionMatches=\(actual.tabs.last?.selection == expected.tabs.last?.selection), "
+      + "lastFileBindingMatches=\(actual.tabs.last?.file == expected.tabs.last?.file), "
+      + "closedTabsMatch=\(actual.closedTabs == expected.closedTabs), "
+      + "preferencesMatch=\(actual.preferences == expected.preferences), "
+      + "scrollAnchorLine=\(anchorLine), expectedScrollLine=\(visibleLine), "
+      + "scrollAnchorMatches=\(anchorLineMatches), scrollOffset=\(actualOffset), "
+      + "expectedScrollOffset=\(String(format: "%.3f", offset)), scrollOffsetMatches=\(offsetMatches)"
   }
 
   private func quit() async throws {
