@@ -29,6 +29,20 @@ def validate_privacy(privacy):
         raise ValueError("Declare both user-granted and app-container file metadata access")
 
 
+def validate_undo_diagnostic_exclusion(binary):
+    if any(marker in binary for marker in (
+            b"NOTEHUSH_UNDO_DIAGNOSTICS", b"UndoDiagnosticProbe", b"undo-diagnostic-")):
+        raise ValueError("Isolated Undo diagnostics reached a non-diagnostic executable")
+
+
+def validate_undo_diagnostic_bundle(executable):
+    # With ENABLE_DEBUG_DYLIB, the executable is a launcher and the actual app
+    # code lives beside it. Checking only the launcher would miss the probe.
+    for artifact in [executable, *sorted(executable.parent.glob("*.dylib"))]:
+        if artifact.is_symlink() or not artifact.is_file():
+            raise ValueError("Expected a regular app code artifact")
+        validate_undo_diagnostic_exclusion(artifact.read_bytes())
+
 
 def validate_release_isolation(info, binary):
     if info.get("NoteHushRequiresTestWorkspace") != "NO":
@@ -82,7 +96,9 @@ def main():
                 or info.get("CFBundleIconFile") != "AppIcon"
                 or not (contents / "Resources/AppIcon.icns").is_file()):
             raise ValueError("Archive must include the original app icon and audited export metadata")
-        binary = (contents / "MacOS/NoteHush").read_bytes()
+        executable = contents / "MacOS/NoteHush"
+        validate_undo_diagnostic_bundle(executable)
+        binary = executable.read_bytes()
         validate_release_isolation(info, binary)
         if read_plist(contents / "Resources/PrivacyInfo.xcprivacy") != privacy:
             raise ValueError("Archive privacy manifest differs from source")

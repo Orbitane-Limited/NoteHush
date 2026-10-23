@@ -35,6 +35,8 @@ Session metadata uses stable UUIDs, ordered tabs and active tab ID. Selection of
 
 ## Editor layout and scroll restoration
 
+Each editor explicitly disables inline prediction and automatic Touch Bar completion. On macOS 15 and later it also disables math completion and opts out of Writing Tools, matching v1’s literal-text/no-AI scope. These are per-view public AppKit settings; the optional spell-check preference continues through `EditorPreferences`.
+
 Attach each empty `NSTextView` to a positively sized `NSScrollView` before assigning recovered text. Applying preferences while empty avoids invalidating the content style of an already populated, detached text view. A generated 256 KiB Arabic/combining-mark/emoji draft exposed prolonged bidirectional typesetting in that former attachment order; changing only the scroll view dimensions did not resolve it.
 
 Keep scrollbar auto-hiding disabled during hidden construction. With legacy scrollbars, enabling it before the initial text assignment can typeset the entire first paragraph, even with noncontiguous layout and background layout disabled. Enable native auto-hiding at the start of `restoreScroll()`, before deriving the presented viewport dimensions. The default scrollbar style remains AppKit's; an optional instance style lets the construction regression cover both overlay and legacy behavior without changing system preferences. See the [scrollbar investigation](validation/2026-09-07-hidden-editor-scrollbars.md).
@@ -147,6 +149,8 @@ References reviewed 2026-09-06: [Apple text view scrolling](https://developer.ap
 ## Security, privacy and distribution
 
 Enable App Sandbox and hardened runtime, disable network/device entitlements, never execute document contents, and use public SDK APIs. Privacy manifest must describe actual required-reason API use; do not copy declarations for unused APIs. Audit the built app, not just source plist. No third-party runtime libraries initially. A privacy-policy page and public support URL are required store assets even though the source repository is private.
+
+`AppDelegate` creates `PrivacyWindowController` only when Help → Privacy… is selected. The native, selectable read-only text explains current local data handling without network access or workspace references. Repeated opening reuses the visible window; closing releases its controller. The existing auxiliary-window Cmd+W route closes it without closing a draft. System text colors and workspace appearance apply when opened. The localizable explanation covers local bookmarks/recovery, bounded closed history, remaining backup/evidence copies, explicit file saves, system services and no automatic uploads. Keep it consistent with the public policy, whose verified support/privacy URLs and publisher-specific disclosures remain #15 release gates.
 
 Bundle identifier proposal: `pk.codehub.NoteHush`; confirm it under the user's Apple team before registration. `Config/Version.xcconfig` is version source of truth: marketing `0.1.0` initially, monotonically increasing integer builds for uploads. Universal builds must be checked with lipo; Intel runtime validation is separate. GitHub Actions runs unsigned verification; signed delivery uses a protected environment, short-lived keychain, scoped App Store Connect credentials and cleanup. See APP_STORE and RELEASING.
 

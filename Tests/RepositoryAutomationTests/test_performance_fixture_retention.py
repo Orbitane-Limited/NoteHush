@@ -4,52 +4,48 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 
 FAKE_NATIVE = r'''
-set -euo pipefail
-root="$FIXTURE_TEST_ROOT"
-manifest="$root/$FIXTURE_TEST_MANIFEST"
-name="${0##*/}"
-case "$name" in
-    PerformanceFixtureHarness) stage="$1" ;;
-    python3) stage="${1##*/}" ;;
-    xcrun) stage="metrics-$2" ;;
-    *) stage="$name" ;;
-esac
-# Stages are fixed command names from the copied scripts, never document data.
-printf '"%s"\n' "$stage" >> "$root/calls.jsonl"
-if [[ "$stage" == prepare || "$stage" == prepare-interactions ]]; then
-    [[ ! -e "$manifest" ]] || exit 73
-fi
-if [[ "$stage" == "$FAIL_STAGE" ]]; then
-    exit "$FAIL_STATUS"
-fi
-if [[ "$name" == swift && " $* " == *' --show-bin-path '* ]]; then
-    printf '%s\n' "$root/fake-bin"
-elif [[ "$stage" == prepare || "$stage" == prepare-interactions ]]; then
-    printf '%s' 'generated fixture manifest' > "$manifest"
-    printf '%s' 'original generated recovery evidence' > "$root/generated-recovery"
-elif [[ "$stage" == cleanup ]]; then
-    rm "$manifest" "$root/generated-recovery"
-fi
+import json
+import os
+from pathlib import Path
+import sys
+
+root = Path(os.environ['FIXTURE_TEST_ROOT'])
+manifest = root / os.environ['FIXTURE_TEST_MANIFEST']
+name = Path(sys.argv[0]).name
+arguments = sys.argv[1:]
+if name == 'PerformanceFixtureHarness':
+    stage = arguments[0]
+elif name == 'python3':
+    stage = Path(arguments[0]).name
+elif name == 'xcrun':
+    stage = 'metrics-' + arguments[1]
+else:
+    stage = name
+with (root / 'calls.jsonl').open('a') as stream:
+    stream.write(json.dumps(stage) + '\n')
+if stage in {'prepare', 'prepare-interactions'} and manifest.exists():
+    raise SystemExit(73)
+if stage == os.environ.get('FAIL_STAGE'):
+    raise SystemExit(int(os.environ.get('FAIL_STATUS', '7')))
+if name == 'swift' and '--show-bin-path' in arguments:
+    print(root / 'fake-bin')
+elif stage in {'prepare', 'prepare-interactions'}:
+    manifest.write_text('generated fixture manifest')
+    (root / 'generated-recovery').write_bytes(b'original generated recovery evidence')
+elif stage == 'cleanup':
+    manifest.unlink()
+    (root / 'generated-recovery').unlink()
 '''
 
 
 class PerformanceFixtureRetentionTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # Reuse one immutable fake executable. Each scenario still owns its
-        # manifest, recovery bytes, call journal, environment and command links.
-        temporary = tempfile.TemporaryDirectory()
-        cls.addClassCleanup(temporary.cleanup)
-        cls.fake_command = Path(temporary.name) / 'fake-command'
-        cls.fake_command.write_text('#!/bin/bash\n' + FAKE_NATIVE)
-        cls.fake_command.chmod(0o700)
-
     def run_script(self, script, failure=None, status=7, existing=False):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -64,7 +60,8 @@ class PerformanceFixtureRetentionTests(unittest.TestCase):
         (root / 'scripts/build_performance.sh').write_text('#!/bin/bash\nexit 0\n')
         for name in ['swift', 'python3', 'xcodebuild', 'xcrun', 'PerformanceFixtureHarness']:
             path = root / 'fake-bin' / name
-            path.symlink_to(self.fake_command)
+            path.write_text(f'#!{sys.executable}\n' + FAKE_NATIVE)
+            path.chmod(0o700)
         manifest_name = ('build/interaction-fixtures.json' if script == 'test_interactions.sh'
                          else 'build/performance-fixtures.json')
         manifest = root / manifest_name
@@ -72,10 +69,7 @@ class PerformanceFixtureRetentionTests(unittest.TestCase):
         if existing:
             manifest.write_text('prior generated manifest')
             evidence.write_bytes(b'prior generated evidence')
-        environment = {key: os.environ[key] for key in
-                       ('HOME', 'TMPDIR', 'USER', 'LOGNAME', 'LANG', 'LC_ALL')
-                       if key in os.environ}
-        environment.update(PATH=f"{root / 'fake-bin'}:/usr/bin:/bin",
+        environment = dict(os.environ, PATH=f"{root / 'fake-bin'}:/usr/bin:/bin",
                            FIXTURE_TEST_ROOT=str(root), FIXTURE_TEST_MANIFEST=manifest_name,
                            FAIL_STAGE=failure or '', FAIL_STATUS=str(status))
         result = subprocess.run(['/bin/bash', str(root / 'scripts' / script)], env=environment,
