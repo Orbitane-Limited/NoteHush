@@ -39,7 +39,9 @@ final class PreferencesUITests: XCTestCase {
       attachment.name = "Preference verification: \(element.identifier)"
       attachment.lifetime = .keepAlways
       add(attachment)
-      throw PreferencesUIFailure.expectedValueWasNotObserved(element.identifier)
+      let actualValue = element.value.map(String.init(describing:)) ?? "<nil>"
+      throw PreferencesUIFailure.expectedValueWasNotObserved(
+        identifier: element.identifier, expected: value, actual: actualValue)
     }
   }
 
@@ -173,7 +175,16 @@ final class PreferencesUITests: XCTestCase {
   }
 }
 
-private enum PreferencesUIFailure: Error {
-  case expectedValueWasNotObserved(String)
+private enum PreferencesUIFailure: LocalizedError {
+  case expectedValueWasNotObserved(identifier: String, expected: String, actual: String)
   case didNotQuit
+
+  var errorDescription: String? {
+    switch self {
+    case .expectedValueWasNotObserved(let identifier, let expected, let actual):
+      "Preference control '\(identifier)' did not reach expected value '\(expected)'; observed '\(actual)'."
+    case .didNotQuit:
+      "The app did not quit within the existing UI test timeout."
+    }
+  }
 }
