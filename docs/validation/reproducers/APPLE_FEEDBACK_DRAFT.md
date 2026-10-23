@@ -24,6 +24,8 @@ A second attempt on the same date ran the built-in preflight with process enumer
 
 After the competing work ended, a third attempt passed both process checks with zero matches, compiled successfully, and started the generated 262,144-byte (`131072` UTF-16-unit) native case. It emitted only its `begin` record and was terminated at the existing 10-second bound; no typesetter was created. The source SHA-256 remained `f95846721e71de03eb173e85ff458e835c2b4282f3212a1a88e3b35d8fb45cb8`, and the compiled product SHA-256 was `39ac639c6cd7e3dca0bf7d2f77cd23facc38da0877a655e4c8125ac50b9984c6`. Full numeric result and case output are retained locally at `build/logs/CoreTextReproducer-0E419D23-5B5D-450A-BE85-7FBF3C443D19/`. This single additional generated-data observation reproduces the bounded native timeout; it is not a performance percentile or app acceptance test.
 
+A fourth attempt passed both preflights with zero competing native processes and compiled the same source for a generated 1,048,576-byte (`524288` UTF-16-unit) native paragraph. It also emitted only `begin`, timed out at 10 seconds, and created no typesetter. The source and product hashes matched the 262,144-byte run. Full numeric result and case output are retained locally at `build/logs/CoreTextReproducer-A29D9E01-1C98-48C5-AE0E-0291D904FB4A/`. These cases confirm the bounded host executes and preserves timeouts at both declared sizes; they do not replace the failed application-level acceptance or resolve the hot path.
+
 ## Expected and observed results
 
 Desired behavior is for supported text to become available to native layout without a long synchronous stall. Ten seconds is the diagnostic observation bound, not an asserted Apple API guarantee.
