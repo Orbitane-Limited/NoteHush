@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/check_runner_storage.py
 python3 scripts/check_ui_automation.py
+source scripts/performance_fixture_exit.sh
 mkdir -p build/logs
 derived="build/PerformanceDerivedData"
 application="$derived/Build/Products/ReleasePerformance/NoteHushPerformance.app"
@@ -16,8 +17,7 @@ manifest="build/performance-fixtures.json"
 # The host helper creates the fixture manifest without replacing existing evidence.
 # Never clean up a prior run merely because this run could not acquire ownership.
 "$fixture_harness" prepare "$application" "$manifest"
-cleanup() { "$fixture_harness" cleanup "$application" "$manifest"; }
-trap cleanup EXIT
+trap 'performance_fixture_exit "$?" "$fixture_harness" cleanup "$application" "$manifest"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 result="build/logs/Performance-$(uuidgen).xcresult"

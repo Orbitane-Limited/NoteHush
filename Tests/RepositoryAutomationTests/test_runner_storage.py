@@ -104,6 +104,8 @@ class RunnerStorageTests(unittest.TestCase):
                 scripts = root / "scripts"
                 scripts.mkdir()
                 (scripts / name).write_text((ROOT / "scripts" / name).read_text())
+                (scripts / "performance_fixture_exit.sh").write_text(
+                    (ROOT / "scripts/performance_fixture_exit.sh").read_text())
                 (scripts / "build_performance.sh").write_text("#!/bin/bash\nexit 0\n")
                 (scripts / "check_ui_automation.py").write_text("raise SystemExit(0)\n")
                 # The first check passes; building consumes the available margin.
