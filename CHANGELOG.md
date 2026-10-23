@@ -46,6 +46,8 @@ No production release has been published.
 
 ### Fixed
 
+- Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
+
 - Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
 
