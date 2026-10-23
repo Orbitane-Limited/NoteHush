@@ -34,6 +34,7 @@ jobs:
       - name: Check runner disk headroom
         run: python3 scripts/check_runner_storage.py
       - name: Measure optimized isolated app
+        id: measure_performance
         env:
           MEASUREMENT_SUITE: ${{ inputs.suite }}
         run: |
@@ -43,10 +44,14 @@ jobs:
             *) exit 64 ;;
           esac
       - name: Upload measurement evidence
+        id: upload_performance_evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: performance-${{ github.sha }}-${{ github.run_attempt }}
           path: build/logs/
-          retention-days: 14
+          retention-days: 7
           if-no-files-found: error
+      - name: Preserve failed measurement evidence locally
+        if: always() && (steps.measure_performance.outcome != 'success' || steps.upload_performance_evidence.outcome != 'success')
+        run: python3 scripts/preserve_ci_failure_logs.py --include-fixture-manifests
