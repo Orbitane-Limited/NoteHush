@@ -2,7 +2,7 @@ import AppKit
 import NoteHushCore
 
 @MainActor
-final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate {
+final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate, NSWindowDelegate {
   private var preferences: EditorPreferences
   private let onChange: (EditorPreferences) -> Void
   private let family = NSPopUpButton()
@@ -28,6 +28,7 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
     window.isReleasedWhenClosed = false
     window.center()
     super.init(window: window)
+    window.delegate = self
     buildInterface()
     refresh(preferences)
     window.initialFirstResponder = family
@@ -39,6 +40,14 @@ final class PreferencesWindowController: NSWindowController, NSTextFieldDelegate
   override func showWindow(_ sender: Any?) {
     super.showWindow(sender)
     window?.makeFirstResponder(family)
+  }
+
+  func windowWillClose(_ notification: Notification) {
+    guard let window, !window.makeFirstResponder(nil) else { return }
+    // Invalid numeric input must not keep Settings open or survive invisibly
+    // in its field editor. A valid edit already committed through the delegate.
+    window.endEditing(for: size)
+    size.doubleValue = preferences.fontSize
   }
 
   func refresh(_ value: EditorPreferences) {
