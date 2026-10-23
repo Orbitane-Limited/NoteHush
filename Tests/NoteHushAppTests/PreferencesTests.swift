@@ -92,6 +92,13 @@ final class PreferencesTests: XCTestCase {
     XCTAssertFalse(tab.editor.isAutomaticDashSubstitutionEnabled)
     XCTAssertFalse(tab.editor.isAutomaticTextReplacementEnabled)
     XCTAssertFalse(tab.editor.isAutomaticSpellingCorrectionEnabled)
+    XCTAssertEqual(tab.editor.inlinePredictionType, .no)
+    XCTAssertFalse(tab.editor.isAutomaticTextCompletionEnabled)
+    XCTAssertTrue(tab.editor.isContinuousSpellCheckingEnabled)
+    if #available(macOS 15.0, *) {
+      XCTAssertEqual(tab.editor.mathExpressionCompletionType, .no)
+      XCTAssertEqual(tab.editor.writingToolsBehavior, .none)
+    }
     tab.editor.insertText("日本", replacementRange: NSRange(location: NSNotFound, length: 0))
     XCTAssertFalse(tab.editor.hasMarkedText())
     XCTAssertEqual(tab.editor.string, "start 日本")

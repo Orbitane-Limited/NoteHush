@@ -67,6 +67,12 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.isAutomaticDashSubstitutionEnabled = false
     editor.isAutomaticTextReplacementEnabled = false
     editor.isAutomaticSpellingCorrectionEnabled = false
+    editor.inlinePredictionType = .no
+    editor.isAutomaticTextCompletionEnabled = false
+    if #available(macOS 15.0, *) {
+      editor.mathExpressionCompletionType = .no
+      editor.writingToolsBehavior = .none
+    }
     editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
     editor.textContainerInset = NSSize(width: 16, height: 16)
     editor.autoresizingMask = [.width]
