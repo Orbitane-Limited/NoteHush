@@ -167,6 +167,34 @@ final class TabManagementTests: XCTestCase {
     controller.close()
   }
 
+  func testTabAccessibilitySemanticsWithoutWindow() throws {
+    _ = NSApplication.shared
+    let tabs = [
+      EditorTab(snapshot: TabSnapshot(title: "Draft", text: "unsaved text")),
+      EditorTab(snapshot: TabSnapshot(title: "Notes", text: "")),
+      EditorTab(snapshot: TabSnapshot(title: "Ideas", text: "")),
+    ]
+    let tabBar = TabBarView(frame: NSRect(x: 0, y: 0, width: 480, height: 34))
+    tabBar.update(tabs, selectedID: tabs[1].id)
+
+    let buttons = descendants(tabBar).compactMap { $0 as? NSButton }
+    let tabButtons = buttons.filter { $0.accessibilityIdentifier().hasPrefix("tab-") }
+    XCTAssertEqual(tabButtons.count, 3)
+    XCTAssertTrue(tabButtons.allSatisfy { $0.accessibilityRole() == .radioButton })
+    XCTAssertEqual(tabButtons.filter { $0.state == .on }.count, 1)
+    XCTAssertEqual(tabButtons[0].accessibilityLabel(), "Draft, tab 1 of 3, unsaved changes")
+    XCTAssertEqual(tabButtons[1].accessibilityLabel(), "Notes, tab 2 of 3")
+    XCTAssertEqual(tabButtons[1].state, .on)
+    XCTAssertEqual(tabButtons[2].accessibilityLabel(), "Ideas, tab 3 of 3")
+
+    let closeDraft = try XCTUnwrap(
+      buttons.first { $0.accessibilityIdentifier() == "close-tab-\(tabs[0].id.uuidString)" })
+    XCTAssertEqual(closeDraft.accessibilityLabel(), "Close Draft")
+    let allTabs = try XCTUnwrap(buttons.first { $0.accessibilityIdentifier() == "all-tabs" })
+    XCTAssertEqual(allTabs.accessibilityLabel(), "All Tabs")
+    XCTAssertEqual(tabBar.allTabsMenu().items.map(\.state), [.off, .on, .off])
+  }
+
   func testCloseIsUnavailableDuringAcceptedSave() async throws {
     let fixture = try TabFixture(count: 1)
     let file = fixture.directory.appending(path: "saving.txt")
