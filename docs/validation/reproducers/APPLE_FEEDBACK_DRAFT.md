@@ -22,6 +22,8 @@ On 2026-10-23, the bounded command was attempted with `262144 native`. Both stor
 
 A second attempt on the same date ran the built-in preflight with process enumeration available. It found five competing native processes before compilation and stopped with `nativeCaseStarted: false`; no process names were retained and no Core Text case ran. Its result is local at `build/logs/CoreTextReproducer-436FD2B7-3EFA-4134-88BC-8385E754C98C/result.json`. The Mac was therefore not idle for this diagnostic at that time. This is another preparation outcome, not a new layout observation.
 
+After the competing work ended, a third attempt passed both process checks with zero matches, compiled successfully, and started the generated 262,144-byte (`131072` UTF-16-unit) native case. It emitted only its `begin` record and was terminated at the existing 10-second bound; no typesetter was created. The source SHA-256 remained `f95846721e71de03eb173e85ff458e835c2b4282f3212a1a88e3b35d8fb45cb8`, and the compiled product SHA-256 was `39ac639c6cd7e3dca0bf7d2f77cd23facc38da0877a655e4c8125ac50b9984c6`. Full numeric result and case output are retained locally at `build/logs/CoreTextReproducer-0E419D23-5B5D-450A-BE85-7FBF3C443D19/`. This single additional generated-data observation reproduces the bounded native timeout; it is not a performance percentile or app acceptance test.
+
 ## Expected and observed results
 
 Desired behavior is for supported text to become available to native layout without a long synchronous stall. Ten seconds is the diagnostic observation bound, not an asserted Apple API guarantee.
