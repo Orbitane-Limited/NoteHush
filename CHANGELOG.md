@@ -4,6 +4,7 @@
 
 ### Validation
 
+- Add a manually dispatched same-runner baseline/candidate performance workflow on public GitHub-hosted macOS, retaining each complete launch/interaction protocol's raw evidence and unchanged per-case bounds.
 - Require the native Open panel's Open button to be hittable after Go to Folder navigation before XCTest sends the click; preserve the existing test timeout and retain readiness screenshots on failure.
 - Record the 2026-10-24 hosted native file-panel readiness failure and keep its run artifact separate from later validation.
 - Check Apple's Automation Mode status before unattended UI tests and fail with the owner setup requirement before native preparation; never modify macOS authorization or retry a failed suite automatically.
