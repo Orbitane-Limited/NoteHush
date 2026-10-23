@@ -1,0 +1,9 @@
+# Native file panel readiness failure
+
+Issue #29. The full hosted macOS check on source `47e377481d4006c2fc99644b8f70c25669f19544` failed in `FileAccessTests.testBookmarkFollowsMoveAcrossFoldersAfterRestartAndRefreshesAfterSave`, [run 40030947743](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40030947743). Its original result and generated UI-test screenshot attachment remain in the run's failure artifact. This failed attempt is retained; it is not counted as a pass and was not rerun unchanged.
+
+The failure reported an active editor, visible Open sheet, no file status and one tab. The test log showed the application returning to foreground, the native file panel's Cancel control being found, Go to Folder being opened, the generated fixture path entered, and Return sent. The test then clicked `OKButton` without first checking that the Open control had become hittable after the nested Go to Folder navigation. No second tab appeared before the existing ten-second observation ended.
+
+This supports a panel-readiness race in the UI-test interaction sequence, but does not by itself establish whether delayed native control readiness was the sole cause. The screenshot is retained for inspection; the failure report does not include its image or any user data. The focused harness change waits for the Open button through the existing five-second readiness helper before clicking it. That helper keeps the existing bounded failure screenshot. No automatic retry, app behavior change, assertion removal, per-test allowance change or suite-timeout change is made. The full unchanged suite will determine whether this readiness guard resolves this observed failure.
+
+The prior CI failure at the end of the run and the new exact-head CI result remain separate evidence. Issue #29 stays open until this run is revalidated and the residual input-interruption/system-dialog criteria are assessed.
