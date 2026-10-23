@@ -184,6 +184,8 @@ private final class Scenario {
       expected.tabs[0].scroll = TextScrollPosition(anchor: anchor, offset: offset)
       expected.selectedTabID = expected.tabs[0].id
       try await store.commit(expected)
+      // The harness has already durably seeded this exact state. A no-op restore
+      // should preserve it without forcing an identical recovery revision.
       // Each case starts from an explicit saved viewport, then checks another
       // restart from the app's own checkpoint. The selection lies offscreen.
       for _ in 0..<2 {
@@ -196,14 +198,15 @@ private final class Scenario {
           stage = .topViewportRestoration
         }
         _ = try await checkpoint(stage: stage) {
-          Self.matches($0, expected)
+          Self.matches($0, expected, requiresRevisionAdvance: false)
             && Self.matchesScroll($0, caret: caret, visibleLine: visibleLine, offset: offset)
         } failureDetails: { snapshot in
           Self.checkpointDetails(
             snapshot, expected: expected, caret: caret, visibleLine: visibleLine, offset: offset)
         }
         try await quit()
-        guard let saved = try await store.load().snapshot, Self.matches(saved, expected),
+        guard let saved = try await store.load().snapshot,
+          Self.matches(saved, expected, requiresRevisionAdvance: false),
           Self.matchesScroll(saved, caret: caret, visibleLine: visibleLine, offset: offset)
         else { throw Failure.stateMismatch }
         expected = saved
@@ -410,8 +413,15 @@ private final class Scenario {
     }
   }
 
-  private static func matches(_ actual: WorkspaceSnapshot, _ expected: WorkspaceSnapshot) -> Bool {
-    actual.revision > expected.revision
+  private static func matches(
+    _ actual: WorkspaceSnapshot, _ expected: WorkspaceSnapshot,
+    requiresRevisionAdvance: Bool = true
+  ) -> Bool {
+    let revisionMatches =
+      requiresRevisionAdvance
+      ? actual.revision > expected.revision
+      : actual.revision >= expected.revision
+    return revisionMatches
       && actual.tabs.map(\.id) == expected.tabs.map(\.id)
       && zip(actual.tabs, expected.tabs).allSatisfy { $0.text.utf8.elementsEqual($1.text.utf8) }
       && actual.selectedTabID == expected.selectedTabID
