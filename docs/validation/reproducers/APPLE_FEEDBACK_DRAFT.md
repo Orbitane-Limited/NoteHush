@@ -20,6 +20,8 @@ It first checks capacity and competing native process names, compiles into a pri
 
 On 2026-10-23, the bounded command was attempted with `262144 native`. Both storage checks passed, but the managed shell denied its read-only `ps -axo comm=` preflight with `PermissionError`; `nativeCaseStarted` remained false, so no Core Text result was produced. The complete preparation result is retained locally at `build/logs/CoreTextReproducer-838C7FC3-1226-4706-A8ED-25AE87C86E17/result.json`. This environment restriction does not change the original native observations or establish a product outcome.
 
+A second attempt on the same date ran the built-in preflight with process enumeration available. It found five competing native processes before compilation and stopped with `nativeCaseStarted: false`; no process names were retained and no Core Text case ran. Its result is local at `build/logs/CoreTextReproducer-436FD2B7-3EFA-4134-88BC-8385E754C98C/result.json`. The Mac was therefore not idle for this diagnostic at that time. This is another preparation outcome, not a new layout observation.
+
 ## Expected and observed results
 
 Desired behavior is for supported text to become available to native layout without a long synchronous stall. Ten seconds is the diagnostic observation bound, not an asserted Apple API guarantee.
