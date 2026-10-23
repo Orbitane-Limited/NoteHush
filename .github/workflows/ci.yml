@@ -34,19 +34,25 @@ jobs:
       - name: Validate, test, build and archive
         run: bash scripts/check.sh
       - name: Package unsigned engineering archive
+        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: tar -czf build/NoteHush-UNSIGNED.xcarchive.tar.gz -C build NoteHush-unsigned.xcarchive
-      - name: Upload verification logs
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: validation-${{ github.sha }}
-          path: build/logs/
-          retention-days: 14
-          if-no-files-found: warn
       - name: Upload unsigned archive
+        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: NoteHush-UNSIGNED-${{ github.sha }}
           path: build/NoteHush-UNSIGNED.xcarchive.tar.gz
           retention-days: 7
           if-no-files-found: error
+      - name: Upload verification logs after failure or cancellation
+        id: upload_ci_logs
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: validation-${{ github.sha }}
+          path: build/logs/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Preserve verification logs locally if upload fails
+        if: always() && steps.upload_ci_logs.outcome != 'success' && steps.upload_ci_logs.outcome != 'skipped'
+        run: python3 scripts/preserve_ci_failure_logs.py
