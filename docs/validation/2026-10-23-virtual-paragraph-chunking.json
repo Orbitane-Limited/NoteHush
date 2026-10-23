@@ -1,0 +1,93 @@
+{
+  "artifactDirectory": "/Users/affan/Code/notepad/build/VirtualParagraphProbe-19c48666-6185-4bbc-a6e3-c3ebbdc63139",
+  "binarySHA256": "54cb044fe47ac4c48330d5921d4109629a0d7ea7256fe18cb1da7bfb59cbde6b",
+  "cases": [
+    {
+      "bytes": 16384,
+      "chunkUTF16": 0,
+      "complete": true,
+      "elapsedSeconds": 0.95017,
+      "elements": 2,
+      "exitCode": 0,
+      "geometrySHA256": "a5c28817b29f41d210d6b0b16eb76ef0dd1b1e2a8c0131c06225f3d122452c9a",
+      "lines": 87,
+      "sourceUTF16": 8200,
+      "status": "exited"
+    },
+    {
+      "bytes": 16384,
+      "chunkUTF16": 4032,
+      "complete": true,
+      "elapsedSeconds": 0.057601,
+      "elements": 8,
+      "exitCode": 0,
+      "geometrySHA256": "a5c28817b29f41d210d6b0b16eb76ef0dd1b1e2a8c0131c06225f3d122452c9a",
+      "lines": 87,
+      "sourceUTF16": 8200,
+      "status": "exited"
+    },
+    {
+      "bytes": 16384,
+      "chunkUTF16": 96,
+      "complete": true,
+      "elapsedSeconds": 0.036705,
+      "elements": 174,
+      "exitCode": 0,
+      "geometrySHA256": "a5c28817b29f41d210d6b0b16eb76ef0dd1b1e2a8c0131c06225f3d122452c9a",
+      "lines": 87,
+      "sourceUTF16": 8200,
+      "status": "exited"
+    },
+    {
+      "bytes": 262144,
+      "chunkUTF16": 4032,
+      "complete": true,
+      "elapsedSeconds": 0.671136,
+      "elements": 68,
+      "exitCode": 0,
+      "geometrySHA256": "6f4168546638d0521ba2d0aa34f873679c9ce553bc69e81169ce3365c6c1538e",
+      "lines": 1367,
+      "sourceUTF16": 131080,
+      "status": "exited"
+    },
+    {
+      "bytes": 1048576,
+      "chunkUTF16": 4032,
+      "complete": true,
+      "elapsedSeconds": 2.649759,
+      "elements": 264,
+      "exitCode": 0,
+      "geometrySHA256": "76c36de5e26c8f4a4eb07b3273ce6b1fc8c2bbd8b5528ca20aa5c11c15e3668f",
+      "lines": 5463,
+      "sourceUTF16": 524296,
+      "status": "exited"
+    },
+    {
+      "bytes": 10485760,
+      "chunkUTF16": 4032,
+      "elapsedSeconds": 10.012401,
+      "status": "timedOut"
+    },
+    {
+      "bytes": 10485760,
+      "chunkUTF16": 1536,
+      "elapsedSeconds": 10.020498,
+      "status": "timedOut"
+    },
+    {
+      "bytes": 10485760,
+      "chunkUTF16": 768,
+      "elapsedSeconds": 10.025755,
+      "status": "timedOut"
+    },
+    {
+      "bytes": 10485760,
+      "chunkUTF16": 384,
+      "elapsedSeconds": 10.02821,
+      "status": "timedOut"
+    }
+  ],
+  "date": "2026-10-23",
+  "interpretation": "No 10 MiB case completed. This does not establish a product correction or App Store readiness.",
+  "sourceSHA256": "c3df3c1567e2845eae782bc83e6170acf5a88da14f985c3db5cd9fdb42a9c2e5"
+}
