@@ -4,7 +4,7 @@ import NoteHushCore
 
 /// Independent fixture-only reader: do not call the production manifest decoder
 /// or contend with the running app's writer lock. Accept only a stable generation.
-enum CheckpointReader {
+public enum CheckpointReader {
   enum Failure: Error { case invalidCheckpoint }
   private struct Envelope: Decodable {
     let version: Int
@@ -12,7 +12,7 @@ enum CheckpointReader {
     let sha256: String
   }
 
-  static func read(_ primary: URL) throws -> WorkspaceSnapshot? {
+  public static func read(_ primary: URL) throws -> WorkspaceSnapshot? {
     let raw = try Data(contentsOf: primary)
     do {
       let envelope = try JSONDecoder().decode(Envelope.self, from: raw)
