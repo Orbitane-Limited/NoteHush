@@ -6,6 +6,14 @@ Installation directory: `~/Library/NoteHushActionsRunner` (user-only access). Jo
 
 The per-user launchd service starts at login. The Mac must remain awake, logged in, unlocked and connected; sleeping/offline pauses availability and jobs queue. GUI tests require the unlocked desktop and may briefly bring NoteHush's isolated fixture window forward. No sleep settings are changed automatically. Only one job runs at a time. GitHub remains the source of run logs, status checks and retained artifacts.
 
+## UI automation authorization
+
+Before unattended XCTest UI work, run `python3 scripts/check_ui_automation.py` in the same login/service context that will start the tests. The app-test, launch-measurement and interaction-measurement scripts call it before preparation and again after builds. It reads `/usr/bin/automationmodetool` with no arguments, using a five-second bound. An enabled Automation Mode, or a host configured to enable it without authentication, passes this prerequisite. Disabled mode with required administrator authentication fails before fixtures or native tests start. Unknown status or a failed read also fails; no assertion, timeout or signing permission changes.
+
+The installed Apple `automationmodetool(1)` manual describes its unattended CI configuration. The Mac owner may run `sudo /usr/bin/automationmodetool enable-automationmode-without-authentication` to permit UI-testing Automation Mode without repeated administrator authentication; the inverse command is `sudo /usr/bin/automationmodetool disable-automationmode-without-authentication`. These are security-policy choices for the owner, never commands run by this preflight or CI. They do not replace the separate accessibility permission described in [Apple's UI automation documentation](https://developer.apple.com/documentation/xcuiautomation/recording-ui-automation-for-testing), an unlocked desktop or exclusive input. Do not edit TCC databases or dismiss unidentified authorization dialogs.
+
+The [2026-09-08 startup failure](validation/2026-09-08-automation-startup.md) records the observed disabled/authentication-required state separately from older unexplained input changes. Resume held jobs after the prerequisite is satisfied; retain each failed run. A missing `notehush` label is an explicit routing hold, so an online idle runner will leave matching jobs queued. Document the reason whenever applying such a hold and restore only that custom label when work can resume.
+
 ## Service commands
 
 ```sh
