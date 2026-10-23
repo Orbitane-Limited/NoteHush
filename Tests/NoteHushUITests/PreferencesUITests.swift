@@ -9,6 +9,17 @@ final class PreferencesUITests: XCTestCase {
   override func setUp() async throws {
     continueAfterFailure = false
     executionTimeAllowance = 60
+    addUIInterruptionMonitor(withDescription: "Decline system notification permission") {
+      interruption in
+      guard interruption.elementType == .dialog else { return false }
+      for title in ["Don’t Allow", "Don't Allow", "Not Now", "Deny"] {
+        let button = interruption.buttons[title]
+        guard button.exists else { continue }
+        button.click()
+        return true
+      }
+      return false
+    }
     app = XCUIApplication()
     app.launchEnvironment["NOTEHUSH_TEST_WORKSPACE"] = UUID().uuidString
     app.launch()
