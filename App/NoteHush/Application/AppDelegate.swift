@@ -3,8 +3,12 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
   private var workspace: WorkspaceWindowController?
+  private var privacy: PrivacyWindowController?
   private var terminationTask: Task<Void, Never>?
   private var pendingOpenURLs: [URL] = []
+  #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+    private var undoDiagnosticProbe: UndoDiagnosticProbe?
+  #endif
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApplication.shared.mainMenu = makeMenu()
@@ -22,6 +26,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     let controller = WorkspaceWindowController(directory: directory)
     workspace = controller
     controller.showWindow(nil)
+    #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+      undoDiagnosticProbe = UndoDiagnosticProbe.installIfEnabled(
+        workspace: controller, directory: directory)
+    #endif
     NSApplication.shared.activate(ignoringOtherApps: true)
     if !pendingOpenURLs.isEmpty {
       controller.beginOpening(pendingOpenURLs)
@@ -41,6 +49,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     if terminationTask == nil {
       terminationTask = Task { [weak self] in
         await self?.workspace?.prepareToQuit()
+        #if DEBUG && NOTEHUSH_REQUIRE_TEST_WORKSPACE
+          await self?.undoDiagnosticProbe?.finish()
+        #endif
         sender.reply(toApplicationShouldTerminate: true)
       }
     }
@@ -58,6 +69,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
   }
   @objc private func goToLine(_ sender: Any?) { workspace?.goToLine(sender) }
   @objc private func showSettings(_ sender: Any?) { workspace?.showPreferences() }
+  @objc private func showPrivacy(_ sender: Any?) {
+    if privacy == nil {
+      privacy = PrivacyWindowController { [weak self] in self?.privacy = nil }
+    }
+    privacy?.window?.appearance = workspace?.preferences.appKitAppearance
+    privacy?.showWindow(sender)
+  }
   @objc private func zoomIn(_ sender: Any?) { workspace?.zoom(increasing: true) }
   @objc private func zoomOut(_ sender: Any?) { workspace?.zoom(increasing: false) }
   @objc private func resetZoom(_ sender: Any?) { workspace?.resetZoom() }
@@ -282,6 +300,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     allTabs.target = self
     allTabs.keyEquivalentModifierMask = [.command, .shift, .option]
     windowItem.submenu = windowMenu
+
+    let helpItem = NSMenuItem()
+    main.addItem(helpItem)
+    let help = NSMenu(title: String(localized: "Help"))
+    help.addItem(
+      withTitle: String(localized: "Privacy…"), action: #selector(showPrivacy(_:)),
+      keyEquivalent: ""
+    ).target = self
+    helpItem.submenu = help
+    NSApp.helpMenu = help
     return main
   }
 }

@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-09",
+  "baseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+  "appSourceHashes": {
+    "Application/AppDelegate.swift": "bc473ba3f56c522e3016c6f8274bd165379583c39f2217907520198b688fb395",
+    "Application/PrivacyWindowController.swift": "c5d414ba8c7892514df99754c44580d637b1a8c2036f7c39097ca367b1b256c7",
+    "Editor/EditorStatusView.swift": "071670ef9f02350dcda2306fc63237b2874bfde297f6f6744374c09433b22cb9",
+    "Editor/EditorTab.swift": "a3c766823cb84dc6be47fa01591e2e2caa04c240e0a681c0adcc459e9dbca62d",
+    "Editor/GoToLineSheet.swift": "1dc5318d5fbfa0504416cdfaba194a38c18f0674774db65fea243adb41fafb5e",
+    "Preferences/EditorPreferences+AppKit.swift": "883f8237b78b3941851c1b7c9e23640f6140e110be8824b15881c3673f9b48de",
+    "Preferences/PreferencesWindowController.swift": "3a54aba2272f17bc6e5de61e8102717a2b24a7e839aeffdcbfd7b6c098670ae3",
+    "Printing/PrintDocumentView.swift": "467c41293b6d5b641753a7af18c5d64312099ea948f9c87eb2af46094bd07086",
+    "Printing/WorkspacePrinter.swift": "846d1ddd94c111a7b6f987228f321d8f3f4bcb789d6b96531c7f443875be0431",
+    "Workspace/PerformanceApplication.swift": "4db563eedc5d16a774ea5af944a59b22bf2bdfd14ebb8c1a374494aab572a429",
+    "Workspace/TabBarView.swift": "4cfe1770e3f6f6f61096a8f63bd755317c12f97bd70820376b2d191c90fbe6ad",
+    "Workspace/WorkspaceFileResolution.swift": "c5c038d84c0f4b44103093bf5121f77ad5ae634d97c0cbdc7969c9ae90e3cff3",
+    "Workspace/WorkspaceFiles.swift": "3bfbaf9f48e729e17a1566924368a1802f748f1f0ff7d2530468b5243efa87c8",
+    "Workspace/WorkspaceNavigation.swift": "cfb50f2b3c96b9198b01206603bced7db97ee3bf0e8717280c82a60361002540",
+    "Workspace/WorkspacePerformanceProbe.swift": "106d6bd0f7fdb6eeba58957f67d5a1a0e31e71ba3d42725ebd3e4cbc117d303f",
+    "Workspace/WorkspacePreferences.swift": "56bf123754a6e5fba29b70cc002c988d8c6d2f52b4d28f1dc3f0df8c1d7f13fc",
+    "Workspace/WorkspaceWindowController.swift": "fe75096dcf9284173a867c68af0b44a1c47b50269d7b206908fb1e24b314d4ff"
+  },
+  "signedDiagnosticBinarySHA256": "99102213d59064541dc17cacf22de4bf0ced4cd07abe4cba99fb8ee9b7e882bd",
+  "run": {
+    "workspaceID": "425C3C6F-CD23-47AD-9F23-3555414230B9",
+    "startedAt": "2026-09-08T23:34:18.354408+00:00",
+    "timeoutSeconds": 30,
+    "nativeXCTest": false,
+    "globalInput": false,
+    "exitCode": 0,
+    "finishedAt": "2026-09-08T23:34:20.593331+00:00",
+    "exactEntitlementsAfter": true,
+    "unchangedBinary": true
+  },
+  "records": [
+    {
+      "case": "light",
+      "contentHeight": 580,
+      "contentWidth": 600,
+      "initialFocus": true,
+      "lastParagraphReachable": true,
+      "readOnly": true,
+      "record": "layout",
+      "selectable": true,
+      "textHeight": 790,
+      "textWidth": 600,
+      "utf16Count": 1795
+    },
+    {
+      "case": "dark",
+      "contentHeight": 580,
+      "contentWidth": 600,
+      "initialFocus": true,
+      "lastParagraphReachable": true,
+      "readOnly": true,
+      "record": "layout",
+      "selectable": true,
+      "textHeight": 790,
+      "textWidth": 600,
+      "utf16Count": 1795
+    },
+    {
+      "case": "minimum",
+      "contentHeight": 320,
+      "contentWidth": 420,
+      "initialFocus": true,
+      "lastParagraphReachable": true,
+      "readOnly": true,
+      "record": "layout",
+      "selectable": true,
+      "textHeight": 1053,
+      "textWidth": 420,
+      "utf16Count": 1795
+    },
+    {
+      "closeWindowMenuRoute": true,
+      "controllerReleased": true,
+      "draftAndSelectionPreserved": true,
+      "globalInput": false,
+      "lazyCreation": true,
+      "nativeXCTest": false,
+      "quitWithPrivacyOpen": true,
+      "record": "inspectionPassed",
+      "reuse": true
+    },
+    {
+      "record": "normalTermination"
+    }
+  ],
+  "hostResult": {
+    "exactRecoveredTextAndSelection": true,
+    "nativeXCTest": false,
+    "normalQuit": true
+  },
+  "nativeXCTest": false,
+  "VoiceOver": false,
+  "failuresRetained": [
+    "privacy-inspection-1B6E94F1-1C36-47DD-A795-747E18CFAAFA",
+    "privacy-inspection-0FED090A-E398-463F-89CE-CD0A6EC05FE9",
+    "privacy-termination-5DFB4921-18BC-42D3-A4F5-B20489DC62FF"
+  ],
+  "fullColdLaunchRegression": {
+    "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+    "sourceChange": "issue68 offline Privacy window",
+    "startedAt": "2026-09-08T23:36:11.795270+00:00",
+    "timeoutSeconds": 150,
+    "hostSHA256": "6ad79cd2761300f58f60816c9d9162df4b79ff3e83a11035cd1f8c5ecbc9982f",
+    "appSHA256": "fa62a6b190fed57156bd730f018cc25baaa37bb7780a866022c2459bd94fc3fc",
+    "host": "Original full ColdLaunchHarness checks with private failure retention and UUID recording only; source in build/modern-cold-4F87C787-6CBB-470F-9E84-9B5511EB5178",
+    "nativeXCTest": false,
+    "exitCode": 0,
+    "finishedAt": "2026-09-08T23:36:23.184921+00:00",
+    "unchangedBinary": true,
+    "exactProductEntitlementsBeforeAfter": true
+  }
+}
