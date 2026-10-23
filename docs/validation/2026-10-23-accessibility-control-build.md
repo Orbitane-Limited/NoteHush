@@ -18,6 +18,7 @@ and the active tab's close-button label.
 - `git diff --check` — passed.
 - `swift test --enable-code-coverage` — 85 Foundation-only core tests passed with no failures.
 - `python3 scripts/check_runner_storage.py` — passed for workspace and temporary volumes before crash drills.
+- `bash scripts/archive.sh` — passed; produced an unsigned Release `.xcarchive` containing arm64 and x86_64 slices, passed `lipo -verify_arch`, and passed archive configuration validation. This does not validate Developer ID/App Store signing, notarization, or App Store submission.
 - `python3 scripts/test_crash_recovery.py` — 83 Debug crash-recovery drills passed.
 - `python3 scripts/test_crash_recovery.py --configuration release` — 83 Release crash-recovery drills passed.
 - `xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration Debug -destination 'platform=macOS,arch=arm64' -derivedDataPath build/DerivedData -parallel-testing-enabled NO -only-testing:NoteHushAppTests/TabManagementTests/testTabAccessibilitySemanticsWithoutWindow CODE_SIGNING_ALLOWED=NO test` — the isolated accessibility test passed. It created no workspace window and sent no input.
