@@ -2,6 +2,12 @@
 
 ## Unreleased — 0.1.0 development
 
+### Validation
+
+- Check Apple's Automation Mode status before unattended UI tests and fail with the owner setup requirement before native preparation; never modify macOS authorization or retry a failed suite automatically.
+- Add opt-in, isolated native Undo diagnostics and strict trace validation; verify their exclusion from shipping and performance code, including Xcode's separate Debug code library. The intermittent Find/Undo diagnosis remains open.
+- Extend the isolated diagnostic with tab-command categories, repeat/target flags and optional event-source process IDs, without retaining characters or key codes. Unexpected fixture input remains unexplained; this does not change shipping behavior.
+
 ### Added
 
 - Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.

@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/check_runner_storage.py
+python3 scripts/check_ui_automation.py
 mkdir -p build/logs
 if ! mkdir build/volume-fixture.lock; then
   echo 'Another fixture run or an interrupted setup needs inspection before rerunning.' >&2
@@ -26,6 +27,7 @@ codesign --force --sign - --entitlements Config/NoteHush.entitlements "$test_app
 python3 scripts/verify_test_app.py "$test_app"
 python3 scripts/check_runner_storage.py
 swift run ColdLaunchHarness "$test_app" 2>&1 | tee build/logs/cold-launch-tests.log
+python3 scripts/check_ui_automation.py
 result_bundle="build/logs/Lifecycle-$(uuidgen).xcresult"
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration DebugUITesting \
   -destination "platform=macOS,arch=$(uname -m)" -derivedDataPath build/UITestDerivedData \
@@ -36,6 +38,7 @@ xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration DebugUITe
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual test-without-building 2>&1 | tee build/logs/app-tests.log
 python3 scripts/verify_test_app.py "$test_app"
 python3 scripts/volume_fixture.py detach
+python3 scripts/check_ui_automation.py
 offline_result="build/logs/OfflineVolume-$(uuidgen).xcresult"
 xcodebuild -project NoteHush.xcodeproj -scheme NoteHush -configuration DebugUITesting \
   -destination "platform=macOS,arch=$(uname -m)" -derivedDataPath build/UITestDerivedData \
