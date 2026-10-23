@@ -4,6 +4,8 @@
 
 ### Validation
 
+- Require the native Open panel's Open button to be hittable after Go to Folder navigation before XCTest sends the click; preserve the existing test timeout and retain readiness screenshots on failure.
+- Record the 2026-10-24 hosted native file-panel readiness failure and keep its run artifact separate from later validation.
 - Check Apple's Automation Mode status before unattended UI tests and fail with the owner setup requirement before native preparation; never modify macOS authorization or retry a failed suite automatically.
 - Add opt-in, isolated native Undo diagnostics and strict trace validation; verify their exclusion from shipping and performance code, including Xcode's separate Debug code library. The intermittent Find/Undo diagnosis remains open.
 - Extend the isolated diagnostic with tab-command categories, repeat/target flags and optional event-source process IDs, without retaining characters or key codes. Unexpected fixture input remains unexplained; this does not change shipping behavior.
