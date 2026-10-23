@@ -22,15 +22,48 @@ enum ColdLaunchHarness {
     }
   }
 
+  fileprivate enum CheckpointStage: String {
+    case initialFileEvent
+    case dirtyDraftAndFileEvent
+    case normalRestart
+    case middleViewportRestoration
+    case topViewportRestoration
+  }
+
+  fileprivate struct CheckpointObservation: CustomStringConvertible {
+    let applicationActive: Bool
+    let applicationTerminated: Bool
+    let recoveryFileExists: Bool
+    let snapshotReadable: Bool
+    let revision: UInt64?
+    let tabCount: Int?
+    let selectedTabIndex: Int?
+    let predicateMatched: Bool?
+
+    var description: String {
+      "appActive=\(applicationActive), appTerminated=\(applicationTerminated), "
+        + "recoveryFileExists=\(recoveryFileExists), snapshotReadable=\(snapshotReadable), "
+        + "revision=\(revision.map(String.init) ?? "none"), "
+        + "tabCount=\(tabCount.map(String.init) ?? "none"), "
+        + "selectedTabIndex=\(selectedTabIndex.map(String.init) ?? "none"), "
+        + "predicateMatched=\(predicateMatched.map(String.init) ?? "none")"
+    }
+  }
+
   fileprivate enum Failure: Error {
     case arguments, wrongBuild, appAlreadyRunning, isolationGuardMissing
-    case launchRejected, checkpointNotObserved, quitFailed, stateMismatch, sourceChanged
+    case launchRejected
+    case checkpointNotObserved(
+      stage: CheckpointStage, observation: CheckpointObservation)
+    case quitFailed, stateMismatch, sourceChanged
   }
 }
 
 @MainActor
 private final class Scenario {
   typealias Failure = ColdLaunchHarness.Failure
+  typealias CheckpointStage = ColdLaunchHarness.CheckpointStage
+  typealias CheckpointObservation = ColdLaunchHarness.CheckpointObservation
   private let bundleID = "pk.codehub.NoteHush.UITesting"
   private let applicationURL: URL
   private let workspaceID = UUID()
@@ -64,7 +97,7 @@ private final class Scenario {
       let bytes = Data("Finder cold launch\r\nاردو e\u{301} 👩🏽‍💻".utf8)
       try bytes.write(to: source)
       try await launch(file: source)
-      let opened = try await checkpoint { snapshot in
+      let opened = try await checkpoint(stage: .initialFileEvent) { snapshot in
         snapshot.tabs.count == 2 && snapshot.tabs.last?.file?.bookmark != nil
           && snapshot.tabs.last?.text.utf8.elementsEqual(bytes) == true
       }
@@ -96,12 +129,12 @@ private final class Scenario {
       // restoration, rather than merely observing the startup checkpoint.
       expected.selectedTabID = pending.tabs[1].id
       try await launch(file: source)
-      _ = try await checkpoint { Self.matches($0, expected) }
+      _ = try await checkpoint(stage: .dirtyDraftAndFileEvent) { Self.matches($0, expected) }
       try await quit()
       try requireSource(source, external)
       guard let beforeRestart = try await store.load().snapshot else { throw Failure.stateMismatch }
       try await launch(file: nil)
-      _ = try await checkpoint { Self.matches($0, beforeRestart) }
+      _ = try await checkpoint(stage: .normalRestart) { Self.matches($0, beforeRestart) }
       try await quit()
       let final = try await store.load()
       guard let snapshot = final.snapshot, Self.matches(snapshot, expected) else {
@@ -154,7 +187,13 @@ private final class Scenario {
       for _ in 0..<2 {
         try await launch(file: nil)
         try await waitUntil { self.application?.isActive == true }
-        _ = try await checkpoint {
+        let stage: CheckpointStage
+        if middleViewport {
+          stage = .middleViewportRestoration
+        } else {
+          stage = .topViewportRestoration
+        }
+        _ = try await checkpoint(stage: stage) {
           Self.matches($0, expected)
             && Self.matchesScroll($0, caret: caret, visibleLine: visibleLine, offset: offset)
         }
@@ -229,25 +268,69 @@ private final class Scenario {
     application = launched
   }
 
-  private func checkpoint(_ matches: (WorkspaceSnapshot) -> Bool) async throws -> WorkspaceSnapshot
-  {
+  private func checkpoint(
+    stage: CheckpointStage, matches: (WorkspaceSnapshot) -> Bool
+  ) async throws -> WorkspaceSnapshot {
     let clock = ContinuousClock()
     let deadline = clock.now.advanced(by: .seconds(10))
+    var lastObservation = CheckpointObservation(
+      applicationActive: application?.isActive ?? false,
+      applicationTerminated: application?.isTerminated ?? true,
+      recoveryFileExists: false,
+      snapshotReadable: false,
+      revision: nil,
+      tabCount: nil,
+      selectedTabIndex: nil,
+      predicateMatched: nil)
     while clock.now < deadline {
       guard application?.isTerminated == false else { throw Failure.launchRejected }
       // Do not create storage for a failed environment handoff; wait for the app.
-      if FileManager.default.fileExists(atPath: recovery.appending(path: "session.json").path) {
+      let recoveryURL = recovery.appending(path: "session.json")
+      let fileExists = FileManager.default.fileExists(atPath: recoveryURL.path)
+      let appActive = application?.isActive ?? false
+      if fileExists {
         // Read the atomically replaced primary without taking the writer's lock;
         // test observation must not cause a production busy error.
-        if let snapshot = try CheckpointReader.read(recovery.appending(path: "session.json")),
-          matches(snapshot)
-        {
-          return snapshot
+        if let snapshot = try CheckpointReader.read(recoveryURL) {
+          let selectedTabIndex = snapshot.tabs.firstIndex {
+            $0.id == snapshot.selectedTabID
+          }
+          let predicateMatched = matches(snapshot)
+          lastObservation = CheckpointObservation(
+            applicationActive: appActive,
+            applicationTerminated: false,
+            recoveryFileExists: true,
+            snapshotReadable: true,
+            revision: snapshot.revision,
+            tabCount: snapshot.tabs.count,
+            selectedTabIndex: selectedTabIndex,
+            predicateMatched: predicateMatched)
+          if predicateMatched { return snapshot }
+        } else {
+          lastObservation = CheckpointObservation(
+            applicationActive: appActive,
+            applicationTerminated: false,
+            recoveryFileExists: true,
+            snapshotReadable: false,
+            revision: nil,
+            tabCount: nil,
+            selectedTabIndex: nil,
+            predicateMatched: nil)
         }
+      } else {
+        lastObservation = CheckpointObservation(
+          applicationActive: appActive,
+          applicationTerminated: false,
+          recoveryFileExists: false,
+          snapshotReadable: false,
+          revision: nil,
+          tabCount: nil,
+          selectedTabIndex: nil,
+          predicateMatched: nil)
       }
       try await clock.sleep(until: clock.now.advanced(by: .milliseconds(20)))
     }
-    throw Failure.checkpointNotObserved
+    throw Failure.checkpointNotObserved(stage: stage, observation: lastObservation)
   }
 
   private func quit() async throws {
