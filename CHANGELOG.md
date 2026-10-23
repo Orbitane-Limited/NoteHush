@@ -14,6 +14,7 @@
 
 ### Added
 
+- Opt-in native 10 MiB ASCII/Unicode file-opening protocol with complete post-Quit recovery/source verification, retained failures and strict evidence validation. Its request-to-checkpoint timing includes host and recovery overhead; interactive-window and reference-hardware acceptance remain open.
 - Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.
 - Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
 - Preserve generated recovery fixtures after failed or interrupted performance runs; clean only after complete validation/extraction succeeds, keeping cleanup failures visible.
@@ -50,8 +51,8 @@ No production release has been published.
 
 ### Fixed
 
+- Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 - Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
-
 - Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
 - Defer native scrollbar auto-hiding until tab presentation so legacy scrollbars do not typeset the first paragraph of every hidden restored draft.
 

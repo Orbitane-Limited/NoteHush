@@ -4,6 +4,8 @@ Issue [#35](https://github.com/Orbitane-Limited/NoteHush/issues/35) provides rep
 
 ## Isolated optimized app
 
+The separate [10 MiB opening protocol](LARGE_FILE_OPENING.md) records native file-open requests through complete durable checkpoints. Its independent host/recovery overhead and correctness checks are documented separately; those measurements do not replace the first-frame/readiness intervals below or certify window interactivity.
+
 `ReleasePerformance` builds the same AppKit implementation with Swift `-O` and whole-module optimization, using bundle ID `pk.codehub.NoteHush.PerformanceTesting` and bundle/executable names `NoteHushPerformance.app` / `NoteHushPerformance` to avoid Instruments ambiguity with development/UI builds. It requires `NOTEHUSH_TEST_WORKSPACE` to be a UUID before `NSApplication` is created. The directory is derived inside this separate app container; arbitrary paths and reset flags are not accepted. Its run, test, profile, archive and analyze actions all use this configuration. The normal Release app excludes the readiness signpost and workspace environment handling; archive validation checks both metadata and the executable for accidental test controls.
 
 The `NoteHushPerformance` scheme disables its debugger and diagnostic instrumentation for measurement. The functional `NoteHush` CI scheme retains its existing checks, tests and 30/60-second per-case limits. Performance cases have a separate allowance because each performs 20 full launches; this is not a change to a failing functional test's timeout.

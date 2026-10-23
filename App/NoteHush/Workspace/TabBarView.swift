@@ -46,7 +46,7 @@ final class TabBarView: NSView {
       stack.heightAnchor.constraint(equalToConstant: 30),
     ])
     insertion.boxType = .custom
-    insertion.borderType = .noBorder
+    insertion.borderWidth = 0
     insertion.fillColor = .controlAccentColor
     insertion.isHidden = true
     addSubview(insertion)
