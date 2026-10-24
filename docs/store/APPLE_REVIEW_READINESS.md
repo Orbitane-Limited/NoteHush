@@ -22,6 +22,8 @@ Checked: 2026-10-24 against the linked Apple sources. This is an engineering rea
 
 This matrix is intentionally incomplete where the evidence is incomplete. As of this check, Issues #12, #13, #14, #15, #16, #29, #52, #67 and #75 remain open. The internal macOS App Store Connect record is in Prepare for Submission; no App Store build has been uploaded or reviewed. PR #84’s programmatic accessibility assertions and PR #83’s profiling tooling pass CI but are drafts; neither closes its issue. The empty-workspace M4 Pro RSS result remains above the unchanged target, and long-paragraph responsiveness has no established production correction.
 
+The authenticated Apple Developer account's Agreements section showed the current Developer Program License Agreement as accepted on 2026-10-24. A general dashboard banner still asks members to accept by October 29, but the agreement itself is listed as accepted; this is not a currently pending release gate.
+
 Keep Issue #15 open until the publisher declarations, public pages, final screenshots, signed TestFlight build and all linked release gates have current evidence.
 
 ## Apple sources checked
