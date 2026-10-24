@@ -34,7 +34,9 @@ The next step is to identify a layout correction that establishes complete glyph
 
 ## Current-candidate recheck, 2026-10-24
 
-The app-level observations above were collected from source `30a7b7e` and its retained binary. The current main commit `7af3285` includes the TextKit 2 mixed-script work from PR #72, so the historical timeout is not itself proof that this candidate still fails the same way. `scripts/test_long_paragraph.py` now provides a bounded, one-observation recheck against the current app candidate using the same generated 10 MiB Arabic/emoji paragraph, ten-second durable-checkpoint boundary, exact source/recovery checks and owned-process teardown. Its raw timeout or successful recovery evidence must be retained separately from the 20-sample multiline opening suite. No current-candidate app-level result has been collected yet; #75 remains open.
+The app-level observations above were collected from source `30a7b7e` and its retained binary. The current main commit `7af3285` includes the TextKit 2 mixed-script work from PR #72, so the historical timeout is not itself proof that this candidate still fails the same way. `scripts/test_long_paragraph.py` provides a bounded, one-observation recheck against the current app candidate using the same generated 10 MiB Arabic/emoji paragraph, ten-second durable-checkpoint boundary, exact source/recovery checks and owned-process teardown. Its result stays separate from the 20-sample multiline opening suite.
+
+The first hosted recheck, [workflow 40068154831](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40068154831), ran on source `a508a97` and failed in the measurement step; its artifact upload succeeded (artifact ID `12549963142`, SHA-256 `5ddef4a0f019f777a0bebbc1ca093f905e179486114a7022614067db7311259f`). This records a failed diagnostic execution, not yet a confirmed paragraph timeout: the retained per-case result and failure code have not been inspected. Retrieve and report that evidence before interpreting or rerunning the workload. #75 remains open.
 
 ## Font fallback and attributed-run controls
 

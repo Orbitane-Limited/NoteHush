@@ -3,6 +3,15 @@ name: Long paragraph diagnostic
 on:
   push:
     branches: [issue-75/long-paragraphs]
+    paths:
+      - App/NoteHush/Editor/**
+      - Sources/NoteHushCore/**
+      - Tests/LargeFileOpenHarness/**
+      - Tests/NativeFixtureSupport/**
+      - Tests/NativeFixtureSupportTests/**
+      - scripts/build_performance.sh
+      - scripts/test_large_open.py
+      - scripts/test_long_paragraph.py
   workflow_dispatch:
 
 permissions:
