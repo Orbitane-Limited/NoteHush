@@ -42,7 +42,7 @@ enum PerformanceFixtureHarness {
     let scale: Double
   }
   enum Failure: Error {
-    case arguments, wrongBuild, appRunning, wrongManifest, missingGuard
+    case arguments, wrongBuild, wrongProcess, appRunning, wrongManifest, missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
     case profilerTimedOut, profilerTraceMissing
     case profilerRecorderFailed(Int32)
@@ -51,9 +51,12 @@ enum PerformanceFixtureHarness {
   static func main() async {
     do {
       guard CommandLine.arguments.count == 4,
-        ["prepare", "prepare-interactions", "prepare-idle", "idle", "verify", "cleanup", "profile"]
-          .contains(
-            CommandLine.arguments[1])
+        [
+          "prepare", "prepare-interactions", "prepare-idle", "idle", "verify", "cleanup",
+          "profile", "profile-idle",
+        ]
+        .contains(
+          CommandLine.arguments[1])
       else { throw Failure.arguments }
       let command = CommandLine.arguments[1]
       let app = URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory)
@@ -85,6 +88,8 @@ enum PerformanceFixtureHarness {
         else { throw Failure.wrongManifest }
         if command == "idle" {
           try await IdleResourceMeasurement.run(app, manifest, manifestURL)
+        } else if command == "profile-idle" {
+          try await profileIdleAllocations(app, manifest, manifestURL)
         } else if command == "profile" {
           try await profile(app, manifest, manifestURL)
         } else if command == "verify" {
@@ -102,6 +107,105 @@ enum PerformanceFixtureHarness {
       FileHandle.standardError.write(Data("Performance fixtures failed: \(reason)\n".utf8))
       exit(1)
     }
+  }
+
+  private static func profileIdleAllocations(
+    _ app: URL, _ manifest: Manifest, _ manifestURL: URL
+  ) async throws {
+    guard manifest.fixtures.map(\.name) == IdleResourceMeasurement.names else {
+      throw Failure.wrongManifest
+    }
+    let logs = manifestURL.deletingLastPathComponent().appending(path: "allocations")
+    try FileManager.default.createDirectory(at: logs, withIntermediateDirectories: true)
+    for fixture in manifest.fixtures {
+      try requireStopped()
+      guard
+        let before = try await RecoveryStore(directory: root(fixture.workspace)).load().snapshot,
+        before.revision == fixture.seedRevision,
+        before.tabs.map(\.id) == fixture.tabIDs,
+        before.selectedTabID == fixture.selectedTab
+      else { throw Failure.fixtureMismatch }
+
+      let trace = logs.appending(path: "Allocations-\(fixture.name)-\(UUID().uuidString).trace")
+      let recorder = Process()
+      recorder.executableURL = URL(filePath: "/usr/bin/xcrun")
+      var owned: NSRunningApplication?
+      do {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.allowsRunningApplicationSubstitution = false
+        configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": fixture.workspace.uuidString]
+        let process = try await NSWorkspace.shared.openApplication(
+          at: app, configuration: configuration)
+        guard process.bundleURL?.standardizedFileURL == app,
+          process.bundleIdentifier == bundleID
+        else { throw Failure.wrongBuild }
+        owned = process
+
+        // Let the recovered workspace reach the same fixed settled state as
+        // the unprofiled idle run before starting the app-only allocation trace.
+        let clock = ContinuousClock()
+        let launched = clock.now
+        for second in 1...30 {
+          try await clock.sleep(until: launched.advanced(by: .seconds(second)))
+          try requireProfileIdentity(process, app)
+        }
+        recorder.arguments = [
+          "xctrace", "record", "--template", "Allocations", "--time-limit", "60s",
+          "--output", trace.path, "--attach", String(process.processIdentifier), "--no-prompt",
+        ]
+        try recorder.run()
+        let deadline = clock.now.advanced(by: .seconds(90))
+        while recorder.isRunning {
+          try requireProfileIdentity(process, app)
+          guard clock.now < deadline else { throw Failure.profilerTimedOut }
+          try await clock.sleep(until: clock.now.advanced(by: .milliseconds(100)))
+        }
+        guard recorder.terminationReason == .exit, recorder.terminationStatus == 0 else {
+          throw Failure.profilerRecorderFailed(recorder.terminationStatus)
+        }
+        guard FileManager.default.fileExists(atPath: trace.path) else {
+          throw Failure.profilerTraceMissing
+        }
+        guard process.terminate() else { throw Failure.quitFailed }
+        try await wait { process.isTerminated }
+        try await verify(fixture)
+        try await IdleResourceMeasurement.verifyPresentation(fixture, before)
+
+        let export = Process()
+        export.executableURL = URL(filePath: "/usr/bin/xcrun")
+        export.arguments = [
+          "xctrace", "export", "--input", trace.path, "--toc", "--output",
+          trace.deletingPathExtension().appendingPathExtension("xml").path,
+        ]
+        try export.run()
+        do { try await wait { !export.isRunning } } catch {
+          if export.isRunning { kill(export.processIdentifier, SIGKILL) }
+          throw error
+        }
+        guard export.terminationReason == .exit, export.terminationStatus == 0 else {
+          throw Failure.launchFailed
+        }
+        print("Allocations trace: \(fixture.name) completed and fixture verified")
+      } catch {
+        if recorder.isRunning {
+          recorder.interrupt()
+          try? await wait { !recorder.isRunning }
+          if recorder.isRunning { kill(recorder.processIdentifier, SIGKILL) }
+        }
+        if let owned, !owned.isTerminated {
+          _ = owned.terminate()
+          try? await wait { owned.isTerminated }
+          if !owned.isTerminated { owned.forceTerminate() }
+        }
+        throw error
+      }
+    }
+  }
+
+  private static func requireProfileIdentity(_ process: NSRunningApplication, _ app: URL) throws {
+    guard !process.isTerminated, process.bundleURL?.standardizedFileURL == app,
+      process.bundleIdentifier == bundleID, process.isActive
+    else { throw Failure.wrongProcess }
   }
 
   private static func profile(_ app: URL, _ manifest: Manifest, _ manifestURL: URL) async throws {
