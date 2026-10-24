@@ -50,6 +50,7 @@ No production release has been published.
 
 ### Fixed
 
+- Xcode project regeneration preserves the existing audited encryption declaration.
 - Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 - Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
 - Closing Settings commits a pending valid font size before another display change can replace it; invalid size input reverts to the last accepted value without preventing closure.
