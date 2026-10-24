@@ -31,3 +31,54 @@ Rollback: halt phased release where available; ship a higher build/version conta
 ## CI security
 
 Use least-privilege permissions, pinned action commit SHAs and Dependabot updates. Never run untrusted PR code with signing secrets or `pull_request_target`. Avoid printing credentials. Protect the signing environment and release tags when the repository plan permits. Branch protection availability can depend on the GitHub plan for private repositories; record any unmet enforcement instead of claiming it is enabled.
+
+## Guarded App Store delivery setup
+
+`.github/workflows/app-store-delivery.yml` is a main-only manual workflow. It requires the
+`confirm_upload` input to be true, then runs the complete `scripts/check.sh` suite at the selected
+main commit before creating a signed Mac App Store package. It uploads the package with Apple's
+`altool`, retains only the package, checksum, and non-secret delivery manifest on success, and
+keeps diagnostics for failed/cancelled runs. A successful upload means Apple received the build;
+processing and TestFlight installation are separate release gates.
+
+Before the first run, the publisher must create the explicit `pk.codehub.NoteHush` app record in
+App Store Connect and configure the GitHub environment:
+
+1. Open repository **Settings → Environments → New environment** and name it `app-store`.
+2. Restrict deployments to the `main` branch and set a required reviewer. Keep environment secrets
+   out of repository-level secrets and never use them in pull request workflows.
+3. Add these exact environment secrets:
+
+   | Secret | Value |
+   | --- | --- |
+   | `ASC_KEY_ID` | Key ID for a dedicated App Store Connect team API key |
+   | `ASC_ISSUER_ID` | Team API key issuer ID |
+   | `ASC_PRIVATE_KEY_BASE64` | Base64 of the downloaded Team API `.p8` private key; use the minimum Developer role needed to upload builds |
+   | `MAC_APP_DISTRIBUTION_P12_BASE64` | Base64 of the Apple Distribution certificate `.p12` |
+   | `MAC_APP_DISTRIBUTION_P12_PASSWORD` | Password used when exporting that `.p12` |
+   | `MAC_INSTALLER_DISTRIBUTION_P12_BASE64` | Base64 of the Mac Installer Distribution certificate `.p12` |
+   | `MAC_INSTALLER_DISTRIBUTION_P12_PASSWORD` | Password used when exporting that `.p12` |
+   | `MAC_APP_STORE_PROFILE_BASE64` | Base64 of the `NoteHush Mac App Store Distribution` `.provisionprofile` |
+
+   Create base64 values locally with `base64 < file | tr -d '\n'`, then paste each value directly
+   into the corresponding GitHub environment secret field. Never place the output in source files,
+   workflow logs, issues, pull requests, or chat. Certificate renewal requires replacing the
+   relevant certificate/profile secrets together and rerunning signing validation.
+
+4. Dispatch **Actions → App Store delivery → Run workflow** from `main`. The job is skipped unless
+   `confirm_upload` is true. Choose true only when ready to send that signed build to Apple. The
+   protected environment reviewer must approve the job before its secrets become available.
+5. Wait for App Store Connect processing, then install the candidate with TestFlight and complete
+   the lifecycle, file-access, accessibility, and printing acceptance before closing #14.
+
+The workflow stores certificates, the archive, and the API key in a mode-restricted per-run
+directory. It installs the provisioning profile at macOS's standard per-user profile location so
+Xcode can use it; cleanup removes it only when its UUID and SHA-256 still match the ownership
+manifest. The temporary keychain is added to the user's search list only for signing, then cleanup
+restores the prior list. The API key exists only in the upload step's isolated temporary `HOME`.
+
+The workflow uses GitHub-hosted macOS runners, whose machines are discarded after the job. If
+cleanup fails while the runner is still available, inspect that run's `$RUNNER_TEMP` manifest and
+logs before any manual cleanup. Do not copy signing material from the runner into an artifact. On a
+persistent runner, run the cleanup command only in the same account and after verifying the
+manifest; it refuses malformed or foreign ownership records.

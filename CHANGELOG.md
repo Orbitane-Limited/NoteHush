@@ -17,6 +17,7 @@
 
 ### Added
 
+- Main-only, manually confirmed App Store delivery with isolated signing inputs, exact-build checks, signed package verification, protected upload, and ownership-checked cleanup. Live signing/upload and TestFlight acceptance remain pending.
 - Opt-in native 10 MiB ASCII/Unicode file-opening protocol with complete post-Quit recovery/source verification, retained failures and strict evidence validation. Its request-to-checkpoint timing includes host and recovery overhead; interactive-window and reference-hardware acceptance remain open.
 - Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.
 - Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
