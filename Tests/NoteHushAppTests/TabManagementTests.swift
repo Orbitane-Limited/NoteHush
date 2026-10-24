@@ -142,7 +142,7 @@ final class TabManagementTests: XCTestCase {
     controller.previousTab(nil)  // Wrap from first to last and reveal it.
     let last = try XCTUnwrap(tabButtons.last)
     XCTAssertEqual(controller.selectedTab?.id, fixture.tabs.last?.id)
-    XCTAssertEqual(last.accessibilityLabel(), "Draft 100, tab 100 of 100")
+    XCTAssertEqual(last.accessibilityLabel(), "Draft 100, tab 100 of 100, unsaved changes")
     XCTAssertEqual(last.state, .on)
     let lastCloseButton = try XCTUnwrap(
       buttons.first {
