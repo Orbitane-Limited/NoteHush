@@ -17,6 +17,12 @@ For the 10 MiB fixture, the chunked Core Text probe covered all 5,242,888 UTF-16
 
 The compiled Core Text probe SHA-256 is `4e677dcde5af26fd06e3e97882970345e3c59890055f402ef5b2c51a4a08d619`; the compiled TextKit reference SHA-256 is `d922005e1ff578ab9b1cbd03cc24ab44ee008d010c2d860fadfc63da160fbb9e`. Commands were `swiftc -O -module-cache-path /tmp/NoteHushCoreTextModuleCache ... -framework AppKit -framework CoreText` and the equivalent TextKit compile, then `CoreTextLineAlignedChunkProbe 16384 4048 858`, `VirtualParagraphViewportAppWidthProbe 16384 20000 full false`, and `CoreTextLineAlignedChunkProbe 10485760 64768 858`.
 
+## NSTextView integration control
+
+The line-aligned geometry result was followed by a generated 16 KiB `NSTextView` integration control. Its `NSTextContentStorage` subclass emits the header paragraph separately, then uses 4,048-unit body elements aligned to the measured native line boundaries. The source compiled, but the probe terminated with signal 6 before returning a usable fragment: AppKit raised `NSInvalidArgumentException` because `offsetFromLocation:toLocation:` received null locations. This is the same class of mapping failure seen in the earlier chunked-storage integrations; line-aligned ranges did not make the public custom-storage path usable in `NSTextView`.
+
+The [probe source](reproducers/NSTextViewLineAlignedStorageProbe.swift) SHA-256 is `1efd145397527f7f91f3205e99068a3134c6f7814630ba1ba0adff8e7cd3c828`; compiled binary SHA-256 is `0d5ef7504bb1fd058499cb74fa619529201054ed2f9d6cd5dadd044d40a7ad40`. Full stdout/stderr and binary are retained under `/tmp/issue75-aligned-textview-probe/`; stderr SHA-256 is `41d9116207c2d162f6ea35964e6753b029e377aab503928a3d07eee1e26fafd7`. This is a failed diagnostic, not a product regression or a passing layout result.
+
 ## Limits
 
 This shows a promising match for one small repeated Arabic/emoji fixture and a fast 10 MiB headless line pass. It does not show that chunked Core Text preserves native geometry for arbitrary Unicode, bidi controls, paragraph styles, font fallback or edits, and it does not compare the large case against full native layout. It does not implement or validate an editable text view, IME composition, selection, undo, viewport restoration, recovery, accessibility, scrolling, cancellation or sandbox behavior. The 10 MiB observation also exceeds the PRD's one-second opening target even before app and file costs.
