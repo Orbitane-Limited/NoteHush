@@ -55,3 +55,21 @@ These are failed probes, not proof that every `NSTextView` integration is imposs
 | Standalone custom manager in `NSTextView` | `48cc177337b62dfcc996a6d65c1c864de4f66f80d5929907d4ae8982d5a7cf82` | `f51ebae3df231a801b788e3ff6c77756118b9eb936084a3162f8f6647e0e9ac2` |
 
 These generated-data integrations did not change the shipped app. They establish neither real input behavior nor a rendering correction; #75 remains open.
+
+## Chunk-boundary geometry control
+
+The earlier viewport probes used a 900-point container; the app's 900-point editor frame with 16-point insets has an 868-point text container. To compare at that width, [`VirtualParagraphViewportAppWidthProbe.swift`](reproducers/VirtualParagraphViewportAppWidthProbe.swift) was run against the exact 16,384-byte generated fixture with natural direction, 14-point monospaced font, and complete layout. Standard `NSTextContentStorage` covered 8,200 UTF-16 units in 90 lines. The custom manager with one element for the Arabic/emoji paragraph also covered all units in 90 lines. Splitting that same paragraph into 4,032-unit or 4,030-unit `NSTextParagraph` elements covered all units in **91 lines**. The two chunked runs also returned different geometry digests from each other (`c52f35d5bfa5872178ddf3fcdc304ec6a0d31a8516463c32f3e6178bcfd3e1cd` versus `97e5d1f976d866fae883d90b64026478462d418146296570417e4077e7a2d0a6`).
+
+This one generated fixture shows that dividing a long paragraph into fixed `NSTextParagraph` chunks can change wrapping geometry, even when the source text remains exact and the custom layout covers every UTF-16 unit. It does not prove that every adaptive chunking method fails. The custom 10 MiB viewport result remains a layout experiment; it does not demonstrate equivalent full-document layout or an editable app.
+
+| Probe | Source SHA-256 | Binary SHA-256 |
+| --- | --- | --- |
+| 868-point container chunk geometry control | `3ef830220be0a8c86c5e4f6f6766ec7718d2b75d9559dd6c98b83c97de43cb05` | `b274b37b96d8f9364f4c097b16f0bde9585fc8060765aab0e8e241b53839dbb7` |
+
+## Bounded Core Text chunking control
+
+[`CoreTextChunkedParagraphProbe.swift`](reproducers/CoreTextChunkedParagraphProbe.swift) creates a fresh Core Text typesetter for each fixed UTF-16 chunk and requests line breaks at the app's 868-point content width. With the generated 10 MiB mixed paragraph, chunk size 4,032 produced complete UTF-16 coverage in **10.196 seconds**; chunk size 65,536 produced complete coverage in **1.849 seconds**. These are one observations each, not medians or p95. The 65,536-unit result still misses the PRD's one-second 10 MiB opening target. On the 16 KiB fixture, chunked Core Text returned 89 lines, compared with 90 from standard TextKit 2 at the same width; it does not establish equivalent native line geometry. The diagnostic preserves exact source text but does not implement editing, bidi-context continuity, selection, recovery, or a viewport.
+
+| Probe | Source SHA-256 | Binary SHA-256 |
+| --- | --- | --- |
+| Core Text fixed-chunk shaping | `c259b6e6df755058116fdad3495369d1bef0c5840aabed49d5dfaa38f22f09b1` | `fa2f65d4db50ae8115a19af1bad38698baf6ef48eecba282a93a6363a70d0699` |
