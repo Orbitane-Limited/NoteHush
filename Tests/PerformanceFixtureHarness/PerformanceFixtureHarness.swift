@@ -133,7 +133,10 @@ enum PerformanceFixtureHarness {
       do {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.allowsRunningApplicationSubstitution = false
-        configuration.environment = ["NOTEHUSH_TEST_WORKSPACE": fixture.workspace.uuidString]
+        configuration.environment = [
+          "NOTEHUSH_TEST_WORKSPACE": fixture.workspace.uuidString,
+          "MallocStackLogging": "lite",
+        ]
         let process = try await NSWorkspace.shared.openApplication(
           at: app, configuration: configuration)
         guard process.bundleURL?.standardizedFileURL == app,
@@ -171,19 +174,36 @@ enum PerformanceFixtureHarness {
         try await verify(fixture)
         try await IdleResourceMeasurement.verifyPresentation(fixture, before)
 
-        let export = Process()
-        export.executableURL = URL(filePath: "/usr/bin/xcrun")
-        export.arguments = [
-          "xctrace", "export", "--input", trace.path, "--toc", "--output",
-          trace.deletingPathExtension().appendingPathExtension("xml").path,
+        let traceBase = trace.deletingPathExtension()
+        let exports: [(selection: [String], output: URL)] = [
+          (["--toc"], traceBase.appendingPathExtension("xml")),
+          (
+            [
+              "--xpath",
+              "/trace-toc/run[@number=\"1\"]/tracks/track[@name=\"Allocations\"]/details/detail[@name=\"Statistics\"]",
+            ], traceBase.appendingPathExtension("statistics.xml")
+          ),
+          (
+            [
+              "--xpath",
+              "/trace-toc/run[@number=\"1\"]/tracks/track[@name=\"Allocations\"]/details/detail[@name=\"Allocations List\"]",
+            ], traceBase.appendingPathExtension("allocations.xml")
+          ),
         ]
-        try export.run()
-        do { try await wait { !export.isRunning } } catch {
-          if export.isRunning { kill(export.processIdentifier, SIGKILL) }
-          throw error
-        }
-        guard export.terminationReason == .exit, export.terminationStatus == 0 else {
-          throw Failure.launchFailed
+        for export in exports {
+          let process = Process()
+          process.executableURL = URL(filePath: "/usr/bin/xcrun")
+          process.arguments =
+            ["xctrace", "export", "--input", trace.path]
+            + export.selection + ["--output", export.output.path]
+          try process.run()
+          do { try await wait { !process.isRunning } } catch {
+            if process.isRunning { kill(process.processIdentifier, SIGKILL) }
+            throw error
+          }
+          guard process.terminationReason == .exit, process.terminationStatus == 0 else {
+            throw Failure.launchFailed
+          }
         }
         print("Allocations trace: \(fixture.name) completed and fixture verified")
       } catch {
