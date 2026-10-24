@@ -128,12 +128,27 @@ final class TabManagementTests: XCTestCase {
     XCTAssertEqual(tabButtons.count, 100)
     XCTAssertEqual(
       buttons.filter { $0.accessibilityIdentifier().hasPrefix("close-tab-") == true }.count, 100)
+    let newTabButton = try XCTUnwrap(
+      buttons.first { $0.accessibilityIdentifier() == "new-tab" })
+    XCTAssertEqual(newTabButton.accessibilityLabel(), "New Tab")
+    let allTabsButton = try XCTUnwrap(
+      buttons.first { $0.accessibilityIdentifier() == "all-tabs" })
+    XCTAssertEqual(allTabsButton.accessibilityLabel(), "All Tabs")
+    XCTAssertTrue(tabButtons.allSatisfy { $0.accessibilityRole() == .radioButton })
     XCTAssertTrue(
       tabButtons.allSatisfy { $0.accessibilityLabel()?.contains("unsaved changes") == true })
+    XCTAssertEqual(tabButtons.filter { $0.state == .on }.count, 1)
     controller.previousTab(nil)
     controller.previousTab(nil)  // Wrap from first to last and reveal it.
     let last = try XCTUnwrap(tabButtons.last)
     XCTAssertEqual(controller.selectedTab?.id, fixture.tabs.last?.id)
+    XCTAssertEqual(last.accessibilityLabel(), "Draft 100, tab 100 of 100, unsaved changes")
+    XCTAssertEqual(last.state, .on)
+    let lastCloseButton = try XCTUnwrap(
+      buttons.first {
+        $0.accessibilityIdentifier() == "close-tab-\(fixture.tabs[99].id.uuidString)"
+      })
+    XCTAssertEqual(lastCloseButton.accessibilityLabel(), "Close Draft 100")
     XCTAssertFalse(last.visibleRect.isEmpty)
     last.performClick(nil)
     XCTAssertEqual(last.state, .on, "Clicking the active tab must not deselect it")
@@ -141,6 +156,7 @@ final class TabManagementTests: XCTestCase {
       "x", replacementRange: NSRange(location: 0, length: 0))
     let current = descendants(controller.tabBar).compactMap { $0 as? NSButton }
     XCTAssertTrue(current.contains { $0 === last })
+    XCTAssertTrue(last.accessibilityLabel()?.contains("unsaved changes") == true)
     let menu = controller.tabBar.allTabsMenu()
     XCTAssertEqual(menu.items.count, 100)
     XCTAssertEqual(menu.items.last?.state, .on)
@@ -149,6 +165,34 @@ final class TabManagementTests: XCTestCase {
     XCTAssertTrue(controller.canMoveSelectedTab(by: -1))
     await controller.prepareToQuit()
     controller.close()
+  }
+
+  func testTabAccessibilitySemanticsWithoutWindow() throws {
+    _ = NSApplication.shared
+    let tabs = [
+      EditorTab(snapshot: TabSnapshot(title: "Draft", text: "unsaved text")),
+      EditorTab(snapshot: TabSnapshot(title: "Notes", text: "")),
+      EditorTab(snapshot: TabSnapshot(title: "Ideas", text: "")),
+    ]
+    let tabBar = TabBarView(frame: NSRect(x: 0, y: 0, width: 480, height: 34))
+    tabBar.update(tabs, selectedID: tabs[1].id)
+
+    let buttons = descendants(tabBar).compactMap { $0 as? NSButton }
+    let tabButtons = buttons.filter { $0.accessibilityIdentifier().hasPrefix("tab-") }
+    XCTAssertEqual(tabButtons.count, 3)
+    XCTAssertTrue(tabButtons.allSatisfy { $0.accessibilityRole() == .radioButton })
+    XCTAssertEqual(tabButtons.filter { $0.state == .on }.count, 1)
+    XCTAssertEqual(tabButtons[0].accessibilityLabel(), "Draft, tab 1 of 3, unsaved changes")
+    XCTAssertEqual(tabButtons[1].accessibilityLabel(), "Notes, tab 2 of 3")
+    XCTAssertEqual(tabButtons[1].state, .on)
+    XCTAssertEqual(tabButtons[2].accessibilityLabel(), "Ideas, tab 3 of 3")
+
+    let closeDraft = try XCTUnwrap(
+      buttons.first { $0.accessibilityIdentifier() == "close-tab-\(tabs[0].id.uuidString)" })
+    XCTAssertEqual(closeDraft.accessibilityLabel(), "Close Draft")
+    let allTabs = try XCTUnwrap(buttons.first { $0.accessibilityIdentifier() == "all-tabs" })
+    XCTAssertEqual(allTabs.accessibilityLabel(), "All Tabs")
+    XCTAssertEqual(tabBar.allTabsMenu().items.map(\.state), [.off, .on, .off])
   }
 
   func testCloseIsUnavailableDuringAcceptedSave() async throws {
