@@ -1,6 +1,8 @@
 name: Long paragraph diagnostic
 
 on:
+  push:
+    branches: [issue-75/long-paragraphs]
   workflow_dispatch:
 
 permissions:
