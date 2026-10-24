@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import time
 import uuid
@@ -21,6 +22,7 @@ RUN = REPO / "build/logs" / f"TextKit2WrapControl-{str(uuid.uuid4()).upper()}"
 RUN.mkdir(mode=0o700, parents=True)
 (RUN / "tmp").mkdir(mode=0o700)
 (RUN / "module-cache").mkdir(mode=0o700)
+shutil.copy2(SOURCE, RUN / SOURCE.name)
 BINARY = RUN / "TextKit2WrapControlProbe"
 ENV = {
     "DEVELOPER_DIR": "/Applications/Xcode_26.6.app/Contents/Developer",
@@ -47,6 +49,8 @@ compiled = subprocess.run(
     ], cwd=REPO, env=ENV, capture_output=True, check=False, timeout=90,
 )
 (RUN / "compile.log").write_bytes(compiled.stdout + compiled.stderr)
+if compiled.returncode == 0:
+    shutil.rmtree(RUN / "module-cache")
 result = {
     "kind": "generated TextKit 2 long-paragraph wrap control",
     "sourceSHA256": sha(SOURCE),
@@ -85,6 +89,13 @@ if compiled.returncode == 0:
                 (RUN / f"{name}.stderr").write_bytes(error.stderr or b"")
                 case.update(status="timedOut", elapsedSeconds=round(time.monotonic() - started, 6))
             result["cases"].append(case)
+            print(json.dumps({
+                "requestedUTF8Bytes": size,
+                "wrapMode": mode,
+                "status": case["status"],
+                "elapsedSeconds": case["elapsedSeconds"],
+                "observations": case.get("observations"),
+            }, sort_keys=True), flush=True)
 
 result["finishedAt"] = dt.datetime.now(dt.timezone.utc).isoformat()
 (RUN / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
