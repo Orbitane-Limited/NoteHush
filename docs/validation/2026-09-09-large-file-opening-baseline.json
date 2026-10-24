@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "protocol": "docs/LARGE_FILE_OPENING.md",
+  "summary": {
+    "schema": 1,
+    "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+    "workloads": {
+      "ascii": {
+        "count": 20,
+        "rawNanoseconds": [
+          375312125,
+          485963083,
+          388453250,
+          362687083,
+          414136209,
+          276427458,
+          304906459,
+          284477875,
+          264460375,
+          261155833,
+          290750000,
+          280611458,
+          286745167,
+          273541209,
+          271220000,
+          264901667,
+          279987083,
+          266550250,
+          267609167,
+          276723500
+        ],
+        "launchServicesReturnNanoseconds": [
+          45460541,
+          157639666,
+          74208208,
+          98562125,
+          47897542,
+          45441958,
+          48897959,
+          42260291,
+          42016666,
+          43232583,
+          57002917,
+          44310792,
+          45415792,
+          47971334,
+          48169625,
+          45117167,
+          43646208,
+          40324583,
+          42127417,
+          49869583
+        ],
+        "medianMilliseconds": 280.2992705,
+        "p95Milliseconds": 414.136209
+      },
+      "mixed": {
+        "count": 20,
+        "rawNanoseconds": [
+          9466074334,
+          9499485333,
+          9403225125,
+          9544626291,
+          9588262083,
+          9577234583,
+          9448974833,
+          9586836209,
+          9605658333,
+          9578392375,
+          9476247917,
+          9577161500,
+          9627349542,
+          9614772500,
+          9632893167,
+          9595051625,
+          9640396750,
+          9584065917,
+          9654208000,
+          9939953292
+        ],
+        "launchServicesReturnNanoseconds": [
+          29811250,
+          45974208,
+          46785291,
+          47865250,
+          44044708,
+          54756833,
+          48884416,
+          48538500,
+          56117083,
+          82085166,
+          58227459,
+          69783458,
+          44862209,
+          89298083,
+          119728458,
+          54490125,
+          71075500,
+          63118542,
+          43054542,
+          41725458
+        ],
+        "medianMilliseconds": 9585.451063,
+        "p95Milliseconds": 9654.208
+      }
+    },
+    "sourceRevision": "1a1154d96f542f6c2a17294590b414f992fe34a6",
+    "binarySHA256": "460cb5625c7407a4ae473e473cd5b5ead01778aebdd4efd7d43bd908ee007abb",
+    "harnessSHA256": "4d04fb573c8035e0e1f9e68dad35c72a41fe6e3ab474e67674a4913d716a7add",
+    "limitations": "Includes LaunchServices, recovery scheduling/I/O and independent host decoding. Warm filesystem caches; no physical-frame or interactive-window certification."
+  },
+  "context": {
+    "schema": 1,
+    "status": "pass",
+    "startedAt": "2026-09-09T01:51:20.871532+00:00",
+    "exclusiveInputAttested": true,
+    "workingTreeCleanBefore": true,
+    "sourceBefore": "1a1154d96f542f6c2a17294590b414f992fe34a6",
+    "signatureBeforePassed": true,
+    "binaryBefore": "460cb5625c7407a4ae473e473cd5b5ead01778aebdd4efd7d43bd908ee007abb",
+    "harnessBefore": "4d04fb573c8035e0e1f9e68dad35c72a41fe6e3ab474e67674a4913d716a7add",
+    "collectorExitCode": 0,
+    "signatureAfterPassed": true,
+    "binaryAfter": "460cb5625c7407a4ae473e473cd5b5ead01778aebdd4efd7d43bd908ee007abb",
+    "harnessAfter": "4d04fb573c8035e0e1f9e68dad35c72a41fe6e3ab474e67674a4913d716a7add",
+    "sourceAfter": "1a1154d96f542f6c2a17294590b414f992fe34a6",
+    "workingTreeCleanAfter": true,
+    "finishedAt": "2026-09-09T01:55:26.378169+00:00"
+  },
+  "environment": {
+    "schema": 1,
+    "recordedAt": "2026-09-09T01:55:25.776220+00:00",
+    "sourceRevision": "1a1154d96f542f6c2a17294590b414f992fe34a6",
+    "workingTreeDirty": false,
+    "binarySHA256": "460cb5625c7407a4ae473e473cd5b5ead01778aebdd4efd7d43bd908ee007abb",
+    "marketingVersion": "0.1.0",
+    "buildNumber": "1",
+    "hardwareModel": "Mac16,8",
+    "memoryBytes": 25769803776,
+    "logicalCPUs": 12,
+    "architecture": "arm64",
+    "osVersion": "26.6.2",
+    "osBuild": "25G83",
+    "xcode": "Xcode 26.6\nBuild version 17F113",
+    "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+    "powerSource": {
+      "source": "AC Power",
+      "batteryPercent": 63,
+      "batteryState": null
+    },
+    "displayAndThermalAtFixturePreparation": {
+      "screens": [
+        {
+          "scale": 2,
+          "widthPoints": 1800,
+          "heightPoints": 1169
+        },
+        {
+          "heightPoints": 1440,
+          "scale": 1,
+          "widthPoints": 2560
+        },
+        {
+          "scale": 1,
+          "heightPoints": 1440,
+          "widthPoints": 3440
+        }
+      ],
+      "lowPowerMode": false,
+      "capturedAt": 810611502.706054,
+      "thermalState": 0
+    },
+    "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+    "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately."
+  },
+  "artifactDirectory": "build/logs/LargeOpen-40817DD1-EE55-46CA-900C-595245F5C3D2",
+  "artifacts": {
+    "observations.jsonl": "a3937673b88f6aa6081bf0143aa6f5fa56022e59148db042c708637f2a302bce",
+    "context.json": "66386ef5d3acd50267f2abc544f1412e44ecb1a0a64c5bdfbe47fa651b4736a3",
+    "environment.json": "3c2ff8e82c640293f511b45ab189bae3230077ee77d673950f6e5d62696cc2f0",
+    "summary.json": "b16bf2d106796137c37a36f2e49611ed33534616cfc35ebb379592cccdec1541",
+    "collector.log": "6fc6ca483bf3ae128563b8c837282d08009d01b8261302bbc64c188adc8f5462",
+    "app-build.log": "f71bb6a3e2b77203f7064f4169b25b821f1b0bca5c448c19745fe8c817d961e0",
+    "host-build.log": "14d4f131a827999d46b80a5fff04aa56eb0b5556f6cd789123b114011d2ea50d",
+    "signature-before.log": "0f63302579f985cb775af43023f10f3ab92e21716db23215865475c88cf0b094",
+    "signature-after.log": "0f63302579f985cb775af43023f10f3ab92e21716db23215865475c88cf0b094",
+    "summary-validation.log": "cc78d13bb6b964148c3a22ed3c1b47c44b05f7bf5b554f0ac7092b650e1987e6"
+  },
+  "correctness": {
+    "freshProcesses": 40,
+    "verifiedObservations": 40,
+    "normalQuits": 40,
+    "allSourceBytesAndRecoveryVerified": true,
+    "observationBoundSeconds": 10,
+    "normalQuitBoundSeconds": 20,
+    "fixturesRetained": true,
+    "retries": 0,
+    "filteredObservations": 0
+  },
+  "operatorConditions": {
+    "exclusiveWindowConfirmedByUser": true,
+    "runnerOnlineIdleAndRoutingHeld": true,
+    "otherNativeJobsDuringCollection": false,
+    "awake": true,
+    "automationAuthorizationChanged": false
+  },
+  "validation": {
+    "repositoryTests": 57,
+    "swiftTests": 88,
+    "formatting": "pass",
+    "configuration": "pass",
+    "releaseHostBuild": "pass",
+    "optimizedAppBuild": "pass",
+    "fullNativeUICIPassed": false,
+    "integrationDiscoveryFailure": {
+      "stage": "unittest discovery before any test or measurement",
+      "cause": "test module shared the command-line script basename after another suite added scripts to sys.path",
+      "fixCommit": "d2a2bfb",
+      "originalLogRetained": true
+    }
+  },
+  "acceptance": "Diagnostic baseline only; physical-frame/interactivity, reference hardware and full final-head CI/review remain unverified."
+}

@@ -49,6 +49,8 @@ Suggested set: workspace with several tabs and one unsaved draft; Find/Replace i
 
 The privacy copy must be reviewed by the publisher, especially the support-message retention/deletion practice and hosting provider. The draft distinguishes local app storage from explicit saves, system backups, printing, Apple services, website hosting and voluntary support contact. No data collection, storage provider or company identity should be invented to fill the Store forms.
 
+Implementation sub-issue #68 adds Help → Privacy… with a native offline explanation of current local app behavior. It is not the completed publisher-specific public policy. Keep its text consistent with that policy and add the verified public privacy/support links before marking this gate complete. Apple's in-app and metadata privacy-policy access requirement was rechecked against [guideline 5.1.1(i)](https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage) on 2026-09-09 (local time).
+
 ## Current readiness matrix
 
 Primary guidance rechecked 2026-09-08: [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/). This is evidence tracking, not a guarantee of review approval.
