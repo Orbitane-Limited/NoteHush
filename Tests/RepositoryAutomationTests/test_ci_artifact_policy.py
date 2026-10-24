@@ -95,6 +95,30 @@ class CIArtifactPolicyTests(unittest.TestCase):
         self.assertIn("steps.upload_performance_evidence.outcome != 'success'", fallback)
         self.assertIn("--include-fixture-manifests", fallback)
 
+    def test_performance_comparison_uses_one_host_for_sequential_complete_protocols(self):
+        path = ROOT / ".github/workflows/performance-comparison.yml"
+        workflow = path.read_text()
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("baseline_ref:", workflow)
+        self.assertIn("candidate_ref:", workflow)
+        self.assertIn("runs-on: macos-26", workflow)
+        self.assertIn("timeout-minutes: 120", workflow)
+        self.assertIn("group: notehush-performance-comparison", workflow)
+        self.assertIn("cancel-in-progress: false", workflow)
+        steps = workflow_steps(path)
+        self.assertLess(
+            list(steps).index("Measure baseline"),
+            list(steps).index("Measure candidate"),
+        )
+        for name in ("Measure baseline", "Measure candidate"):
+            self.assertIn("bash scripts/test_performance.sh", steps[name])
+            self.assertIn("bash scripts/test_interactions.sh", steps[name])
+        upload = steps["Upload all measurement evidence"]
+        self.assertIn("if: always()", upload)
+        self.assertIn("baseline/build/logs/", upload)
+        self.assertIn("candidate/build/logs/", upload)
+        self.assertIn("retention-days: 7", upload)
+
 
 if __name__ == "__main__":
     unittest.main()

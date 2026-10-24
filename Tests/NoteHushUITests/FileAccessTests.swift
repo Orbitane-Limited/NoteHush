@@ -221,7 +221,9 @@ final class FileAccessTests: XCTestCase {
     launch()
     app.typeKey("o", modifierFlags: .command)
     goTo(url)
-    app.sheets.buttons["OKButton"].firstMatch.click()
+    let openButton = app.sheets.buttons["OKButton"].firstMatch
+    waitForHittable(openButton)
+    openButton.click()
     let openedTab = app.radioButtons.matching(
       NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
     ).firstMatch

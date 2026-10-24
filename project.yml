@@ -63,6 +63,7 @@ targets:
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         LSApplicationCategoryType: public.app-category.productivity
+        ITSAppUsesNonExemptEncryption: false
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         NoteHushRequiresTestWorkspace: "$(NOTEHUSH_TEST_WORKSPACE_REQUIRED)"

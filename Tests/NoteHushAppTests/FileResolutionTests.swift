@@ -25,6 +25,11 @@ final class FileResolutionTests: XCTestCase {
     XCTAssertEqual(tab.editor.string, "draft 👩🏽‍💻")
     XCTAssertTrue(tab.isDirty)
     XCTAssertEqual(try Data(contentsOf: file), Data(external.text.utf8))
+    tab.undoManager(for: tab.editor)?.redo()
+    await tab.waitForDirtyState()
+    XCTAssertEqual(tab.editor.string, external.text)
+    XCTAssertFalse(tab.isDirty)
+    XCTAssertEqual(try Data(contentsOf: file), Data(external.text.utf8))
   }
 
   func testRelinkKeepsDraftAndOriginalSaveBaseline() async throws {

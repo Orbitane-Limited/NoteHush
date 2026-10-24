@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-24T00:06:08.337081+00:00",
+  "sourceRevision": "15fec0ed97a57f86a5f9331615213679da825d93",
+  "workingTreeDirty": false,
+  "binarySHA256": "d7463bd50490c98e9ded49f1fe65549b1005c279a3be1d76ecfdc0629d50309d",
+  "marketingVersion": "0.1.0",
+  "buildNumber": "1",
+  "hardwareModel": "VirtualMac2,1",
+  "memoryBytes": 7516192768,
+  "logicalCPUs": 3,
+  "architecture": "arm64",
+  "osVersion": "26.6.2",
+  "osBuild": "25G83",
+  "xcode": "Xcode 26.6\nBuild version 17F113",
+  "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+  "powerSource": {
+    "source": "AC Power",
+    "batteryPercent": null,
+    "batteryState": null
+  },
+  "displayAndThermalAtFixturePreparation": {
+    "capturedAt": 814493168.209782,
+    "lowPowerMode": false,
+    "screens": [
+      {
+        "widthPoints": 1024,
+        "heightPoints": 768,
+        "scale": 1
+      }
+    ],
+    "thermalState": 0
+  },
+  "cacheConditions": "Fresh processes; warm filesystem caches after host fixture preparation.",
+  "otherGUIInputExclusivity": "Not automatically verified; operator must record this separately."
+}

@@ -1,0 +1,118 @@
+name: Before/after application performance
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Complete native measurement protocol
+        type: choice
+        required: true
+        default: interaction
+        options: [launch, interaction]
+      baseline_ref:
+        description: Baseline branch, tag, or commit SHA
+        type: string
+        required: true
+        default: main
+      candidate_ref:
+        description: Candidate branch, tag, or commit SHA
+        type: string
+        required: true
+        default: issue-45/mixed-script-layout
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notehush-performance-comparison
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    name: Isolated baseline and candidate measurements
+    # A public macos-26 job is a dedicated GitHub-hosted arm64 VM. Run both
+    # revisions sequentially on that same VM to control runner variation.
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - name: Check out baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          path: baseline
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.candidate_ref }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Record isolated runner and source revisions
+        env:
+          MEASUREMENT_SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+          printf 'suite=%s\n' "$MEASUREMENT_SUITE"
+          printf 'architecture=%s\n' "$(uname -m)"
+          printf 'macOS='; sw_vers -productVersion
+          printf 'hardware_model='; sysctl -n hw.model
+          printf 'baseline_commit=%s\n' "$(git -C baseline rev-parse HEAD)"
+          printf 'candidate_commit=%s\n' "$(git -C candidate rev-parse HEAD)"
+          if [[ "$(git -C baseline rev-parse HEAD)" == "$(git -C candidate rev-parse HEAD)" ]]; then
+            echo 'Baseline and candidate must resolve to different commits.' >&2
+            exit 64
+          fi
+          xcodebuild -version
+          swift --version
+
+      - name: Measure baseline
+        working-directory: baseline
+        env:
+          MEASUREMENT_SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+          case "$MEASUREMENT_SUITE" in
+            launch) bash scripts/test_performance.sh ;;
+            interaction) bash scripts/test_interactions.sh ;;
+            *) exit 64 ;;
+          esac
+
+      - name: Measure candidate
+        working-directory: candidate
+        env:
+          MEASUREMENT_SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+          case "$MEASUREMENT_SUITE" in
+            launch) bash scripts/test_performance.sh ;;
+            interaction) bash scripts/test_interactions.sh ;;
+            *) exit 64 ;;
+          esac
+
+      - name: Upload all measurement evidence
+        id: upload_evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-comparison-${{ inputs.suite }}-${{ github.run_id }}
+          path: |
+            baseline/build/logs/
+            candidate/build/logs/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Preserve failed measurement evidence locally if upload fails
+        if: always() && steps.upload_evidence.outcome != 'success'
+        run: |
+          if [[ -d baseline ]]; then
+            (cd baseline && python3 scripts/preserve_ci_failure_logs.py --include-fixture-manifests)
+          fi
+          if [[ -d candidate ]]; then
+            (cd candidate && python3 scripts/preserve_ci_failure_logs.py --include-fixture-manifests)
+          fi
