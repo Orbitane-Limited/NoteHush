@@ -13,7 +13,7 @@ This report records the unchanged `interaction` protocol for issue #45 on the sa
 | Mixed-script typing | Synchronous typing event dispatch | 367.865 / 477.104 | 2.948 / 4.714 |
 | Mixed-script typing | XCTest monotonic round trip | 436.283 / 555.192 | 53.953 / 58.483 |
 
-The candidate lowers measured mixed-script event-dispatch median from 367.865 ms to 2.948 ms and p95 from 477.104 ms to 4.714 ms. ASCII typing dispatch remains in the same low-millisecond range. The mixed-script tab-switch dispatch median falls from 156.846 ms to 12.961 ms. These results support a reduction in synchronous app work for these fixtures.
+The candidate lowers measured mixed-script event-dispatch median from 367.865 ms to 2.948 ms and p95 from 477.104 ms to 4.714 ms. ASCII typing dispatch rises by 0.657 ms at the median (2.005 → 2.662 ms) and 1.845 ms at p95 (2.849 → 4.694 ms), remaining in the low-millisecond range. The mixed-script tab-switch dispatch median falls from 156.846 ms to 12.961 ms. These results support a reduction in synchronous app work for these fixtures while preserving the measured ASCII cost as a small regression.
 
 The XCTest clock interval also contains automation and event-delivery overhead. The dispatch signpost surrounds synchronous `sendEvent` processing only; neither interval measures physical input-to-visible latency or deferred display. Consequently, even values below the PRD's 16.7 ms typing and 50 ms switching targets do not establish those event-to-visible targets. These comparative results also do not meet the physical M1/8 GB acceptance gate.
 
