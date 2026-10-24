@@ -20,3 +20,11 @@ The five-MiB fixture run had 16,948,592 more live heap bytes than the empty run.
 Allocation rows do not provide useful source attribution in these traces: `responsible-caller` is `<Call stack limit reached>` for 99.92% of the empty run's live bytes and 99.24% of the five-MiB run's live bytes; those rows also have no responsible library. This identifies a capture limitation, not the owner of the allocations or a source-level fix. The `xctrace export` Allocations detail selector is supported by the [Xcode 13 release notes](https://developer.apple.com/documentation/Xcode-Release-Notes/xcode-13-release-notes). A follow-up capture now launches only the generated fixture app with `MallocStackLogging=lite`, as [Apple documents for allocation stack capture](https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/MallocDebug.html). That diagnostic setting adds overhead; its trace can help attribute allocations but cannot establish the uninstrumented RSS target. Results from the follow-up capture are not available yet.
 
 The capture script's fixture checks passed, but the environment manifest explicitly records that exclusive GUI input was not automatically verified. This is hosted diagnostic evidence only. The physical Mac before/after idle RSS, CPU, recovery and reference-hardware target measurements remain outstanding, and the relevant native UI automation preflight still reports Automation Mode disabled.
+
+## Follow-up with malloc stack logging
+
+Run: [GitHub Actions 40081911639](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40081911639)
+
+Artifact: `hosted-idle-allocations-d112f88ac7c2825368b4f378e9c4ebb78f6b65de-1` (ID `12555193938`)
+
+The isolated performance app built and passed fixture preparation. Instruments recorded the full 60-second window for the generated empty workspace, but did not finish flushing before the 90-second recorder-process bound. The workflow retained the failed artifact, including an incomplete trace whose `event_data_5927.oa` is 102,764,544 bytes. This is not a completed Allocations result; no stack-attribution conclusion is drawn from it, and the 20-tab fixture was not reached. The next attempt keeps the 60-second sample and allows xctrace up to 180 seconds total, leaving up to 120 seconds after the sample to flush the larger stack-enabled trace.

@@ -157,7 +157,9 @@ enum PerformanceFixtureHarness {
           "--output", trace.path, "--attach", String(process.processIdentifier), "--no-prompt",
         ]
         try recorder.run()
-        let deadline = clock.now.advanced(by: .seconds(90))
+        // Preserve the 60-second sample but allow Instruments up to 3 minutes
+        // to flush the larger call-stack-enabled trace after its time limit.
+        let deadline = clock.now.advanced(by: .seconds(180))
         while recorder.isRunning {
           try requireProfileIdentity(process, app)
           guard clock.now < deadline else { throw Failure.profilerTimedOut }
