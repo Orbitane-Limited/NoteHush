@@ -39,3 +39,7 @@ NOTEHUSH_EXCLUSIVE_INPUT=1 python3 scripts/test_long_paragraph.py --bytes 104857
 ```
 
 The size can be reduced to any byte count divisible by eight, up to 10 MiB. This protocol rechecks current app behavior; it is not a passing performance test or a correction for #75. Do not pool its single observation with the established 20-sample opening suite.
+
+On a long-paragraph timeout, the harness samples only the exact owned app PID for two seconds **after** the ten-second observation ends. It retains the raw sample alongside the failure, and logs its status and SHA-256. The sample does not extend or change the checkpoint deadline. The [current hosted timeout](../2026-10-24-current-long-paragraph-controls.md) records the first run, before this profile step was added.
+
+[`TextKitBaseDirectionProbe.swift`](TextKitBaseDirectionProbe.swift) is the exact generated, headless TextKit 2 control comparing natural and explicit RTL paragraph base directions. Its first 16 KiB geometry result and both 10 MiB timeout outcomes are recorded in the [current candidate controls report](../2026-10-24-current-long-paragraph-controls.md). [`CFWritingDirectionProbe.swift`](CFWritingDirectionProbe.swift) is the separate Core Foundation direction-classifier call used by the same report. These controls are diagnostics; neither is an app acceptance test.

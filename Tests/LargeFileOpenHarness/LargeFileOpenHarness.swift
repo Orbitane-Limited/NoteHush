@@ -179,6 +179,9 @@ final class LargeOpenRun {
       if let failure = error as? OpenFailure, failure == .checkpointTimeout {
         let elapsed = try nanoseconds(started.duration(to: clock.now))
         try log.append(OpenTimeout(workload: workload, index: index, elapsedNanoseconds: elapsed))
+        if workload == .arabicEmojiParagraph {
+          try await profileTimedOutProcess(process, workload: workload, index: index)
+        }
       }
       throw error
     }
@@ -261,6 +264,78 @@ final class LargeOpenRun {
     guard !process.isTerminated, process.bundleIdentifier == Self.bundleID,
       process.bundleURL?.standardizedFileURL == applicationURL
     else { throw OpenFailure.wrongProcess }
+  }
+
+  private func profileTimedOutProcess(
+    _ app: NSRunningApplication, workload: LargeOpenWorkload, index: Int
+  ) async throws {
+    guard !app.isTerminated, app.bundleIdentifier == Self.bundleID,
+      app.bundleURL?.standardizedFileURL == applicationURL
+    else {
+      try log.append(
+        OpenProfile(
+          workload: workload, index: index, pid: app.processIdentifier,
+          status: "processUnavailable", exitCode: nil, outputBytes: nil, outputSHA256: nil))
+      return
+    }
+    let output = outputURL.appending(path: "timeout-profile-\(UUID().uuidString).txt")
+    guard !FileManager.default.fileExists(atPath: output.path) else {
+      throw OpenFailure.evidenceWrite
+    }
+    let sampler = Process()
+    sampler.executableURL = URL(filePath: "/usr/bin/sample")
+    sampler.arguments = [
+      String(app.processIdentifier), "2", "1", "-file", output.path,
+    ]
+    var environment: [String: String] = [:]
+    for key in ["HOME", "TMPDIR", "USER", "LOGNAME", "PATH", "LANG", "LC_ALL"] {
+      environment[key] = ProcessInfo.processInfo.environment[key]
+    }
+    sampler.environment = environment
+    sampler.standardOutput = FileHandle.nullDevice
+    sampler.standardError = FileHandle.nullDevice
+    do {
+      try sampler.run()
+    } catch {
+      try log.append(
+        OpenProfile(
+          workload: workload, index: index, pid: app.processIdentifier, status: "launchFailed",
+          exitCode: nil, outputBytes: nil, outputSHA256: nil))
+      return
+    }
+
+    let clock = ContinuousClock()
+    let deadline = clock.now.advanced(by: .seconds(10))
+    while sampler.isRunning && clock.now < deadline {
+      try await clock.sleep(until: clock.now.advanced(by: .milliseconds(50)))
+    }
+    if sampler.isRunning {
+      sampler.terminate()
+      try? await wait(seconds: 2) { !sampler.isRunning }
+      if sampler.isRunning {
+        kill(sampler.processIdentifier, SIGKILL)
+        try? await wait(seconds: 2) { !sampler.isRunning }
+      }
+      try log.append(
+        OpenProfile(
+          workload: workload, index: index, pid: app.processIdentifier, status: "timedOut",
+          exitCode: nil, outputBytes: nil, outputSHA256: nil))
+      return
+    }
+
+    let result = sampler.terminationReason == .exit ? sampler.terminationStatus : nil
+    guard result == 0, let data = try? Data(contentsOf: output), !data.isEmpty else {
+      try log.append(
+        OpenProfile(
+          workload: workload, index: index, pid: app.processIdentifier, status: "failed",
+          exitCode: result, outputBytes: nil, outputSHA256: nil))
+      return
+    }
+    let digest = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    try log.append(
+      OpenProfile(
+        workload: workload, index: index, pid: app.processIdentifier, status: "captured",
+        exitCode: result, outputBytes: data.count, outputSHA256: digest))
   }
 
   private static func requireStopped() throws {

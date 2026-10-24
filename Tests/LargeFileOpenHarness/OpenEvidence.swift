@@ -80,6 +80,18 @@ struct OpenTimeout: Encodable {
   let recoveryVerified = false
 }
 
+struct OpenProfile: Encodable {
+  let kind = "profile"
+  let workload: LargeOpenWorkload
+  let index: Int
+  let pid: Int32
+  let sampleDurationSeconds = 2
+  let status: String
+  let exitCode: Int32?
+  let outputBytes: Int?
+  let outputSHA256: String?
+}
+
 struct OpenVerification: Encodable {
   let kind = "verification"
   let workload: LargeOpenWorkload
