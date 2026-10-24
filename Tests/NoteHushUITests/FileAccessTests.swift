@@ -221,12 +221,32 @@ final class FileAccessTests: XCTestCase {
     launch()
     app.typeKey("o", modifierFlags: .command)
     goTo(url)
-    app.sheets.buttons["OKButton"].firstMatch.click()
-    XCTAssertTrue(
-      app.radioButtons.matching(
-        NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
+    let openButton = app.sheets.buttons["OKButton"].firstMatch
+    waitForHittable(openButton)
+    openButton.click()
+    let openedTab = app.radioButtons.matching(
+      NSPredicate(format: "label == %@", "\(url.lastPathComponent), tab 2 of 2")
+    ).firstMatch
+    guard openedTab.waitForExistence(timeout: 10) else {
+      let attachment = XCTAttachment(screenshot: app.windows["NoteHush"].screenshot())
+      attachment.name = "Generated file did not appear as a tab"
+      attachment.lifetime = .keepAlways
+      add(attachment)
+      let sheetVisible = app.sheets.firstMatch.exists
+      let editorVisible = editor.exists
+      let statusVisible = app.staticTexts["file-message"].exists
+      let tabCount = app.radioButtons.matching(
+        NSPredicate(format: "identifier BEGINSWITH %@", "tab-")
+      ).count
+      XCTFail(
+        "The generated file did not appear as a second tab. "
+          + "Open sheet visible: \(sheetVisible); "
+          + "editor visible: \(editorVisible); "
+          + "file status visible: \(statusVisible); "
+          + "tab count: \(tabCount)"
       )
-      .firstMatch.waitForExistence(timeout: 10))
+      return
+    }
   }
 
   private func openFromFinder(_ url: URL) async throws {

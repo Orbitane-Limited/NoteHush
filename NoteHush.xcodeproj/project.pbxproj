@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		052C547D0DDC882A2A04A291 /* UndoDiagnosticProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA331A72D8C4ECA967D8C91 /* UndoDiagnosticProbe.swift */; };
 		C2C6681A6A85420E914D4D07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A1B4E26829C490D8327D2AF /* Assets.xcassets */; };
 		018C0EF905AEAB427FDA1819 /* EditorPreferences+AppKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64806345D19229EAF0DF9FFF /* EditorPreferences+AppKit.swift */; };
 		04423B17DF11EEA777F80B77 /* WorkspaceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C92AC1EB88C2114AEAD188 /* WorkspaceFiles.swift */; };
@@ -60,6 +61,7 @@
 		EF196BED4D4083F141B894C7 /* WorkspaceWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE425E9CD5B4B2A9E5751A2 /* WorkspaceWindowController.swift */; };
 		F0206FE7BB2F137955541C7F /* WorkspaceLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C592B939B50508FB413C54E /* WorkspaceLifecycleTests.swift */; };
 		F4DCC850BBDEA777A405D8A6 /* EditorTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C620622CB0DE79507944B40 /* EditorTab.swift */; };
+		F6EDDEC6E8BCA15F92DEF6E6 /* PrivacyWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71370CB090F05DD46433F30 /* PrivacyWindowController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +82,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7AA331A72D8C4ECA967D8C91 /* UndoDiagnosticProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoDiagnosticProbe.swift; sourceTree = "<group>"; };
 		9A1B4E26829C490D8327D2AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F7EF74D0EC9AD8C79B81A40 /* FileWorkspaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWorkspaceTests.swift; sourceTree = "<group>"; };
 		14C88CFCD8A97640D0CB122C /* InteractionPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractionPerformanceTests.swift; sourceTree = "<group>"; };
@@ -122,6 +125,7 @@
 		FC0138E69BDE06082791FC37 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		FCD3367041B36A0BBC1EA4AF /* NoteHushPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoteHushPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FEB6DABD246B4788EB3F9FB9 /* WorkspacePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspacePreferences.swift; sourceTree = "<group>"; };
+		C71370CB090F05DD46433F30 /* PrivacyWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyWindowController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -249,6 +253,8 @@
 			children = (
 				56F499DFAD07C813D8D803A5 /* AppDelegate.swift */,
 				6CA6C17F100961DD2E8454A2 /* NoteHushMain.swift */,
+				7AA331A72D8C4ECA967D8C91 /* UndoDiagnosticProbe.swift */,
+				C71370CB090F05DD46433F30 /* PrivacyWindowController.swift */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -463,6 +469,8 @@
 				A8AFDDB53D7496A0545D1121 /* EditorTab.swift in Sources */,
 				77115BA524205C342C854222 /* GoToLineSheet.swift in Sources */,
 				09C901BAE6CE224A99A395CB /* NoteHushMain.swift in Sources */,
+				052C547D0DDC882A2A04A291 /* UndoDiagnosticProbe.swift in Sources */,
+				F6EDDEC6E8BCA15F92DEF6E6 /* PrivacyWindowController.swift in Sources */,
 				1332617B60C216A5A3CF1218 /* PerformanceApplication.swift in Sources */,
 				8F07EDF9881CD3052272CBEF /* PreferencesWindowController.swift in Sources */,
 				933986CB4BFE478ED3A8CF2D /* PrintDocumentView.swift in Sources */,
