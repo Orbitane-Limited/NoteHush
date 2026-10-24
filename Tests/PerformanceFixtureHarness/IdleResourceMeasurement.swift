@@ -175,7 +175,7 @@ enum IdleResourceMeasurement {
     return UInt64(parts.seconds) * 1_000_000_000 + UInt64(parts.attoseconds / 1_000_000_000)
   }
 
-  private static func verifyPresentation(_ fixture: Harness.Fixture, _ before: WorkspaceSnapshot)
+  static func verifyPresentation(_ fixture: Harness.Fixture, _ before: WorkspaceSnapshot)
     async throws
   {
     guard

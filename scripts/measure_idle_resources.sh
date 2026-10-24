@@ -11,6 +11,10 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 built_revision="$(git rev-parse HEAD)"
 mkdir -p build/logs
+if [[ -e build/idle-allocation.lock ]]; then
+  echo 'An allocation profile is active or retained; inspect it first.' >&2
+  exit 1
+fi
 if ! mkdir build/idle-resource.lock; then
   echo 'Another idle measurement or interrupted lock requires inspection.' >&2
   exit 1
