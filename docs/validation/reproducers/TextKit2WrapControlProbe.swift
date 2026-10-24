@@ -58,13 +58,22 @@ enum TextKit2WrapControlProbe {
     let elapsed = started.duration(to: .now)
     var lineCount = 0
     var coveredUTF16 = 0
+    var contiguousCoverage = true
     var geometry: [String] = []
     _ = layout.enumerateTextLayoutFragments(from: nil, options: [.ensuresLayout]) { fragment in
+      guard let elementRange = fragment.textElement?.elementRange else {
+        contiguousCoverage = false
+        return true
+      }
+      let elementStart = content.offset(
+        from: content.documentRange.location, to: elementRange.location)
       for line in fragment.textLineFragments {
         lineCount += 1
-        coveredUTF16 += line.characterRange.length
+        let lineStart = elementStart + line.characterRange.location
+        if lineStart != coveredUTF16 { contiguousCoverage = false }
+        coveredUTF16 = lineStart + line.characterRange.length
         geometry.append(
-          "\(line.characterRange.location):\(line.characterRange.length):\(line.typographicBounds.width.bitPattern):\(line.typographicBounds.height.bitPattern)"
+          "\(lineStart):\(line.characterRange.length):\(line.typographicBounds.width.bitPattern):\(line.typographicBounds.height.bitPattern)"
         )
       }
       return true
@@ -78,12 +87,15 @@ enum TextKit2WrapControlProbe {
     return [
       "requestedUTF8Bytes": byteCount,
       "actualUTF8Bytes": storage.string.utf8.count,
+      "textSHA256": SHA256.hash(data: Data(storage.string.utf8)).map {
+        String(format: "%02x", $0)
+      }.joined(),
       "sourceUTF16": storage.length,
       "wrapMode": wraps ? "wrap" : "no-wrap",
       "elapsedNanoseconds": elapsedNanoseconds,
       "lineCount": lineCount,
       "coveredUTF16": coveredUTF16,
-      "completeCoverage": coveredUTF16 == storage.length,
+      "completeCoverage": contiguousCoverage && coveredUTF16 == storage.length,
       "exactText": storage.string == text,
       "geometrySHA256": geometryHash,
     ]

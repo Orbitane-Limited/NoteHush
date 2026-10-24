@@ -17,7 +17,7 @@ REPO = Path(subprocess.run(
 ).stdout.strip())
 SOURCE = REPO / "docs/validation/reproducers/TextKit2WrapControlProbe.swift"
 os.umask(0o077)
-RUN = REPO / "build/logs" / f"TextKit2WrapControl-{uuid.uuid4().upper()}"
+RUN = REPO / "build/logs" / f"TextKit2WrapControl-{str(uuid.uuid4()).upper()}"
 RUN.mkdir(mode=0o700, parents=True)
 (RUN / "tmp").mkdir(mode=0o700)
 (RUN / "module-cache").mkdir(mode=0o700)
