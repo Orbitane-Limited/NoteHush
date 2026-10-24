@@ -1,0 +1,37 @@
+{
+  "applicationAcceptance": false,
+  "artifactDirectory": "build/LegacyWrapModeProbe-ba1de67c-fa46-4b77-aad9-65b69421c8a4",
+  "binarySHA256": "a940884ba78a479107f598687b12f5919913c9e20536f5b4f4211e6026741e87",
+  "cases": [
+    {
+      "elapsedSeconds": 10.056527,
+      "requestedUTF8Bytes": 1048576,
+      "status": "timedOut",
+      "wrapMode": "word"
+    },
+    {
+      "elapsedSeconds": 10.139793,
+      "requestedUTF8Bytes": 1048576,
+      "status": "timedOut",
+      "wrapMode": "character"
+    },
+    {
+      "elapsedSeconds": 10.037082,
+      "requestedUTF8Bytes": 10485760,
+      "status": "timedOut",
+      "wrapMode": "word"
+    },
+    {
+      "elapsedSeconds": 10.056643,
+      "requestedUTF8Bytes": 10485760,
+      "status": "timedOut",
+      "wrapMode": "character"
+    }
+  ],
+  "compileExitCode": 0,
+  "driverSHA256": "f784724e3e594cd724af7267e672a178af7e9a5832bb84d7708ce9fbdb943623",
+  "finishedAt": "2026-10-23T04:00:56.914236+00:00",
+  "kind": "generated AppKit TextKit 1 paragraph wrapping mode comparison",
+  "sourceSHA256": "6a4966a1fb7ffd9d63f0f4575e40b9a10b89c774bc5e7ab002cdf33bc04a7d3b",
+  "timeoutSecondsPerCell": 10
+}
