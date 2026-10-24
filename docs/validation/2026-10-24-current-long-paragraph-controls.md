@@ -38,13 +38,14 @@ These headless controls do not establish editing, IME, undo, viewport, recovery,
 
 ## Framework text-view integration attempts
 
-Three generated-data probes tested whether chunked text elements could keep `NSTextView` while avoiding the one-element 10 MiB paragraph. They ran on macOS 26.6.2, Xcode 26.6 (17F113), arm64, against the exact 10,485,760-byte fixture. None produced usable layout:
+Four generated-data probes tested whether chunked text elements could keep `NSTextView` while avoiding the one-element 10 MiB paragraph. They ran on macOS 26.6.2, Xcode 26.6 (17F113), arm64, against the exact 10,485,760-byte fixture. None produced usable layout:
 
 | Probe | Outcome |
 | --- | --- |
 | [`NSTextViewDelegateEarlyProbe.swift`](reproducers/NSTextViewDelegateEarlyProbe.swift) installs the element delegate before filling the text storage, matching app initialization | Delegate emitted two elements for the midpoint request, but returned no layout fragments; target coverage remained false. Installing the delegate earlier did not change the prior result. |
 | [`NSTextViewCustomStorageInitializationProbe.swift`](reproducers/NSTextViewCustomStorageInitializationProbe.swift) connects a chunked `NSTextContentStorage` before constructing `NSTextView` | Signal 6 during fragment layout; `offsetFromLocation:toLocation:` received null locations. Constructing the view after storage setup did not avoid the mapping exception. |
 | [`NSTextViewWithCustomManagerProbe.swift`](reproducers/NSTextViewWithCustomManagerProbe.swift) constructs `NSTextView` over the standalone chunked `NSTextContentManager` that succeeds in headless viewport layout | Signal 6 in `NSTextView.setTextContainer`; AppKit requested the manager's `textStorage` property, which the custom manager does not provide. |
+| [`NSTextViewReplaceManagerProbe.swift`](reproducers/NSTextViewReplaceManagerProbe.swift) creates the standard editor first, then calls the public `NSTextLayoutManager.replace(_:)` with chunked `NSTextContentStorage` | Both the 16 KiB full-layout cell and 10 MiB viewport cell exited with signal 6. `NSTextLayoutFragment._layout` raised `offsetFromLocation:toLocation:` with null locations; replacing the manager after normal view initialization did not fix the mapping failure. |
 
 These are failed probes, not proof that every `NSTextView` integration is impossible. They show that the tested public delegate/storage substitutions do not provide an editor with complete layout. Apple's [TextKit documentation](https://developer.apple.com/documentation/appkit/textkit) describes `NSTextView` as backed by `NSTextContentStorage` and presents an `NSView` custom text view as the route for custom content/layout control; the [WWDC26 TextKit session](https://developer.apple.com/videos/play/wwdc2026/370/) explains that a custom view must supply its own input, selection, rendering, accessibility and editing behavior. The currently tested path that lays out arbitrary requested ranges remains a separate custom `NSTextContentManager` and is not integrated into the app.
 
@@ -53,8 +54,9 @@ These are failed probes, not proof that every `NSTextView` integration is imposs
 | Delegate before text assignment | `22876e11cc445f8d15d537794dc3ecf572eeff823b215ecb657703886724634d` | `129b01e68165b1021105d5e687cd5134af9a7d76ddf3365459ce7302ac677e13` |
 | Custom storage before view creation | `881a8f9ce8c2c0dee5ca9b17a0c5c65b065654c597afab172476840f90fa27e3` | `b3a3ea8ab99f1dea79b1d584d47db066190d0b1dcc18c6635177cf4d774bc6dc` |
 | Standalone custom manager in `NSTextView` | `48cc177337b62dfcc996a6d65c1c864de4f66f80d5929907d4ae8982d5a7cf82` | `f51ebae3df231a801b788e3ff6c77756118b9eb936084a3162f8f6647e0e9ac2` |
+| Replace manager after view initialization | `45f5f8b7cf548384a4548c9dc806ee6ad53a8bf9c2af459946cadaaf79274331` | `fa82b5e77f42a074120a1df5a0378381097546c728ed08ee293e90117672ea12` |
 
-These generated-data integrations did not change the shipped app. They establish neither real input behavior nor a rendering correction; #75 remains open.
+The post-initialization replacement run is hosted workflow [40075923822](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40075923822); the step preserves both signal-6 outcomes as data, so its successful workflow status is not a probe pass. Artifact ID `12553720377` (SHA-256 `97bc5add14e4ddaf876041603db287ba3ebd020f3efe19e8de8549d63db529f8`) retains both stdout/stderr pairs, source, binary and numeric result. These generated-data integrations did not change the shipped app. They establish neither real input behavior nor a rendering correction; #75 remains open.
 
 ## Chunk-boundary geometry control
 
