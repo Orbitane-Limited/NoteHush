@@ -35,3 +35,23 @@ A separate call to `CFAttributedStringGetStatisticalWritingDirections` on the 10
 | Core Foundation direction classifier | `df5486ca599d487caa12987de7a514439778f548f03b00df9aecd610d6357432` | `ed2ffd13466e6c7c45efe8be8367af398a7cfa720a1d97a91a3817e33b30f89a` |
 
 These headless controls do not establish editing, IME, undo, viewport, recovery, resource bounds, physical-Mac performance or complete app behavior. The follow-up app profile confirms that native full-paragraph shaping remains the current candidate's hot path. No application behavior or release limit has changed.
+
+## Framework text-view integration attempts
+
+Three generated-data probes tested whether chunked text elements could keep `NSTextView` while avoiding the one-element 10 MiB paragraph. They ran on macOS 26.6.2, Xcode 26.6 (17F113), arm64, against the exact 10,485,760-byte fixture. None produced usable layout:
+
+| Probe | Outcome |
+| --- | --- |
+| [`NSTextViewDelegateEarlyProbe.swift`](reproducers/NSTextViewDelegateEarlyProbe.swift) installs the element delegate before filling the text storage, matching app initialization | Delegate emitted two elements for the midpoint request, but returned no layout fragments; target coverage remained false. Installing the delegate earlier did not change the prior result. |
+| [`NSTextViewCustomStorageInitializationProbe.swift`](reproducers/NSTextViewCustomStorageInitializationProbe.swift) connects a chunked `NSTextContentStorage` before constructing `NSTextView` | Signal 6 during fragment layout; `offsetFromLocation:toLocation:` received null locations. Constructing the view after storage setup did not avoid the mapping exception. |
+| [`NSTextViewWithCustomManagerProbe.swift`](reproducers/NSTextViewWithCustomManagerProbe.swift) constructs `NSTextView` over the standalone chunked `NSTextContentManager` that succeeds in headless viewport layout | Signal 6 in `NSTextView.setTextContainer`; AppKit requested the manager's `textStorage` property, which the custom manager does not provide. |
+
+These are failed probes, not proof that every `NSTextView` integration is impossible. They show that the tested public delegate/storage substitutions do not provide an editor with complete layout. Apple's [TextKit documentation](https://developer.apple.com/documentation/appkit/textkit) describes `NSTextView` as backed by `NSTextContentStorage` and presents an `NSView` custom text view as the route for custom content/layout control; the [WWDC26 TextKit session](https://developer.apple.com/videos/play/wwdc2026/370/) explains that a custom view must supply its own input, selection, rendering, accessibility and editing behavior. The currently tested path that lays out arbitrary requested ranges remains a separate custom `NSTextContentManager` and is not integrated into the app.
+
+| Probe | Source SHA-256 | Binary SHA-256 |
+| --- | --- | --- |
+| Delegate before text assignment | `22876e11cc445f8d15d537794dc3ecf572eeff823b215ecb657703886724634d` | `129b01e68165b1021105d5e687cd5134af9a7d76ddf3365459ce7302ac677e13` |
+| Custom storage before view creation | `881a8f9ce8c2c0dee5ca9b17a0c5c65b065654c597afab172476840f90fa27e3` | `b3a3ea8ab99f1dea79b1d584d47db066190d0b1dcc18c6635177cf4d774bc6dc` |
+| Standalone custom manager in `NSTextView` | `48cc177337b62dfcc996a6d65c1c864de4f66f80d5929907d4ae8982d5a7cf82` | `f51ebae3df231a801b788e3ff6c77756118b9eb936084a3162f8f6647e0e9ac2` |
+
+These generated-data integrations did not change the shipped app. They establish neither real input behavior nor a rendering correction; #75 remains open.
