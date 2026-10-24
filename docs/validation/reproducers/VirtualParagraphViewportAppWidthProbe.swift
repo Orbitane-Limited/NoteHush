@@ -176,6 +176,7 @@ func geometry(totalBytes: Int, chunk: Int, mode: String, limitSuspicious: Bool) 
     "elements": manager.emitted.count, "invalid": invalid,
     "geometrySHA256": SHA256.hash(data: Data(geometry.utf8)).map { String(format: "%02x", $0) }
       .joined(), "geometryRows": geometryRows,
+    "lineGeometry": allGeometryRows.map { $0.0 },
     "complete": mode == "full" && lineUnits == source.length && !invalid,
   ]
 }
