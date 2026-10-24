@@ -12,6 +12,6 @@ The flag therefore did not correct full layout or improve the chunked viewport r
 
 ## Application relevance
 
-The current editor uses `NSTextView` backed by TextKit 1's `NSTextStorage` and `NSLayoutManager` in [EditorTab.swift](../../App/NoteHush/Editor/EditorTab.swift). This experiment uses a separate TextKit 2 `NSTextLayoutManager` and a custom content manager, so the tested flag is not a drop-in change for the shipped editor. No application behavior or acceptance criterion was verified, and #75 remains unresolved.
+The current editor uses `NSTextView` with TextKit 2 in [EditorTab.swift](../../App/NoteHush/Editor/EditorTab.swift), as of PR #72. This experiment uses a separate `NSTextLayoutManager` with a custom content manager rather than the editor's standard `NSTextContentStorage`; the tested flag and provider arrangement are not a drop-in change for the shipped editor. No application behavior or acceptance criterion was verified, and #75 remains unresolved.
 
 The [numeric matrix](2026-10-23-suspicious-layout-limit.json) contains every cell outcome and successful numeric observation. Raw compiler output, JSONL observations, source copy and binary remain in the private artifact directory listed there. The source and runner are in [reproducers](reproducers/README.md).

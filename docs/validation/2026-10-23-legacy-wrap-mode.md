@@ -1,6 +1,6 @@
 # Legacy TextKit wrapping-mode control
 
-Issue #75 remains open. The current editor uses TextKit 1, so this headless control tests whether changing a long unbroken mixed-script paragraph from word wrapping to character wrapping changes the native layout cost.
+Issue #75 remains open. This headless control was recorded before the shipping editor moved to TextKit 2 in PR #72. It tests whether changing a long unbroken mixed-script paragraph from TextKit 1 word wrapping to character wrapping changes that layout manager's cost. It is a historical comparison, not a measurement of the current editor.
 
 The optimized probe used the exact generated 10 MiB Arabic/emoji paragraph form at 1 MiB and 10 MiB, with a 10-second limit for each fresh process. Both word-wrapping and character-wrapping cases timed out at both sizes before complete glyph/character coverage could be reported. Explicitly disabling default hyphenation did not prevent the stalls. Character wrapping therefore did not establish a correction; no layout geometry comparison was possible.
 
