@@ -19,8 +19,8 @@ final class EditorSnapshotTests: XCTestCase {
         let snapshot = TabSnapshot(
           text: text, selection: TextSelection(location: selection.location))
         let tab = EditorTab(snapshot: snapshot, scrollerStyle: style)
-        let layout = try XCTUnwrap(tab.editor.layoutManager)
-        XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+        let layout = try XCTUnwrap(tab.editor.textLayoutManager)
+        XCTAssertEqual(try firstUnlaidTextOffset(layout), 0)
         XCTAssertEqual(tab.scrollView.scrollerStyle, style)
         let font = try XCTUnwrap(
           tab.editor.textStorage?.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
@@ -31,7 +31,7 @@ final class EditorSnapshotTests: XCTestCase {
         preferences.fontSize = 18
         preferences.wordWrap = false
         tab.applyPreferences(preferences)
-        XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+        XCTAssertEqual(try firstUnlaidTextOffset(layout), 0)
         XCTAssertEqual(tab.editor.selectedRange(), selection)
         XCTAssertTrue(tab.snapshot(isVisible: false).text.utf8.elementsEqual(text.utf8))
 
@@ -58,11 +58,11 @@ final class EditorSnapshotTests: XCTestCase {
     preferences.fontSize = 18
     preferences.wordWrap = false
     for (tab, original) in zip(tabs, snapshots) {
-      let layout = try XCTUnwrap(tab.editor.layoutManager)
-      XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+      let layout = try XCTUnwrap(tab.editor.textLayoutManager)
+      XCTAssertEqual(try firstUnlaidTextOffset(layout), 0)
       XCTAssertGreaterThan(tab.scrollView.contentSize.width, 0)
       tab.applyPreferences(preferences)
-      XCTAssertEqual(layout.firstUnlaidCharacterIndex(), 0)
+      XCTAssertEqual(try firstUnlaidTextOffset(layout), 0)
       let captured = tab.snapshot(isVisible: false)
       XCTAssertEqual(captured.textIdentity, original.textIdentity)
       XCTAssertTrue(captured.text.utf8.elementsEqual(original.text.utf8))
@@ -70,6 +70,47 @@ final class EditorSnapshotTests: XCTestCase {
         tab.editor.selectedRange(),
         NSRange(location: original.selection.location, length: original.selection.length))
     }
+  }
+
+  func testReleasingHiddenTabDetachesItsRetainedEditorWithoutChangingText() async throws {
+    _ = NSApplication.shared
+    let text = mixedScriptEditorFixture(1)
+    let selection = TextSelection(location: text.utf16.count - 2)
+    weak var weakTab: EditorTab?
+    var retainedViews: (NSTextView, NSScrollView)?
+    autoreleasepool {
+      let tab = EditorTab(snapshot: TabSnapshot(text: text, selection: selection))
+      weakTab = tab
+      retainedViews = (tab.editor, tab.scrollView)
+    }
+    let (editor, scroll) = try XCTUnwrap(retainedViews)
+    XCTAssertNil(weakTab)
+    // The retained views can outlive their model; later scroll-view teardown
+    // must not request viewport layout after its paragraph delegate is gone.
+    XCTAssertNil(scroll.documentView)
+    XCTAssertTrue(editor.string.utf8.elementsEqual(text.utf8))
+    XCTAssertEqual(editor.selectedRange(), NSRange(location: selection.location, length: 0))
+    XCTAssertNotNil(editor.textLayoutManager)
+  }
+
+  func testUndoAndRedoUpdateDraftStateAndEmptyMetricsWithoutNativeTextCallback() throws {
+    _ = NSApplication.shared
+    let tab = EditorTab(snapshot: TabSnapshot())
+    let history = try XCTUnwrap(tab.undoManager(for: tab.editor))
+    history.groupsByEvent = false
+    history.beginUndoGrouping()
+    tab.editor.insertText("draft خط", replacementRange: NSRange(location: 0, length: 0))
+    history.endUndoGrouping()
+    XCTAssertTrue(tab.isDirty)
+    history.undo()
+    XCTAssertEqual(tab.editor.string, "")
+    XCTAssertFalse(tab.isDirty)
+    XCTAssertEqual(tab.metrics?.characterCount, 0)
+    history.redo()
+    XCTAssertEqual(tab.editor.string, "draft خط")
+    XCTAssertTrue(tab.isDirty)
+    XCTAssertNil(tab.metrics)
+    XCTAssertEqual(tab.snapshot(isVisible: false).text, "draft خط")
   }
 
   func testMetadataAndAttributesReuseTextButDirectStorageEditsInvalidateCapture() throws {
@@ -148,4 +189,37 @@ func mixedScriptEditorFixture(_ index: Int) -> String {
     String(format: "tab-%010d\r\n", index) + String(repeating: line, count: 256 * 1024 / 16 - 1)
   XCTAssertEqual(text.utf8.count, 256 * 1024)
   return text
+}
+
+// Match the former firstUnlaidCharacterIndex check: stop at the first
+// fragment without layout, without asking TextKit to estimate or lay it out.
+// Enumerating every paragraph would create work unrelated to this assertion.
+// Reading NSTextView.layoutManager would itself switch to TextKit 1.
+@MainActor
+func firstUnlaidTextOffset(_ layout: NSTextLayoutManager) throws -> Int {
+  let content = try XCTUnwrap(layout.textContentManager)
+  var firstUnlaid = content.offset(
+    from: content.documentRange.location, to: content.documentRange.endLocation)
+  layout.enumerateTextLayoutFragments(from: content.documentRange.location, options: []) {
+    fragment in
+    if fragment.state != .calculatedUsageBounds && fragment.state != .layoutAvailable {
+      firstUnlaid = content.offset(
+        from: content.documentRange.location, to: fragment.rangeInElement.location)
+      return false
+    }
+    return true
+  }
+  return firstUnlaid
+}
+
+@MainActor
+func editorLineRect(_ editor: NSTextView, at offset: Int) throws -> NSRect {
+  let layout = try XCTUnwrap(editor.textLayoutManager)
+  let content = try XCTUnwrap(layout.textContentManager)
+  let location = try XCTUnwrap(content.location(content.documentRange.location, offsetBy: offset))
+  let fragment = try XCTUnwrap(layout.textLayoutFragment(for: location))
+  let line = try XCTUnwrap(fragment.textLineFragment(for: location, isUpstreamAffinity: false))
+  return line.typographicBounds.offsetBy(
+    dx: fragment.layoutFragmentFrame.minX + editor.textContainerOrigin.x,
+    dy: fragment.layoutFragmentFrame.minY + editor.textContainerOrigin.y)
 }

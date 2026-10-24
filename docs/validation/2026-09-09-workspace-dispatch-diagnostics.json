@@ -1,0 +1,1795 @@
+{
+  "schema": 1,
+  "performanceAcceptance": false,
+  "scope": "private workspace typing, not the original XCTest interaction protocol",
+  "cases": [
+    {
+      "engine": "TextKit1",
+      "run": {
+        "UUID": "3984782B-6C15-4913-9CB4-E57627A65930",
+        "engine": "TextKit1",
+        "scenario": "ASCII",
+        "startedUTC": "2026-09-08T22:59:35.539284+00:00",
+        "outerBoundSeconds": 30,
+        "hostBoundSeconds": 20,
+        "exitCode": 0,
+        "finishedUTC": "2026-09-08T22:59:40.695450+00:00"
+      },
+      "provenance": {
+        "kind": "full WorkspaceWindowController private diagnostic",
+        "engine": "TextKit1",
+        "bundleIdentifier": "pk.codehub.NoteHush.WorkspaceLegacyDiagnostics",
+        "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+        "changedProductionSource": [],
+        "cases": [
+          "ASCII",
+          "mixed"
+        ],
+        "utf8BytesPerTab": 1048576,
+        "tabCount": 2,
+        "observationsPerCase": 20,
+        "nativeHostBoundSeconds": 20,
+        "outerBoundSeconds": 30,
+        "performanceAcceptance": false,
+        "globalInput": false,
+        "sourceSHA256": {
+          "Preferences/EditorPreferences+AppKit.swift": "883f8237b78b3941851c1b7c9e23640f6140e110be8824b15881c3673f9b48de",
+          "Preferences/PreferencesWindowController.swift": "3a54aba2272f17bc6e5de61e8102717a2b24a7e839aeffdcbfd7b6c098670ae3",
+          "Workspace/WorkspacePreferences.swift": "56bf123754a6e5fba29b70cc002c988d8c6d2f52b4d28f1dc3f0df8c1d7f13fc",
+          "Workspace/PerformanceApplication.swift": "4db563eedc5d16a774ea5af944a59b22bf2bdfd14ebb8c1a374494aab572a429",
+          "Workspace/WorkspaceFiles.swift": "3bfbaf9f48e729e17a1566924368a1802f748f1f0ff7d2530468b5243efa87c8",
+          "Workspace/TabBarView.swift": "4cfe1770e3f6f6f61096a8f63bd755317c12f97bd70820376b2d191c90fbe6ad",
+          "Workspace/WorkspaceNavigation.swift": "cfb50f2b3c96b9198b01206603bced7db97ee3bf0e8717280c82a60361002540",
+          "Workspace/WorkspacePerformanceProbe.swift": "106d6bd0f7fdb6eeba58957f67d5a1a0e31e71ba3d42725ebd3e4cbc117d303f",
+          "Workspace/WorkspaceFileResolution.swift": "c5c038d84c0f4b44103093bf5121f77ad5ae634d97c0cbdc7969c9ae90e3cff3",
+          "Workspace/WorkspaceWindowController.swift": "fe75096dcf9284173a867c68af0b44a1c47b50269d7b206908fb1e24b314d4ff",
+          "Printing/WorkspacePrinter.swift": "846d1ddd94c111a7b6f987228f321d8f3f4bcb789d6b96531c7f443875be0431",
+          "Printing/PrintDocumentView.swift": "467c41293b6d5b641753a7af18c5d64312099ea948f9c87eb2af46094bd07086",
+          "Editor/EditorTab.swift": "a3c766823cb84dc6be47fa01591e2e2caa04c240e0a681c0adcc459e9dbca62d",
+          "Editor/GoToLineSheet.swift": "1dc5318d5fbfa0504416cdfaba194a38c18f0674774db65fea243adb41fafb5e",
+          "Editor/EditorStatusView.swift": "071670ef9f02350dcda2306fc63237b2874bfde297f6f6744374c09433b22cb9"
+        },
+        "driverSourceSHA256": "47f1c7b3d6cda9127e8e523362482316ca39447a0fec2d19ea2bf015b3f5cb93",
+        "hostSourceSHA256": "cf3e56ffe658caee27aa294fa0f1e74f7a6ff5df65881fb05f2f95292f1daff0",
+        "hostSHA256": "f55681c0e8f1d8d9dc55e3caf76f3edbce4cd1053ce7b1db0c648622f8b261fb",
+        "exactProductEntitlementsVerified": true,
+        "signedBinarySHA256": "210810487b25ceabef7807860e0c3fb23a8634e505a5d718400de5e9863de59a"
+      },
+      "evidenceSHA256": "b14a060c99c4dc7b118a22a6ad6736cc9c1bde0ab74733bd7f57eb45b9efbb4a",
+      "records": [
+        {
+          "engine": "TextKit1",
+          "input": "owned-app NSEvent dispatch",
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "plan",
+          "scenario": "ASCII",
+          "tabs": 2,
+          "utf8BytesPerTab": 1048576,
+          "workspaceStatusAndCheckpointCallbacks": true
+        },
+        {
+          "record": "stage",
+          "stage": "beforeWorkspace",
+          "uptimeNanoseconds": 391067983228291
+        },
+        {
+          "record": "stage",
+          "stage": "workspaceLoaded",
+          "uptimeNanoseconds": 391068238092583
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-0",
+          "uptimeNanoseconds": 391068517204666
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 6275875,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 0,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-1",
+          "uptimeNanoseconds": 391068652184125
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 5434500,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 1,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-2",
+          "uptimeNanoseconds": 391068791569291
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1774917,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 2,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-3",
+          "uptimeNanoseconds": 391068927421625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1603375,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 3,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-4",
+          "uptimeNanoseconds": 391069062703583
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2081041,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 4,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-5",
+          "uptimeNanoseconds": 391069206879458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2764417,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 5,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-6",
+          "uptimeNanoseconds": 391069356755458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2869833,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 6,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-7",
+          "uptimeNanoseconds": 391069506253666
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1791333,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 7,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-8",
+          "uptimeNanoseconds": 391069642640500
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1640250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 8,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-9",
+          "uptimeNanoseconds": 391069788898666
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2390583,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 9,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-10",
+          "uptimeNanoseconds": 391069924916083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3026167,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 10,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-11",
+          "uptimeNanoseconds": 391070065380833
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3048292,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 11,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-12",
+          "uptimeNanoseconds": 391070203591000
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3072833,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 12,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-13",
+          "uptimeNanoseconds": 391070342402458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2845875,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 13,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-14",
+          "uptimeNanoseconds": 391070479383958
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3194792,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 14,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-15",
+          "uptimeNanoseconds": 391070621031458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2947709,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 15,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-16",
+          "uptimeNanoseconds": 391070762157583
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2514625,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 16,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-17",
+          "uptimeNanoseconds": 391070912773375
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2872708,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 17,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-18",
+          "uptimeNanoseconds": 391071064802833
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1903500,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 18,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-19",
+          "uptimeNanoseconds": 391071202917708
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1898833,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 19,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "exactCheckpoint": true,
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "finish",
+          "scenario": "ASCII"
+        }
+      ],
+      "dispatchMedianMilliseconds": 2.8051459999999997,
+      "dispatchP95Milliseconds": 5.4345
+    },
+    {
+      "engine": "TextKit1",
+      "run": {
+        "UUID": "731F0533-16FA-4E2A-ADA5-6A307C221A55",
+        "engine": "TextKit1",
+        "scenario": "mixed",
+        "startedUTC": "2026-09-08T22:59:40.696138+00:00",
+        "outerBoundSeconds": 30,
+        "hostBoundSeconds": 20,
+        "exitCode": 0,
+        "finishedUTC": "2026-09-08T22:59:59.905485+00:00"
+      },
+      "provenance": {
+        "kind": "full WorkspaceWindowController private diagnostic",
+        "engine": "TextKit1",
+        "bundleIdentifier": "pk.codehub.NoteHush.WorkspaceLegacyDiagnostics",
+        "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+        "changedProductionSource": [],
+        "cases": [
+          "ASCII",
+          "mixed"
+        ],
+        "utf8BytesPerTab": 1048576,
+        "tabCount": 2,
+        "observationsPerCase": 20,
+        "nativeHostBoundSeconds": 20,
+        "outerBoundSeconds": 30,
+        "performanceAcceptance": false,
+        "globalInput": false,
+        "sourceSHA256": {
+          "Preferences/EditorPreferences+AppKit.swift": "883f8237b78b3941851c1b7c9e23640f6140e110be8824b15881c3673f9b48de",
+          "Preferences/PreferencesWindowController.swift": "3a54aba2272f17bc6e5de61e8102717a2b24a7e839aeffdcbfd7b6c098670ae3",
+          "Workspace/WorkspacePreferences.swift": "56bf123754a6e5fba29b70cc002c988d8c6d2f52b4d28f1dc3f0df8c1d7f13fc",
+          "Workspace/PerformanceApplication.swift": "4db563eedc5d16a774ea5af944a59b22bf2bdfd14ebb8c1a374494aab572a429",
+          "Workspace/WorkspaceFiles.swift": "3bfbaf9f48e729e17a1566924368a1802f748f1f0ff7d2530468b5243efa87c8",
+          "Workspace/TabBarView.swift": "4cfe1770e3f6f6f61096a8f63bd755317c12f97bd70820376b2d191c90fbe6ad",
+          "Workspace/WorkspaceNavigation.swift": "cfb50f2b3c96b9198b01206603bced7db97ee3bf0e8717280c82a60361002540",
+          "Workspace/WorkspacePerformanceProbe.swift": "106d6bd0f7fdb6eeba58957f67d5a1a0e31e71ba3d42725ebd3e4cbc117d303f",
+          "Workspace/WorkspaceFileResolution.swift": "c5c038d84c0f4b44103093bf5121f77ad5ae634d97c0cbdc7969c9ae90e3cff3",
+          "Workspace/WorkspaceWindowController.swift": "fe75096dcf9284173a867c68af0b44a1c47b50269d7b206908fb1e24b314d4ff",
+          "Printing/WorkspacePrinter.swift": "846d1ddd94c111a7b6f987228f321d8f3f4bcb789d6b96531c7f443875be0431",
+          "Printing/PrintDocumentView.swift": "467c41293b6d5b641753a7af18c5d64312099ea948f9c87eb2af46094bd07086",
+          "Editor/EditorTab.swift": "a3c766823cb84dc6be47fa01591e2e2caa04c240e0a681c0adcc459e9dbca62d",
+          "Editor/GoToLineSheet.swift": "1dc5318d5fbfa0504416cdfaba194a38c18f0674774db65fea243adb41fafb5e",
+          "Editor/EditorStatusView.swift": "071670ef9f02350dcda2306fc63237b2874bfde297f6f6744374c09433b22cb9"
+        },
+        "driverSourceSHA256": "47f1c7b3d6cda9127e8e523362482316ca39447a0fec2d19ea2bf015b3f5cb93",
+        "hostSourceSHA256": "cf3e56ffe658caee27aa294fa0f1e74f7a6ff5df65881fb05f2f95292f1daff0",
+        "hostSHA256": "f55681c0e8f1d8d9dc55e3caf76f3edbce4cd1053ce7b1db0c648622f8b261fb",
+        "exactProductEntitlementsVerified": true,
+        "signedBinarySHA256": "210810487b25ceabef7807860e0c3fb23a8634e505a5d718400de5e9863de59a"
+      },
+      "evidenceSHA256": "9b4c3e6de013de32b334512573abc9649fd6c6e4e33f5f85209ec9aab7007e46",
+      "records": [
+        {
+          "engine": "TextKit1",
+          "input": "owned-app NSEvent dispatch",
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "plan",
+          "scenario": "mixed",
+          "tabs": 2,
+          "utf8BytesPerTab": 1048576,
+          "workspaceStatusAndCheckpointCallbacks": true
+        },
+        {
+          "record": "stage",
+          "stage": "beforeWorkspace",
+          "uptimeNanoseconds": 391071486561833
+        },
+        {
+          "record": "stage",
+          "stage": "workspaceLoaded",
+          "uptimeNanoseconds": 391086253983833
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-0",
+          "uptimeNanoseconds": 391086529911625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 38675708,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 0,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-1",
+          "uptimeNanoseconds": 391086729047625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 41706916,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 1,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-2",
+          "uptimeNanoseconds": 391086930104000
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 41589333,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 2,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-3",
+          "uptimeNanoseconds": 391087133563458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 32449792,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 3,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-4",
+          "uptimeNanoseconds": 391087322570041
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 41143333,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 4,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-5",
+          "uptimeNanoseconds": 391087525134708
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43411000,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 5,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-6",
+          "uptimeNanoseconds": 391087730495916
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43289417,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 6,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-7",
+          "uptimeNanoseconds": 391087933128166
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 40445000,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 7,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-8",
+          "uptimeNanoseconds": 391088134996666
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43106750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 8,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-9",
+          "uptimeNanoseconds": 391088339916166
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 32456959,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 9,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-10",
+          "uptimeNanoseconds": 391088528873083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 41767750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 10,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-11",
+          "uptimeNanoseconds": 391088732788416
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43201709,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 11,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-12",
+          "uptimeNanoseconds": 391088937726458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 32335250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 12,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-13",
+          "uptimeNanoseconds": 391089126469375
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 35453583,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 13,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-14",
+          "uptimeNanoseconds": 391089320029500
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 38535417,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 14,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-15",
+          "uptimeNanoseconds": 391089519102375
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 33098417,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 15,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-16",
+          "uptimeNanoseconds": 391089712448666
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43059125,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 16,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-17",
+          "uptimeNanoseconds": 391089917934958
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 42506500,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 17,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-18",
+          "uptimeNanoseconds": 391090121637250
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 32376750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 18,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-19",
+          "uptimeNanoseconds": 391090308638875
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 43298792,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 19,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "exactCheckpoint": true,
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "finish",
+          "scenario": "mixed"
+        }
+      ],
+      "dispatchMedianMilliseconds": 41.366333,
+      "dispatchP95Milliseconds": 43.298792
+    },
+    {
+      "engine": "TextKit2",
+      "run": {
+        "UUID": "DB43F855-1648-409C-A89C-57661672C82D",
+        "engine": "TextKit2",
+        "scenario": "ASCII",
+        "startedUTC": "2026-09-08T22:59:59.906419+00:00",
+        "outerBoundSeconds": 30,
+        "hostBoundSeconds": 20,
+        "exitCode": 0,
+        "finishedUTC": "2026-09-08T23:00:04.606327+00:00"
+      },
+      "provenance": {
+        "kind": "full WorkspaceWindowController private diagnostic",
+        "engine": "TextKit2",
+        "bundleIdentifier": "pk.codehub.NoteHush.WorkspaceModernDiagnostics",
+        "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+        "changedProductionSource": [
+          "EditorTab: experimental TextKit 2 constructor and fragment-based scroll restoration"
+        ],
+        "cases": [
+          "ASCII",
+          "mixed"
+        ],
+        "utf8BytesPerTab": 1048576,
+        "tabCount": 2,
+        "observationsPerCase": 20,
+        "nativeHostBoundSeconds": 20,
+        "outerBoundSeconds": 30,
+        "performanceAcceptance": false,
+        "globalInput": false,
+        "sourceSHA256": {
+          "Preferences/EditorPreferences+AppKit.swift": "883f8237b78b3941851c1b7c9e23640f6140e110be8824b15881c3673f9b48de",
+          "Preferences/PreferencesWindowController.swift": "3a54aba2272f17bc6e5de61e8102717a2b24a7e839aeffdcbfd7b6c098670ae3",
+          "Workspace/WorkspacePreferences.swift": "56bf123754a6e5fba29b70cc002c988d8c6d2f52b4d28f1dc3f0df8c1d7f13fc",
+          "Workspace/PerformanceApplication.swift": "4db563eedc5d16a774ea5af944a59b22bf2bdfd14ebb8c1a374494aab572a429",
+          "Workspace/WorkspaceFiles.swift": "3bfbaf9f48e729e17a1566924368a1802f748f1f0ff7d2530468b5243efa87c8",
+          "Workspace/TabBarView.swift": "4cfe1770e3f6f6f61096a8f63bd755317c12f97bd70820376b2d191c90fbe6ad",
+          "Workspace/WorkspaceNavigation.swift": "cfb50f2b3c96b9198b01206603bced7db97ee3bf0e8717280c82a60361002540",
+          "Workspace/WorkspacePerformanceProbe.swift": "106d6bd0f7fdb6eeba58957f67d5a1a0e31e71ba3d42725ebd3e4cbc117d303f",
+          "Workspace/WorkspaceFileResolution.swift": "c5c038d84c0f4b44103093bf5121f77ad5ae634d97c0cbdc7969c9ae90e3cff3",
+          "Workspace/WorkspaceWindowController.swift": "fe75096dcf9284173a867c68af0b44a1c47b50269d7b206908fb1e24b314d4ff",
+          "Printing/WorkspacePrinter.swift": "846d1ddd94c111a7b6f987228f321d8f3f4bcb789d6b96531c7f443875be0431",
+          "Printing/PrintDocumentView.swift": "467c41293b6d5b641753a7af18c5d64312099ea948f9c87eb2af46094bd07086",
+          "Editor/EditorTab.swift": "cac82a793369edd3185102bbd024a21deb4e4c8fa08cfb89335c33a49168e8f2",
+          "Editor/GoToLineSheet.swift": "1dc5318d5fbfa0504416cdfaba194a38c18f0674774db65fea243adb41fafb5e",
+          "Editor/EditorStatusView.swift": "071670ef9f02350dcda2306fc63237b2874bfde297f6f6744374c09433b22cb9"
+        },
+        "driverSourceSHA256": "47f1c7b3d6cda9127e8e523362482316ca39447a0fec2d19ea2bf015b3f5cb93",
+        "hostSourceSHA256": "caef411bc791e880d9685f9c1b5cd7aba09227d0387c5e8197dfb7b7366234fa",
+        "hostSHA256": "60ae864598d80b3c859787419d40b944a080e4652bb8aca9f0f9a19110d9cdbc",
+        "exactProductEntitlementsVerified": true,
+        "signedBinarySHA256": "d5536e0e55611dbf94902ec7a1acef879d50ca1dd72f3ab54f462b6c3b67415e"
+      },
+      "evidenceSHA256": "bba607bf720883a98f31284308ee8187f85b646b96d2cfc74f2643a367c5ec43",
+      "records": [
+        {
+          "engine": "TextKit2",
+          "input": "owned-app NSEvent dispatch",
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "plan",
+          "scenario": "ASCII",
+          "tabs": 2,
+          "utf8BytesPerTab": 1048576,
+          "workspaceStatusAndCheckpointCallbacks": true
+        },
+        {
+          "record": "stage",
+          "stage": "beforeWorkspace",
+          "uptimeNanoseconds": 391091975277083
+        },
+        {
+          "record": "stage",
+          "stage": "workspaceLoaded",
+          "uptimeNanoseconds": 391092105505125
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-0",
+          "uptimeNanoseconds": 391092394213958
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 6055375,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 0,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-1",
+          "uptimeNanoseconds": 391092530375375
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3403750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 1,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-2",
+          "uptimeNanoseconds": 391092664239083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 18444833,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 2,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-3",
+          "uptimeNanoseconds": 391092814595875
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1244250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 3,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-4",
+          "uptimeNanoseconds": 391092950570041
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1793208,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 4,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-5",
+          "uptimeNanoseconds": 391093087462916
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1220417,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 5,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-6",
+          "uptimeNanoseconds": 391093228849958
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1988958,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 6,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-7",
+          "uptimeNanoseconds": 391093372688875
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1814459,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 7,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-8",
+          "uptimeNanoseconds": 391093521408708
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1986500,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 8,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-9",
+          "uptimeNanoseconds": 391093663469750
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1264333,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 9,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-10",
+          "uptimeNanoseconds": 391093797918416
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2088750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 10,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-11",
+          "uptimeNanoseconds": 391093948339291
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 3020833,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 11,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-12",
+          "uptimeNanoseconds": 391094090010625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1803917,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 12,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-13",
+          "uptimeNanoseconds": 391094240585708
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1099708,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 13,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-14",
+          "uptimeNanoseconds": 391094377206083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1147708,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 14,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-15",
+          "uptimeNanoseconds": 391094513524625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2608458,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 15,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-16",
+          "uptimeNanoseconds": 391094655646333
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 1178042,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 16,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-17",
+          "uptimeNanoseconds": 391094790031208
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2975750,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 17,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-18",
+          "uptimeNanoseconds": 391094925127916
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2343875,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 18,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-19",
+          "uptimeNanoseconds": 391095064609041
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 2623250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 19,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "exactCheckpoint": true,
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "finish",
+          "scenario": "ASCII"
+        }
+      ],
+      "dispatchMedianMilliseconds": 1.9877289999999999,
+      "dispatchP95Milliseconds": 6.055375
+    },
+    {
+      "engine": "TextKit2",
+      "run": {
+        "UUID": "77153250-9298-4402-BC7E-C8A45929AA41",
+        "engine": "TextKit2",
+        "scenario": "mixed",
+        "startedUTC": "2026-09-08T23:00:04.606999+00:00",
+        "outerBoundSeconds": 30,
+        "hostBoundSeconds": 20,
+        "exitCode": 0,
+        "finishedUTC": "2026-09-08T23:00:11.506556+00:00"
+      },
+      "provenance": {
+        "kind": "full WorkspaceWindowController private diagnostic",
+        "engine": "TextKit2",
+        "bundleIdentifier": "pk.codehub.NoteHush.WorkspaceModernDiagnostics",
+        "sourceBaseline": "bb49b49c5cb3ead161f774d087d9fd26481f73e1",
+        "changedProductionSource": [
+          "EditorTab: experimental TextKit 2 constructor and fragment-based scroll restoration"
+        ],
+        "cases": [
+          "ASCII",
+          "mixed"
+        ],
+        "utf8BytesPerTab": 1048576,
+        "tabCount": 2,
+        "observationsPerCase": 20,
+        "nativeHostBoundSeconds": 20,
+        "outerBoundSeconds": 30,
+        "performanceAcceptance": false,
+        "globalInput": false,
+        "sourceSHA256": {
+          "Preferences/EditorPreferences+AppKit.swift": "883f8237b78b3941851c1b7c9e23640f6140e110be8824b15881c3673f9b48de",
+          "Preferences/PreferencesWindowController.swift": "3a54aba2272f17bc6e5de61e8102717a2b24a7e839aeffdcbfd7b6c098670ae3",
+          "Workspace/WorkspacePreferences.swift": "56bf123754a6e5fba29b70cc002c988d8c6d2f52b4d28f1dc3f0df8c1d7f13fc",
+          "Workspace/PerformanceApplication.swift": "4db563eedc5d16a774ea5af944a59b22bf2bdfd14ebb8c1a374494aab572a429",
+          "Workspace/WorkspaceFiles.swift": "3bfbaf9f48e729e17a1566924368a1802f748f1f0ff7d2530468b5243efa87c8",
+          "Workspace/TabBarView.swift": "4cfe1770e3f6f6f61096a8f63bd755317c12f97bd70820376b2d191c90fbe6ad",
+          "Workspace/WorkspaceNavigation.swift": "cfb50f2b3c96b9198b01206603bced7db97ee3bf0e8717280c82a60361002540",
+          "Workspace/WorkspacePerformanceProbe.swift": "106d6bd0f7fdb6eeba58957f67d5a1a0e31e71ba3d42725ebd3e4cbc117d303f",
+          "Workspace/WorkspaceFileResolution.swift": "c5c038d84c0f4b44103093bf5121f77ad5ae634d97c0cbdc7969c9ae90e3cff3",
+          "Workspace/WorkspaceWindowController.swift": "fe75096dcf9284173a867c68af0b44a1c47b50269d7b206908fb1e24b314d4ff",
+          "Printing/WorkspacePrinter.swift": "846d1ddd94c111a7b6f987228f321d8f3f4bcb789d6b96531c7f443875be0431",
+          "Printing/PrintDocumentView.swift": "467c41293b6d5b641753a7af18c5d64312099ea948f9c87eb2af46094bd07086",
+          "Editor/EditorTab.swift": "cac82a793369edd3185102bbd024a21deb4e4c8fa08cfb89335c33a49168e8f2",
+          "Editor/GoToLineSheet.swift": "1dc5318d5fbfa0504416cdfaba194a38c18f0674774db65fea243adb41fafb5e",
+          "Editor/EditorStatusView.swift": "071670ef9f02350dcda2306fc63237b2874bfde297f6f6744374c09433b22cb9"
+        },
+        "driverSourceSHA256": "47f1c7b3d6cda9127e8e523362482316ca39447a0fec2d19ea2bf015b3f5cb93",
+        "hostSourceSHA256": "caef411bc791e880d9685f9c1b5cd7aba09227d0387c5e8197dfb7b7366234fa",
+        "hostSHA256": "60ae864598d80b3c859787419d40b944a080e4652bb8aca9f0f9a19110d9cdbc",
+        "exactProductEntitlementsVerified": true,
+        "signedBinarySHA256": "d5536e0e55611dbf94902ec7a1acef879d50ca1dd72f3ab54f462b6c3b67415e"
+      },
+      "evidenceSHA256": "d6e3264b295b8110e237d33ba59484b236dc3ca2ce2413ac6a213585cd1775a3",
+      "records": [
+        {
+          "engine": "TextKit2",
+          "input": "owned-app NSEvent dispatch",
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "plan",
+          "scenario": "mixed",
+          "tabs": 2,
+          "utf8BytesPerTab": 1048576,
+          "workspaceStatusAndCheckpointCallbacks": true
+        },
+        {
+          "record": "stage",
+          "stage": "beforeWorkspace",
+          "uptimeNanoseconds": 391095432872583
+        },
+        {
+          "record": "stage",
+          "stage": "workspaceLoaded",
+          "uptimeNanoseconds": 391097598614375
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-0",
+          "uptimeNanoseconds": 391097868560958
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 57322834,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 0,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-1",
+          "uptimeNanoseconds": 391098080628625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 52398584,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 1,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-2",
+          "uptimeNanoseconds": 391098288187708
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56734208,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 2,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-3",
+          "uptimeNanoseconds": 391098499558750
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 48882875,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 3,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-4",
+          "uptimeNanoseconds": 391098702473625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 50059667,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 4,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-5",
+          "uptimeNanoseconds": 391098907363416
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56776459,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 5,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-6",
+          "uptimeNanoseconds": 391099118140250
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56430458,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 6,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-7",
+          "uptimeNanoseconds": 391099328070041
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 51356542,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 7,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-8",
+          "uptimeNanoseconds": 391099527796416
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56423125,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 8,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-9",
+          "uptimeNanoseconds": 391099731920458
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56404000,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 9,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-10",
+          "uptimeNanoseconds": 391099939454625
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 50137000,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 10,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-11",
+          "uptimeNanoseconds": 391100139412875
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 57260208,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 11,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-12",
+          "uptimeNanoseconds": 391100350532000
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 56834250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 12,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-13",
+          "uptimeNanoseconds": 391100555294333
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 50394083,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 13,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-14",
+          "uptimeNanoseconds": 391100759892166
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 57763708,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 14,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-15",
+          "uptimeNanoseconds": 391100971745333
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 57376625,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 15,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-16",
+          "uptimeNanoseconds": 391101183302083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 55331583,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 16,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-17",
+          "uptimeNanoseconds": 391101393050500
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 53873167,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 17,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-18",
+          "uptimeNanoseconds": 391101598594083
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 58006541,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 18,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "record": "stage",
+          "stage": "beforeDispatch-19",
+          "uptimeNanoseconds": 391101813515875
+        },
+        {
+          "activeBeforeDispatch": true,
+          "allBuffersVerified": true,
+          "dispatchNanoseconds": 54006250,
+          "engineRetained": true,
+          "exactSelection": true,
+          "exactText": true,
+          "exactUndo": true,
+          "exactViewport": true,
+          "index": 19,
+          "performanceAcceptance": false,
+          "record": "observation"
+        },
+        {
+          "exactCheckpoint": true,
+          "observations": 20,
+          "performanceAcceptance": false,
+          "record": "finish",
+          "scenario": "mixed"
+        }
+      ],
+      "dispatchMedianMilliseconds": 56.4135625,
+      "dispatchP95Milliseconds": 57.763708
+    }
+  ]
+}

@@ -2,6 +2,10 @@
 
 ## Unreleased — 0.1.0 development
 
+### Changed
+
+- Propose TextKit 2 paragraph presentation to avoid repeated document-wide natural-direction work on macOS 26, preserving backing text and explicit directions; include safe editor teardown and Undo/Redo state reconciliation. Full release validation remains open.
+
 ### Validation
 
 - Add a manually dispatched same-runner baseline/candidate performance workflow on public GitHub-hosted macOS, retaining each complete launch/interaction protocol's raw evidence and unchanged per-case bounds.
