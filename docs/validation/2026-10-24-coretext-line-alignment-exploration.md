@@ -23,6 +23,18 @@ The line-aligned geometry result was followed by a generated 16 KiB `NSTextView`
 
 The [probe source](reproducers/NSTextViewLineAlignedStorageProbe.swift) SHA-256 is `1efd145397527f7f91f3205e99068a3134c6f7814630ba1ba0adff8e7cd3c828`; compiled binary SHA-256 is `0d5ef7504bb1fd058499cb74fa619529201054ed2f9d6cd5dadd044d40a7ad40`. Full stdout/stderr and binary are retained under `/tmp/issue75-aligned-textview-probe/`; stderr SHA-256 is `41d9116207c2d162f6ea35964e6753b029e377aab503928a3d07eee1e26fafd7`. This is a failed diagnostic, not a product regression or a passing layout result.
 
+## Follow-up chunk-size sweep
+
+On the same local arm64/macOS 26.6.2/Xcode 26.6 host, the unchanged Core Text probe was compiled once with `swiftc -O -module-cache-path /tmp/NoteHushCoreTextModuleCache ... -framework AppKit -framework CoreText`, then run sequentially against the same generated 10 MiB fixture at width 858 points. Source SHA-256 remained `61c37f0806338a6726961c1a71f81de4d4023fdef82d18dbf5dd3a9fa00d44b0`; binary SHA-256 was `f9e6ef19c2339ca4ec4d594569ba48215fe95320c4da3ce91465dec6278f140d`.
+
+| Body chunk (UTF-16 units) | Lines / coverage | Elapsed | Geometry digest |
+| ---: | --- | ---: | --- |
+| 32,384 | 56,989 / 5,242,888 | 1.688 s | `d46be1b47cf066b3b7b32e7876e7452157dc127f78d92f6b83aa0a3acb5b489a` |
+| 16,192 | 56,989 / 5,242,888 | 1.646 s | `d46be1b47cf066b3b7b32e7876e7452157dc127f78d92f6b83aa0a3acb5b489a` |
+| 8,096 | 56,989 / 5,242,888 | 27.084 s | `d46be1b47cf066b3b7b32e7876e7452157dc127f78d92f6b83aa0a3acb5b489a` |
+
+All completed runs covered the full generated source and produced identical line geometry. The 8,096-unit run was much slower; the following 4,048-unit run was interrupted before it produced a result. These sequential single observations are exploratory and do not establish a repeatable performance relationship or an app-level improvement. They reinforce that smaller chunks are not automatically faster and that the one-second opening target remains unmet by this headless path.
+
 ## Limits
 
 This shows a promising match for one small repeated Arabic/emoji fixture and a fast 10 MiB headless line pass. It does not show that chunked Core Text preserves native geometry for arbitrary Unicode, bidi controls, paragraph styles, font fallback or edits, and it does not compare the large case against full native layout. It does not implement or validate an editable text view, IME composition, selection, undo, viewport restoration, recovery, accessibility, scrolling, cancellation or sandbox behavior. The 10 MiB observation also exceeds the PRD's one-second opening target even before app and file costs.
