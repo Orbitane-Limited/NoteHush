@@ -114,7 +114,7 @@ private final class Probe: NSObject {
     if let timer { RunLoop.main.add(timer, forMode: .common) }
     let deadline = Date(timeIntervalSinceNow: 60.5)
     while finalResult == nil && Date() < deadline {
-      _ = RunLoop.main.run(mode: .common, before: Date(timeIntervalSinceNow: 0.2))
+      _ = RunLoop.main.run(mode: .default, before: Date(timeIntervalSinceNow: 0.2))
     }
     timer?.invalidate()
     timer = nil
