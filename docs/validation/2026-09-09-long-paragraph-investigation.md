@@ -32,6 +32,10 @@ Those remaining cases all preserved exact text and terminated normally after for
 
 The next step is to identify a layout correction that establishes complete glyph coverage, then test native geometry, editing, recovery, viewport and lifecycle semantics. Pending background work must not be relabeled as a fully usable editor. Any final change needs focused tests, complete original performance regressions, full native CI/review and the normal issue PR workflow. File limits, paragraph breaks and text bytes remain unchanged; no release, upload or App Store readiness claim follows from these diagnostics.
 
+## Current-candidate recheck, 2026-10-24
+
+The app-level observations above were collected from source `30a7b7e` and its retained binary. The current main commit `7af3285` includes the TextKit 2 mixed-script work from PR #72, so the historical timeout is not itself proof that this candidate still fails the same way. `scripts/test_long_paragraph.py` now provides a bounded, one-observation recheck against the current app candidate using the same generated 10 MiB Arabic/emoji paragraph, ten-second durable-checkpoint boundary, exact source/recovery checks and owned-process teardown. Its raw timeout or successful recovery evidence must be retained separately from the 20-sample multiline opening suite. No current-candidate app-level result has been collected yet; #75 remains open.
+
 ## Font fallback and attributed-run controls
 
 A separate twelve-case Core Text matrix completed at 03:43 UTC. Its fixed sizes were 16 KiB, 256 KiB and 1 MiB, with native font fallback, explicit public fallback-font selection, alternating diagnostic attributes, and diagnostic attributes every 4,096 UTF-16 units. All four variants reached the first native line at both smaller sizes. All four 1 MiB variants timed out at the unchanged ten-second bound. No variant demonstrated a correction, and none was adopted in the app.

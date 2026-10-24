@@ -61,8 +61,11 @@ def execute(arguments, output, timeout):
             return 124
 
 
-def main():
+def main(paragraph_bytes=None):
     os.umask(0o077)
+    if paragraph_bytes is not None and (paragraph_bytes < 16 or paragraph_bytes > 10 * 1024 * 1024
+                                        or paragraph_bytes % 8):
+        raise SystemExit("Paragraph size must be 16 bytes–10 MiB and divisible by 8")
     if os.environ.get("NOTEHUSH_EXCLUSIVE_INPUT") != "1":
         raise SystemExit("Requires NOTEHUSH_EXCLUSIVE_INPUT=1 after arranging exclusive, awake GUI use")
     if git("status", "--porcelain"):
@@ -71,7 +74,9 @@ def main():
     output.mkdir(parents=True, mode=0o700)
     context = dict(schema=1, status="running", startedAt=datetime.now(timezone.utc).isoformat(),
                    exclusiveInputAttested=True, workingTreeCleanBefore=True,
-                   sourceBefore=git("rev-parse", "HEAD"))
+                   sourceBefore=git("rev-parse", "HEAD"),
+                   study="long-paragraph" if paragraph_bytes is not None else "large-open",
+                   requestedBytes=paragraph_bytes)
     def step(name, arguments, timeout):
         result = execute(arguments, output / (name + ".log"), timeout)
         if result != 0:
@@ -95,8 +100,11 @@ def main():
             if label == "after":
                 if git("rev-parse", "HEAD") != context["sourceBefore"] or git("status", "--porcelain"):
                     raise RuntimeError("source-changed-before-launch")
-                context["collectorExitCode"] = execute([str(harness), str(app), str(output)],
-                                                       output / "collector.log", 2250)
+                arguments = [str(harness), str(app), str(output)]
+                if paragraph_bytes is not None:
+                    arguments.extend(["--paragraph", str(paragraph_bytes)])
+                context["collectorExitCode"] = execute(
+                    arguments, output / "collector.log", 2250)
             step("signature-" + label, [sys.executable, "scripts/verify_test_app.py", str(app),
                                        "--configuration", "ReleasePerformance"], 30)
             context["signature" + label.title() + "Passed"] = True
@@ -119,8 +127,12 @@ def main():
         context["finishedAt"] = datetime.now(timezone.utc).isoformat()
         exclusive_json(output / "context.json", context)
     if context["status"] != "pass":
-        print("Large-file protocol failed; all partial evidence and generated fixtures are retained")
+        description = "Long paragraph diagnostic" if paragraph_bytes is not None else "Large-file protocol"
+        print(description + " failed; all partial evidence and generated fixtures are retained")
         return 1
+    if paragraph_bytes is not None:
+        print("Long paragraph diagnostic completed; evidence retained in build/logs/" + output.name)
+        return 0
     result = execute([sys.executable, "scripts/summarize_large_open.py", str(output)],
                      output / "summary-validation.log", 30)
     print("Large-file protocol " + ("passed" if result == 0 else "summary validation failed") +

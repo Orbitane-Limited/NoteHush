@@ -10,12 +10,34 @@ enum LargeFileOpenHarness {
   static func main() async {
     umask(0o077)
     do {
-      guard CommandLine.arguments.count == 3 else { throw OpenFailure.arguments }
+      let arguments = CommandLine.arguments
+      let diagnostic: Bool
+      let byteCount: Int
+      if arguments.count == 3 {
+        diagnostic = false
+        byteCount = LargeOpenWorkload.byteCount
+      } else if arguments.count == 5, arguments[3] == "--paragraph",
+        let requested = Int(arguments[4]), requested >= 16,
+        requested <= LargeOpenWorkload.byteCount, requested.isMultiple(of: 8)
+      {
+        diagnostic = true
+        byteCount = requested
+      } else {
+        throw OpenFailure.arguments
+      }
+      let workloads: [LargeOpenWorkload] =
+        diagnostic
+        ? [.arabicEmojiParagraph] : LargeOpenWorkload.allCases
+      let observations = diagnostic ? 1 : LargeOpenWorkload.observations
       let run = try LargeOpenRun(
-        application: URL(filePath: CommandLine.arguments[1], directoryHint: .isDirectory),
-        output: URL(filePath: CommandLine.arguments[2], directoryHint: .isDirectory))
+        application: URL(filePath: arguments[1], directoryHint: .isDirectory),
+        output: URL(filePath: arguments[2], directoryHint: .isDirectory),
+        workloads: workloads, observations: observations, byteCount: byteCount)
       try await run.collect()
-      print("Large file opening: both complete workloads and recovery verification passed")
+      print(
+        diagnostic
+          ? "Long paragraph diagnostic completed; inspect per-case result and recovery evidence"
+          : "Large file opening: both complete workloads and recovery verification passed")
     } catch {
       let reason = (error as? OpenFailure)?.rawValue ?? "operationFailed"
       FileHandle.standardError.write(Data("Large file opening failed: \(reason)\n".utf8))
@@ -36,11 +58,20 @@ final class LargeOpenRun {
   let applicationURL: URL
   let outputURL: URL
   let log: OpenEvidenceLog
+  private let workloads: [LargeOpenWorkload]
+  private let observations: Int
+  private let byteCount: Int
   private var owned: NSRunningApplication?
 
-  init(application: URL, output: URL) throws {
+  init(
+    application: URL, output: URL, workloads: [LargeOpenWorkload], observations: Int,
+    byteCount: Int
+  ) throws {
     applicationURL = application.standardizedFileURL
     outputURL = output.standardizedFileURL
+    self.workloads = workloads
+    self.observations = observations
+    self.byteCount = byteCount
     guard let bundle = Bundle(url: applicationURL), bundle.bundleIdentifier == Self.bundleID,
       bundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String == "NoteHushPerformance",
       bundle.object(forInfoDictionaryKey: "NoteHushRequiresTestWorkspace") as? String == "YES",
@@ -58,24 +89,26 @@ final class LargeOpenRun {
 
   func collect() async throws {
     do {
-      try log.append(OpenHeader())
+      try log.append(
+        OpenHeader(
+          observationsPerWorkload: observations, bytesPerFile: byteCount, workloads: workloads))
       try await checkIsolationGuard()
       let inputDirectory = outputURL.appending(path: "inputs", directoryHint: .isDirectory)
       try FileManager.default.createDirectory(
         at: inputDirectory, withIntermediateDirectories: false,
         attributes: [.posixPermissions: 0o700])
       try writeManifest()
-      for workload in LargeOpenWorkload.allCases {
-        let data = Data(try workload.text().utf8)
+      for workload in workloads {
+        let data = Data(try workload.text(byteCount: byteCount).utf8)
         let source = inputDirectory.appending(path: workload.rawValue + ".txt")
         try data.write(to: source, options: .withoutOverwriting)
         let digest = Data(SHA256.hash(data: data)).base64EncodedString()
-        for index in 0..<LargeOpenWorkload.observations {
+        for index in 0..<observations {
           try await sample(workload, index: index, source: source, bytes: data, digest: digest)
           print("Large file opening: \(workload.rawValue) observation \(index + 1) verified")
         }
       }
-      try log.append(OpenFinish())
+      try log.append(OpenFinish(verifiedObservations: workloads.count * observations))
       try log.close()
     } catch {
       // Retain every fixture and partial observation. Only this exact launch's
@@ -131,14 +164,23 @@ final class LargeOpenRun {
     guard returned.processIdentifier == process.processIdentifier else {
       throw OpenFailure.wrongProcess
     }
-    let opened = try await checkpoint(
-      directory, process: process, deadline: started.advanced(by: .seconds(10)), active: true
-    ) { snapshot in
-      snapshot.revision > initial.revision && snapshot.tabs.count == 2
-        && snapshot.tabs[0].id == initial.tabs[0].id
-        && snapshot.selectedTabID == snapshot.tabs[1].id
-        && snapshot.tabs[1].file?.url.standardizedFileURL == source.standardizedFileURL
-        && snapshot.tabs[1].text.utf8.elementsEqual(bytes)
+    let opened: WorkspaceSnapshot
+    do {
+      opened = try await checkpoint(
+        directory, process: process, deadline: started.advanced(by: .seconds(10)), active: true
+      ) { snapshot in
+        snapshot.revision > initial.revision && snapshot.tabs.count == 2
+          && snapshot.tabs[0].id == initial.tabs[0].id
+          && snapshot.selectedTabID == snapshot.tabs[1].id
+          && snapshot.tabs[1].file?.url.standardizedFileURL == source.standardizedFileURL
+          && snapshot.tabs[1].text.utf8.elementsEqual(bytes)
+      }
+    } catch {
+      if let failure = error as? OpenFailure, failure == .checkpointTimeout {
+        let elapsed = try nanoseconds(started.duration(to: clock.now))
+        try log.append(OpenTimeout(workload: workload, index: index, elapsedNanoseconds: elapsed))
+      }
+      throw error
     }
     let observedAt = clock.now
     let elapsed = try nanoseconds(started.duration(to: observedAt))
@@ -284,7 +326,8 @@ final class LargeOpenRun {
           OpenScreen(
             widthPoints: $0.frame.width, heightPoints: $0.frame.height,
             scale: $0.backingScaleFactor)
-        }))
+        }),
+      fixtures: workloads.map { OpenFixture(name: $0.rawValue) })
     try JSONEncoder().encode(manifest).write(
       to: outputURL.appending(path: "fixtures.json"), options: .withoutOverwriting)
   }
