@@ -112,7 +112,10 @@ private final class Probe: NSObject {
     timer = Timer(
       timeInterval: 0.2, target: self, selector: #selector(tick(_:)), userInfo: nil, repeats: true)
     if let timer { RunLoop.main.add(timer, forMode: .common) }
-    NSApp.run()
+    let deadline = Date(timeIntervalSinceNow: 60.5)
+    while finalResult == nil && Date() < deadline {
+      _ = RunLoop.main.run(mode: .common, before: Date(timeIntervalSinceNow: 0.2))
+    }
     timer?.invalidate()
     timer = nil
     let result = finalResult ?? observation(layout: layout, content: content, storage: storage)
@@ -129,7 +132,6 @@ private final class Probe: NSObject {
       timer?.invalidate()
       timer = nil
       finalResult = ["failure": "textSystemUnavailable"]
-      NSApp.stop(nil)
       return
     }
     observe(layout: layout, content: content, storage: storage)
@@ -158,12 +160,10 @@ private final class Probe: NSObject {
       finalResult = result
       timer?.invalidate()
       timer = nil
-      NSApp.stop(nil)
     } else if ticks >= 300 {
       finalResult = result
       timer?.invalidate()
       timer = nil
-      NSApp.stop(nil)
     }
   }
 
