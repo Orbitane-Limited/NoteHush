@@ -45,6 +45,7 @@ enum PerformanceFixtureHarness {
     case arguments, wrongBuild, wrongProcess, appRunning, wrongManifest, missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
     case profilerTimedOut, profilerTraceMissing
+    case allocationHistoryFailed(Int32)
     case profilerRecorderFailed(Int32)
   }
 
@@ -171,12 +172,10 @@ enum PerformanceFixtureHarness {
         guard FileManager.default.fileExists(atPath: trace.path) else {
           throw Failure.profilerTraceMissing
         }
-        guard process.terminate() else { throw Failure.quitFailed }
-        try await wait { process.isTerminated }
-        try await verify(fixture)
-        try await IdleResourceMeasurement.verifyPresentation(fixture, before)
+        try requireProfileIdentity(process, app)
 
         let traceBase = trace.deletingPathExtension()
+        let allocationsXML = traceBase.appendingPathExtension("allocations.xml")
         let exports: [(selection: [String], output: URL)] = [
           (["--toc"], traceBase.appendingPathExtension("xml")),
           (
@@ -189,10 +188,11 @@ enum PerformanceFixtureHarness {
             [
               "--xpath",
               "/trace-toc/run[@number=\"1\"]/tracks/track[@name=\"Allocations\"]/details/detail[@name=\"Allocations List\"]",
-            ], traceBase.appendingPathExtension("allocations.xml")
+            ], allocationsXML
           ),
         ]
         for export in exports {
+          try requireProfileIdentity(process, app)
           let process = Process()
           process.executableURL = URL(filePath: "/usr/bin/xcrun")
           process.arguments =
@@ -207,6 +207,33 @@ enum PerformanceFixtureHarness {
             throw Failure.launchFailed
           }
         }
+        let historyScript = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+          .appending(path: "scripts/export_malloc_history.py")
+        let historyOutput = traceBase.appendingPathExtension("malloc-history.txt")
+        let history = Process()
+        history.executableURL = URL(filePath: "/usr/bin/python3")
+        history.arguments = [
+          historyScript.path, String(process.processIdentifier), allocationsXML.path,
+          historyOutput.path,
+        ]
+        try history.run()
+        let historyDeadline = clock.now.advanced(by: .seconds(100))
+        while history.isRunning {
+          try requireProfileIdentity(process, app)
+          guard clock.now < historyDeadline else {
+            kill(history.processIdentifier, SIGKILL)
+            throw Failure.profilerTimedOut
+          }
+          try await clock.sleep(until: clock.now.advanced(by: .milliseconds(50)))
+        }
+        guard history.terminationReason == .exit, history.terminationStatus == 0 else {
+          throw Failure.allocationHistoryFailed(history.terminationStatus)
+        }
+        try requireProfileIdentity(process, app)
+        guard process.terminate() else { throw Failure.quitFailed }
+        try await wait { process.isTerminated }
+        try await verify(fixture)
+        try await IdleResourceMeasurement.verifyPresentation(fixture, before)
         print("Allocations trace: \(fixture.name) completed and fixture verified")
       } catch {
         if recorder.isRunning {

@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/hosted-idle-allocations.yml
       - scripts/profile_idle_allocations.sh
+      - scripts/export_malloc_history.py
       - Tests/PerformanceFixtureHarness/**
       - Tests/NativeFixtureSupport/**
       - Sources/NoteHushCore/**
