@@ -1,6 +1,18 @@
 name: Hosted idle Allocations diagnostic
 
 on:
+  push:
+    branches: [issue-67/empty-workspace-memory]
+    paths:
+      - .github/workflows/hosted-idle-allocations.yml
+      - scripts/profile_idle_allocations.sh
+      - Tests/PerformanceFixtureHarness/**
+      - Tests/NativeFixtureSupport/**
+      - Sources/NoteHushCore/**
+      - App/NoteHush/**
+      - Config/**
+      - Package.swift
+      - project.yml
   workflow_dispatch:
 
 permissions:
