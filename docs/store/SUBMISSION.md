@@ -53,17 +53,4 @@ Implementation sub-issue #68 adds Help → Privacy… with a native offline expl
 
 ## Current readiness matrix
 
-Primary guidance rechecked 2026-09-08: [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/). This is evidence tracking, not a guarantee of review approval.
-
-| Gate | Current evidence | Remaining work |
-| --- | --- | --- |
-| 2.1 completeness / 4.2 useful functionality | Native editor, tabs, recovery, file operations, search/preferences/printing implemented | Resolve M5 blockers and complete exact signed-candidate acceptance |
-| 2.3 metadata accuracy | Draft copy describes current scope and file limit; no speed claim | Actual final screenshots, supported systems, publisher fields and Store forms |
-| 2.4.5 Mac requirements | Sandbox/four product permissions and app-bundled resources; no updater, login item or privilege request | Real Store installation/upgrade, lifecycle/files/printing under production entitlements |
-| 2.5 public software interfaces | Swift/AppKit/Foundation with no downloaded code or third-party runtime SDK | Final code/signing/privacy audit |
-| 4.1 originality | Original geometric NoteHush icon and distinct app branding | Name reservation and publisher rights confirmation |
-| 5.1 privacy | Local-only implementation and audited manifest; prepared public policy | Publisher-approved policy, public URLs and accessible in-app policy link |
-| Human interface / accessibility | Native controls/shortcuts and original icon asset catalog | Supported OS/architecture, VoiceOver/IME/contrast, appearance and icon runtime checks |
-| Distribution / legal | Versioning and unsigned archive checks; signed pipeline prepared separately in #52 under #14 | Correct identities, upload/processing/TestFlight, legal fields and App Review |
-
-Keep #15 open until the public, in-app, publisher and final screenshot gates are actually complete. Version 1 and a GitHub release remain gated by #16.
+The current Apple-source recheck and gate-by-gate evidence are in [APPLE_REVIEW_READINESS.md](APPLE_REVIEW_READINESS.md). The previous matrix is superseded; publisher, public-policy, final screenshot, signed TestFlight and App Review gates remain open. Version 1 and its GitHub release remain gated by #16.
