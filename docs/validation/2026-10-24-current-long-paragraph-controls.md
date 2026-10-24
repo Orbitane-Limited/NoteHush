@@ -8,6 +8,12 @@ The current `7af3285` app code was built and signed with the exact product sandb
 
 The app process failed the unchanged ten-second request-to-durable-checkpoint observation at **10.005845083 seconds**. The independent recovery reader did not verify a checkpoint, and the collector reported `checkpointTimeout`. The owned app identity and exact sandbox checks passed. The artifact remains at run artifact ID `12549963142`. This confirms the current candidate still has the #75 stall; it is one diagnostic observation, not a performance percentile. It did not capture an in-process sample.
 
+## Exact-process timeout profile
+
+The follow-up hosted run [40071304131](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40071304131), source `088da1086be1f67a5dcca9b907fef825eba2e84d`, rebuilt the same unchanged app binary (`5b32de5af2a5fd56eee758f18c2759b9fa0d3e742b034d4433c2045959646556`) and sampled only the exact owned process after the original ten-second checkpoint deadline had failed. Request-to-checkpoint elapsed **10.019437167 seconds**; recovery remained unverified and the result remained `checkpointTimeout`. Signature, source and binary checks passed before and after the run.
+
+The two-second Time Profiler sample captured 1,300 main-thread samples. All 1,300 reached `TTypesetter::FinishEncoding` → `TShapingEngine::ShapeGlyphs`; 1,298 reached `TRunGlue::NextRunRange` (99.846%). The callers show `NSTextLayoutManager` enumerating and laying out a fragment during `NSView layoutSubtreeIfNeeded`, invoked by `WorkspaceWindowController.presentSelectedTab()` while installing/selecting the file. This locates the observed stall in native paragraph shaping/layout on the main thread. It is one bounded profile of this generated fixture, not a general performance estimate. The sample has SHA-256 `3a2cde41d66aab2b32ba308b14e41327deae5cebd825cc86beb4aaf81571b094`.
+
 ## TextKit 2 base-direction control
 
 The control uses standard `NSTextContentStorage` and `NSTextLayoutManager`, the app's 14-point monospaced font and 868-point text container. For `rtl`, a content-storage delegate returns a presentation paragraph with explicit right-to-left base direction while leaving the backing string and attributes untouched. Each mode ran in a fresh process with a twelve-second bound. The [exact Swift source](reproducers/TextKitBaseDirectionProbe.swift) and source/binary SHA-256 values are listed below.
@@ -28,4 +34,4 @@ A separate call to `CFAttributedStringGetStatisticalWritingDirections` on the 10
 | TextKit base-direction control | `d0332d9d1a562c9c6708659e457b3fdd17b6ac20b63359b452f9cb659b87731c` | `816145453b2cf34b69874c9c0c0e2694fdafa7ccd6e8656add99389b2b58cd01` |
 | Core Foundation direction classifier | `df5486ca599d487caa12987de7a514439778f548f03b00df9aecd610d6357432` | `ed2ffd13466e6c7c45efe8be8367af398a7cfa720a1d97a91a3817e33b30f89a` |
 
-These headless controls do not establish editing, IME, undo, viewport, recovery, resource bounds, physical-Mac performance or complete app behavior. The next diagnostic captures a two-second sample from the exact app PID only after its unchanged ten-second observation has failed. No application behavior or release limit has changed.
+These headless controls do not establish editing, IME, undo, viewport, recovery, resource bounds, physical-Mac performance or complete app behavior. The follow-up app profile confirms that native full-paragraph shaping remains the current candidate's hot path. No application behavior or release limit has changed.
