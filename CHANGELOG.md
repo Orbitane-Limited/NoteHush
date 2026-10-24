@@ -17,6 +17,8 @@
 
 ### Added
 
+- Prepared a separate manual App Store delivery pipeline with exact source/CI gates, temporary signing assets, archive/package validation and increasing build checks. Publisher setup, real signing and installed TestFlight acceptance remain pending.
+- Restricted delivery child processes to declared environment inputs and documented a local Xcode candidate path with the same release checks.
 - Opt-in native 10 MiB ASCII/Unicode file-opening protocol with complete post-Quit recovery/source verification, retained failures and strict evidence validation. Its request-to-checkpoint timing includes host and recovery overhead; interactive-window and reference-hardware acceptance remain open.
 - Offline Help → Privacy… window explaining local drafts, recovery retention, user-selected services and no automatic uploads. Public policy/support links remain a release gate.
 - Prepare an isolated host-only CPU/RSS/physical-footprint collector with explicit Mach-clock conversion, complete sample retention and exact recovery verification. Native measurements and release budgets remain pending.
@@ -54,6 +56,13 @@ No production release has been published.
 
 ### Fixed
 
+- Store delivery rechecks disk headroom before signing, export and package expansion, and verifies the exported bundle's original icon and audited encryption declaration.
+
+- Accept valid Store-profile UUID casing and canonicalize only the owned installation filename; reject malformed identifiers before publishing profile ownership.
+
+- Store quarantine verification uses macOS's native attribute tool for archives and packages, preserving the no-follow and reject-without-removal behavior.
+
+- Store signature verification passes its Apple-chain and publisher-team requirement as literal source to codesign, and uses the supported certificate-extraction argument format.
 - Xcode project regeneration preserves the existing audited encryption declaration.
 - Use the custom-box border width for the accent-colored tab insertion indicator, removing the obsolete old-style border setting.
 - Explicitly disable native predictive/math/Touch Bar completion and Writing Tools in the plain-text editor, while retaining optional spell checking.
