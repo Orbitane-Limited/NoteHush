@@ -9,6 +9,9 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
+# These shell drivers invoke several simulated tools; allow cold/loaded Macs to start them while
+# keeping a finite bound that still catches a hung fixture run.
+FIXTURE_DRIVER_TIMEOUT_SECONDS = 30
 
 FAKE_NATIVE = r'''
 import json
@@ -73,7 +76,8 @@ class PerformanceFixtureRetentionTests(unittest.TestCase):
                            FIXTURE_TEST_ROOT=str(root), FIXTURE_TEST_MANIFEST=manifest_name,
                            FAIL_STAGE=failure or '', FAIL_STATUS=str(status))
         result = subprocess.run(['/bin/bash', str(root / 'scripts' / script)], env=environment,
-                                capture_output=True, text=True, timeout=10)
+                                capture_output=True, text=True,
+                                timeout=FIXTURE_DRIVER_TIMEOUT_SECONDS)
         calls = [json.loads(line) for line in (root / 'calls.jsonl').read_text().splitlines()]
         return result, calls, manifest, evidence
 
