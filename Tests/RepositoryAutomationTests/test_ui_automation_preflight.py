@@ -24,6 +24,16 @@ def status(enabled, authentication):
 
 
 class UIAutomationPreflightTests(unittest.TestCase):
+    def test_runner_status_workflow_only_reads_automation_mode(self):
+        workflow = (ROOT / ".github/workflows/automation-mode-status.yml").read_text()
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("permissions: {}", workflow)
+        self.assertIn("runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]", workflow)
+        self.assertIn("run: /usr/bin/automationmodetool", workflow)
+        self.assertNotIn("actions/checkout", workflow)
+        self.assertNotIn("secrets.", workflow)
+        self.assertNotIn("xcodebuild", workflow)
+
     def test_all_status_combinations(self):
         for enabled in [True, False]:
             for authentication in [True, False]:
