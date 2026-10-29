@@ -1,0 +1,5 @@
+2026-10-29 15:11:50.840 TextKitLayoutManagerQueueViewportProbe-formatted[22402:10472874] Error received in message reply handler: Connection invalid
+2026-10-29 15:11:50.840 TextKitLayoutManagerQueueViewportProbe-formatted[22402:10472912] Connection Invalid error for service com.apple.hiservices-xpcservice.
+heartbeat elapsed=0.109782541 queue=0 sha256=e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63
+heartbeat elapsed=0.209699166 queue=0 sha256=e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63
+before-layoutViewport queue=0
