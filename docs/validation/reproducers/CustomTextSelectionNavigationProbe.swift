@@ -282,36 +282,7 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
     at location: any NSTextLocation,
     using block: (CGFloat, any NSTextLocation, Bool, UnsafeMutablePointer<ObjCBool>) -> Void
   ) {
-    guard let position = location as? ProbeLocation,
-      let navigationLayout,
-      let fragment = layoutFragment(at: location, in: navigationLayout),
-      let elementStart = fragment.textElement?.elementRange?.location as? ProbeLocation,
-      let line = fragment.textLineFragment(
-        for: location, isUpstreamAffinity: position.offset == source.length)
-    else { return }
-    let lineStart = elementStart.offset + line.characterRange.location
-    let lineEnd = lineStart + line.characterRange.length
-    let string = source.string as NSString
-    var boundaries = [lineStart]
-    var cursor = lineStart
-    while cursor < lineEnd {
-      let cluster = string.rangeOfComposedCharacterSequence(at: cursor)
-      guard cluster.length > 0 else { return }
-      cursor = min(NSMaxRange(cluster), lineEnd)
-      boundaries.append(cursor)
-    }
-    let caretValues = boundaries.map { boundary in
-      (
-        line.locationForCharacter(at: boundary - elementStart.offset).x,
-        ProbeLocation(boundary)
-      )
-    }.sorted { $0.0 < $1.0 }
-    for (offset, caretLocation) in caretValues {
-      var stop = ObjCBool(false)
-      withUnsafeMutablePointer(to: &stop) { block(offset, caretLocation, true, $0) }
-      if stop.boolValue { break }
-    }
-    _ = position
+    navigationLayout?.enumerateCaretOffsetsInLineFragment(at: location, using: block)
   }
   func layoutFragment(
     at location: any NSTextLocation, in layout: NSTextLayoutManager
@@ -463,15 +434,30 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
     else { throw NSError(domain: "navigation", code: 10) }
     var caretLocations: [Int] = []
     var caretOffsets: [CGFloat] = []
+    var caretLeadingEdges: [Bool] = []
     manager.enumerateCaretOffsetsInLineFragment(at: ProbeLocation(lineOffset)) {
-      offset, caret, _, _ in
+      offset, caret, leadingEdge, _ in
       guard let caret = caret as? ProbeLocation else { return }
       caretLocations.append(caret.offset)
       caretOffsets.append(offset)
+      caretLeadingEdges.append(leadingEdge)
     }
-    guard caretLocations.min() == expectedLine.0, caretLocations.max() == expectedLine.1,
+    let graphemeCount = ns.substring(
+      with: NSRange(location: expectedLine.0, length: expectedLine.1 - expectedLine.0)
+    ).count
+    let leadingEdgeCount = caretLeadingEdges.filter { $0 }.count
+    let trailingEdgeCount = caretLeadingEdges.count - leadingEdgeCount
+    guard caretLocations.min() == expectedLine.0,
+      caretLocations.max() == expectedLine.1 - 1,
+      caretLocations.count == graphemeCount * 2,
+      leadingEdgeCount == graphemeCount, trailingEdgeCount == graphemeCount,
       zip(caretOffsets, caretOffsets.dropFirst()).allSatisfy({ $0 <= $1 })
-    else { throw NSError(domain: "navigation", code: 11) }
+    else {
+      fputs(
+        "native carets count=\(caretOffsets.count) graphemes=\(graphemeCount) first=\(Array(zip(caretOffsets, zip(caretLocations, caretLeadingEdges)).prefix(12))) last=\(Array(zip(caretOffsets, zip(caretLocations, caretLeadingEdges)).suffix(12))) minmax=\(String(describing: caretLocations.min()))/\(String(describing: caretLocations.max())) expected=\(expectedLine)\n",
+        stderr)
+      throw NSError(domain: "navigation", code: 11)
+    }
     guard let fragment = manager.layoutFragment(at: ProbeLocation(lineOffset), in: layout),
       let line = fragment.textLineFragment(
         for: ProbeLocation(lineOffset), isUpstreamAffinity: false)
