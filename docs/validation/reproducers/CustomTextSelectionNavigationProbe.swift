@@ -462,12 +462,32 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
       let line = fragment.textLineFragment(
         for: ProbeLocation(lineOffset), isUpstreamAffinity: false)
     else { throw NSError(domain: "navigation", code: 12) }
-    let pointInLine = CGPoint(
+    let contentPointInLine = CGPoint(
       x: fragment.layoutFragmentFrame.minX + line.typographicBounds.midX,
       y: fragment.layoutFragmentFrame.minY + line.typographicBounds.midY)
+    let pointInLine = contentPointInLine
+    let pointSelections = navigation.textSelections(
+      interactingAt: pointInLine, inContainerAt: ProbeLocation(lineOffset), anchors: [],
+      modifiers: [], selecting: false,
+      bounds: CGRect(x: 0, y: pointInLine.y - 250, width: 858, height: 500))
+    let selectedOffset =
+      (pointSelections.first?.textRanges.first?.location as? ProbeLocation)?.offset ?? -1
+    let selectedEndOffset =
+      (pointSelections.first?.textRanges.first?.endLocation as? ProbeLocation)?.offset ?? -1
+    guard let pointSelection = pointSelections.first?.textRanges.first,
+      let pointSelectionStart = pointSelection.location as? ProbeLocation,
+      let pointSelectionEnd = pointSelection.endLocation as? ProbeLocation,
+      expectedLine.0 <= pointSelectionStart.offset, pointSelectionStart.offset <= expectedLine.1,
+      expectedLine.0 <= pointSelectionEnd.offset, pointSelectionEnd.offset <= expectedLine.1
+    else {
+      fputs(
+        "point navigation selections=\(pointSelections.count) selectedType=\(pointSelections.first?.textRanges.first.map { String(reflecting: type(of: $0.location)) } ?? "nil") selectedOffsets=\(selectedOffset)..<\(selectedEndOffset) expected=\(expectedLine) point=\(pointInLine) fragment=\(fragment.layoutFragmentFrame) line=\(line.typographicBounds)\n",
+        stderr)
+      throw NSError(domain: "navigation", code: 17)
+    }
     guard
       let hitLine = manager.lineFragmentRange(
-        for: pointInLine, inContainerAt: ProbeLocation(lineOffset)),
+        for: contentPointInLine, inContainerAt: ProbeLocation(lineOffset)),
       (hitLine.location as? ProbeLocation)?.offset == expectedLine.0,
       (hitLine.endLocation as? ProbeLocation)?.offset == expectedLine.1
     else { throw NSError(domain: "navigation", code: 13) }
@@ -485,7 +505,7 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
     }
   }
   print(
-    "navigation case=\(name) documentEnd=\(documentEnd.offset) firstGraphemeEnd=\(nextCharacter.offset) lastGraphemeStart=\(lastBackward.offset) paragraphSelection=passed visualLineSelection=passed caretEnumeration=passed pointToLine=passed verticalMovement=passed"
+    "navigation case=\(name) documentEnd=\(documentEnd.offset) firstGraphemeEnd=\(nextCharacter.offset) lastGraphemeStart=\(lastBackward.offset) paragraphSelection=passed visualLineSelection=passed caretEnumeration=passed pointHitTest=passed pointToLine=passed verticalMovement=passed"
   )
   if let preparedPlan {
     var exact = true
