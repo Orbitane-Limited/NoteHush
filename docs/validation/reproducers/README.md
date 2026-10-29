@@ -24,6 +24,8 @@ The separately compiled [font/run-range matrix source](CoreTextFallbackProbe.swi
 
 The [virtual paragraph viewport probe](VirtualParagraphViewportProbe.swift) and [driver](run-virtual-paragraph-viewport-probe.py) compile an optimized, headless TextKit 2 process and generate a 10 MiB fixture in memory. The initial viewport matrix used four chunk sizes and four requested ranges; its results are in [the viewport report](../2026-10-23-virtual-paragraph-viewport.md). The current driver adds a 16-cell control matrix for `limitsLayoutForSuspiciousContents` (on/off), unchunked or 4,032-unit elements, and full or three viewport requests. Its results are in [the defensive-layout report](../2026-10-23-suspicious-layout-limit.md). The driver runs one fresh process per cell with a ten-second bound and retains source, binary, compiler output, JSONL observations, plan and results under a new private `build/` directory. Run it from a checkout with Xcode 26.6 using:
 
+[`DefaultStorageSuspiciousProbe.swift`](DefaultStorageSuspiciousProbe.swift) supplements that matrix with a standard TextKit 2 `NSTextView` and default `NSTextContentStorage`. Its bounded result is in the [default-storage report](../2026-10-29-default-storage-suspicious-layout.md). It is also a diagnostic only; it does not test NoteHush's full editor behavior or change the open issue's criteria.
+
 ```sh
 python3 docs/validation/reproducers/run-virtual-paragraph-viewport-probe.py
 ```
