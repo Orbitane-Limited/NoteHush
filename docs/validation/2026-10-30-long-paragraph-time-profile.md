@@ -43,7 +43,7 @@ xcrun swiftc -O -warnings-as-errors -parse-as-library \
 
 ## Dynamic line planning and edit invalidation
 
-The next probe derived each chunk boundary from Core Text's last complete line in a bounded window. With 4,096-unit windows, UTF-16 line starts and lengths matched native TextKit on four mixed-script controls. Core Text's own typographic-width bit patterns differed on three controls, but the subsequent TextKit `NSTextParagraph` integration reproduced exact pre-edit TextKit geometry on all four. Increasing the Core Text window to 16,384 units caused the combining-mark control to produce 150 lines where native TextKit produced 125; window size cannot be increased without further boundary safeguards. In the retained probe run, the unheaded 10 MiB line plan took 2.04 seconds at 16,384 units and 2.47 seconds at 65,536 units; these are single observations and do not establish a stable performance result.
+The next probe derived each chunk boundary from Core Text's last complete line in a bounded window. With 4,096- and 8,192-unit windows, UTF-16 line starts and lengths matched native TextKit on four mixed-script controls. Core Text's own typographic-width bit patterns differed on three controls, but the subsequent TextKit `NSTextParagraph` integration reproduced exact pre-edit TextKit geometry on all four. Increasing the Core Text window to 16,384 units caused the combining-mark control to produce 150 lines where native TextKit produced 125. The 10 MiB line plan took 19.60 seconds at 8,192 units, 2.63 seconds at 16,384 units, and 2.36 seconds at 65,536 units in the latest run. Window cost is nonmonotonic: the fast sizes have not preserved combining-mark boundaries, while the small-control-safe 8,192-unit size misses the app bound. These are exploratory single-run measurements.
 
 The integrated custom manager attached to `NSTextView` using public TextKit APIs, rendered exact pre-edit geometry for the four controls, inserted a generated character at a UTF-16 position, performed local relayout, and restored the original text through Undo. However, a subsequent full relayout with the original immutable plan no longer matched native geometry: the mixed-script, combining-mark and punctuation controls produced 220 vs. 112, 249 vs. 126, and 199 vs. 175 rows, respectively; the fourth control had equal row counts but different geometry. Editing invalidates the planned boundaries, so this static integration is not safe.
 
@@ -55,7 +55,7 @@ Retained sources: [`CoreTextDynamicLinePlanProbe.swift`](reproducers/CoreTextDyn
 
 | Source | SHA-256 |
 | --- | --- |
-| [`CoreTextDynamicLinePlanProbe.swift`](reproducers/CoreTextDynamicLinePlanProbe.swift) | `f2fb6dea9764491072f872c32c505d8a52e6a5afd33062b05b00bbe2120d29d5` |
+| [`CoreTextDynamicLinePlanProbe.swift`](reproducers/CoreTextDynamicLinePlanProbe.swift) | `0950c409d893fe3bf7091f117f4714485959afba83d6b4639bf38ec85ac8cf7e` |
 | [`CoreTextPlannedNSTextViewEditReflowProbe.swift`](reproducers/CoreTextPlannedNSTextViewEditReflowProbe.swift) | `8543addab38c80471d1b5ff94c7409e519bf4c10e8784a4516c92566b60abb31` |
 | [`CoreTextPlannedNSTextViewReplaceManagerProbe.swift`](reproducers/CoreTextPlannedNSTextViewReplaceManagerProbe.swift) | `449f8a9e11fa9683011b0de87d09cbc8db42af1ff20000e99f68fb7c4de48bc0` |
 | [`CoreTextPlannedNSTextViewLargeEditProbe.swift`](reproducers/CoreTextPlannedNSTextViewLargeEditProbe.swift) | `012d49fd9003aef38beab2357f724076c8e27d0bc79be7eba239cdd292b6651f` |

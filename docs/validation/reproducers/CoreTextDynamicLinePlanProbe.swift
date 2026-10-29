@@ -76,13 +76,13 @@ import Foundation
       ("combining-rtl", String(repeating: "e\u{301} العربية العربية אבג 🧑🏽‍💻 ", count: 500)),
       ("punctuation-parens", String(repeating: "(rtl: العربية 42) [עברית, 7] — 🙂 ", count: 500)),
     ]
-    for cap in [4096, 16384] {
+    for cap in [4096, 8192, 16384] {
       for (name, text) in fixtures { try fixture(name, text, cap: cap) }
     }
     let text = String(repeating: "خط📝", count: 1_310_720)
     let style = NSMutableParagraphStyle(); style.baseWritingDirection = .natural
     let source = NSAttributedString(string: text, attributes: [.font: NSFont.monospacedSystemFont(ofSize: 14, weight: .regular), .paragraphStyle: style])
-    for cap in [16384, 65536] {
+    for cap in [8192, 16384, 65536] {
       let started = ContinuousClock.now
       let lines = try plannedLines(source, width: 858, cap: cap)
       print("large_cap=\(cap) units=\(source.length) rows=\(lines.count) coverage=\(lines.reduce(0){$0+$1.length}) elapsed=\(started.duration(to: .now))")
