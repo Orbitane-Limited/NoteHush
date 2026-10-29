@@ -113,3 +113,7 @@ The field-editor activation branch of the same probe called `selectText(_:)` whi
 ## Custom view viewport prototype follow-up
 
 The 2026-10-29 generated custom-`NSView` TextKit prototype lays out and draws directly requested top, middle and end ranges in 4–78 ms plus 3–20 ms draw. However, using `NSTextViewportLayoutController.layoutViewport()` after a deep scroll enumerates the entire document and takes over 25 seconds including drawing; `relocateViewport(to:)` returns middle/end y offsets quickly, but the subsequent `layoutViewport()` exceeds 20 seconds. See the [prototype report](2026-10-29-custom-text-viewport-surface.md) and [numeric observations](2026-10-29-custom-text-viewport-surface.json). This identifies a promising range-rendering component but not a working scrollable editor or accepted fix.
+
+## Range-mapped custom-view follow-up
+
+A 2026-10-29 custom-view prototype maps a vertical offset through a chunked Core Text line index, then asks TextKit for only the nearby UTF-16 range. On the generated 10 MiB fixture, line-index construction took 1.65–1.82 s, selected-range TextKit layout 106–114 ms, and bitmap rendering 8–15 ms at the top, middle and end. This is a rendering prototype only: line-index work was synchronous in the probe, native layout equivalence is unverified for arbitrary text, and editing/IME/undo/accessibility/recovery are not implemented. See the [report](2026-10-29-range-mapped-scroll.md), [source](reproducers/CustomTextRangeMappedScrollProbe.swift), and [numeric observations](2026-10-29-range-mapped-scroll.json).
