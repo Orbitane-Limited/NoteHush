@@ -1,0 +1,20 @@
+name: Self-hosted Automation Mode status
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: notehush-automation-mode-status
+  cancel-in-progress: false
+
+jobs:
+  status:
+    name: Read runner Automation Mode status
+    runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]
+    timeout-minutes: 2
+    steps:
+      - name: Read status without changing authorization
+        shell: bash
+        run: /usr/bin/automationmodetool
