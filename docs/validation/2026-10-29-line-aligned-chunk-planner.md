@@ -39,6 +39,6 @@ Apple documents `NSTextView` as using `NSTextContentStorage`; a custom `NSTextCo
 
 ## Result
 
-Line-aligned bounded layout is a promising way to keep individual native layout operations short. The complete 10 MiB planning pass still takes over 13 seconds, and the custom view’s caret path is not working. This is diagnostic evidence only: issue #75 remains open, no shipping behavior or text limits changed, and no release-readiness claim is made.
+Line-aligned bounded layout is a promising way to keep individual native layout operations short. The complete 10 MiB planning pass still takes over 13 seconds, and the custom view’s caret path is not working. A [custom selection-navigation control](2026-10-29-custom-selection-navigation.md) now passes logical grapheme/document movement on the small generated fixtures, but visual caret geometry and interactive-editor behavior remain unverified. This is diagnostic evidence only: issue #75 remains open, no shipping behavior or text limits changed, and no release-readiness claim is made.
 
 Source: [`NativeLineAlignedChunkPlannerProbe.swift`](reproducers/NativeLineAlignedChunkPlannerProbe.swift), Swift 6, macOS 14 deployment target. Source SHA-256: `df066930e0e9a859e5ba971f54afd25da70a76655cf282fc137cd7cdf460399a`. Binary SHA-256: `2991eedb65e943e8cb76fd6187ea5d08dd3b67d068a6b21302e22080e2eba7de`.
