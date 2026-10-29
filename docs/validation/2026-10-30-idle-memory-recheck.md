@@ -10,6 +10,10 @@ The fixed 60-second Instruments Allocations recording did not attach to the exac
 
 The only filtered system diagnostic for that process was that `xctrace` could not obtain a symbol provider; it did not identify why attach failed. The cause is unknown. This run is retained as a failed instrumentation attempt, not a memory result.
 
+## Read-only attach authorization check
+
+After the failed capture, `/usr/sbin/DevToolsSecurity -status` reported `Developer mode is currently disabled.` This is a plausible environmental factor for a command-line Instruments attach, but it does not establish the cause of the earlier `task_for_pid`/attach rejection; the `xctrace` log did not identify Developer Tools Security as the cause. The status check did not change system settings. No profiling retry or accepted allocation result is claimed. Enabling Developer Tools Security would be a separate machine-wide authorization change and has not been performed.
+
 ## RSS and physical-footprint collection
 
 The separate idle-resource protocol started from the same clean source and prepared generated empty and 20-tab/five-MiB workspaces. It collected 37 empty-workspace records after the 30-second settling period. On record index 36, `applicationActive` changed from `true` to `false` at about 37.58 seconds. The collector retained the partial JSONL, stopped the identified app process and exited with `inactiveApp`.
