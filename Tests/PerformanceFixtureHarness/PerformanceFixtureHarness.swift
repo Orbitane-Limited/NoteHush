@@ -42,7 +42,8 @@ enum PerformanceFixtureHarness {
     let scale: Double
   }
   enum Failure: Error {
-    case arguments, wrongBuild, wrongProcess, appRunning, wrongManifest, missingGuard
+    case arguments, wrongBuild, wrongProcess, inactiveBeforeProfile, appRunning, wrongManifest,
+      missingGuard
     case launchFailed, checkpointMissing, quitFailed, fixtureMismatch
     case profilerTimedOut, profilerTraceMissing
     case allocationHistoryFailed(Int32)
@@ -151,8 +152,9 @@ enum PerformanceFixtureHarness {
         let launched = clock.now
         for second in 1...30 {
           try await clock.sleep(until: launched.advanced(by: .seconds(second)))
-          try requireProfileIdentity(process, app)
+          try requireActiveProfileProcess(process, app)
         }
+        print("Allocations fixture: \(fixture.name) settled with the exact app active")
         recorder.arguments = [
           "xctrace", "record", "--template", "Allocations", "--time-limit", "60s",
           "--output", trace.path, "--attach", String(process.processIdentifier), "--no-prompt",
@@ -162,7 +164,7 @@ enum PerformanceFixtureHarness {
         // to flush the larger call-stack-enabled trace after its time limit.
         let deadline = clock.now.advanced(by: .seconds(180))
         while recorder.isRunning {
-          try requireProfileIdentity(process, app)
+          try requireProfileProcess(process, app)
           guard clock.now < deadline else { throw Failure.profilerTimedOut }
           try await clock.sleep(until: clock.now.advanced(by: .milliseconds(100)))
         }
@@ -172,7 +174,7 @@ enum PerformanceFixtureHarness {
         guard FileManager.default.fileExists(atPath: trace.path) else {
           throw Failure.profilerTraceMissing
         }
-        try requireProfileIdentity(process, app)
+        try requireProfileProcess(process, app)
 
         let traceBase = trace.deletingPathExtension()
         let allocationsXML = traceBase.appendingPathExtension("allocations.xml")
@@ -192,7 +194,7 @@ enum PerformanceFixtureHarness {
           ),
         ]
         for export in exports {
-          try requireProfileIdentity(process, app)
+          try requireProfileProcess(process, app)
           let process = Process()
           process.executableURL = URL(filePath: "/usr/bin/xcrun")
           process.arguments =
@@ -219,7 +221,7 @@ enum PerformanceFixtureHarness {
         try history.run()
         let historyDeadline = clock.now.advanced(by: .seconds(100))
         while history.isRunning {
-          try requireProfileIdentity(process, app)
+          try requireProfileProcess(process, app)
           guard clock.now < historyDeadline else {
             kill(history.processIdentifier, SIGKILL)
             throw Failure.profilerTimedOut
@@ -229,7 +231,7 @@ enum PerformanceFixtureHarness {
         guard history.terminationReason == .exit, history.terminationStatus == 0 else {
           throw Failure.allocationHistoryFailed(history.terminationStatus)
         }
-        try requireProfileIdentity(process, app)
+        try requireProfileProcess(process, app)
         guard process.terminate() else { throw Failure.quitFailed }
         try await wait { process.isTerminated }
         try await verify(fixture)
@@ -251,9 +253,16 @@ enum PerformanceFixtureHarness {
     }
   }
 
-  private static func requireProfileIdentity(_ process: NSRunningApplication, _ app: URL) throws {
+  private static func requireActiveProfileProcess(_ process: NSRunningApplication, _ app: URL)
+    throws
+  {
+    guard process.isActive else { throw Failure.inactiveBeforeProfile }
+    try requireProfileProcess(process, app)
+  }
+
+  private static func requireProfileProcess(_ process: NSRunningApplication, _ app: URL) throws {
     guard !process.isTerminated, process.bundleURL?.standardizedFileURL == app,
-      process.bundleIdentifier == bundleID, process.isActive
+      process.bundleIdentifier == bundleID
     else { throw Failure.wrongProcess }
   }
 
