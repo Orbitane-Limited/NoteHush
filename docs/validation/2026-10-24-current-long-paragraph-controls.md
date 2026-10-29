@@ -95,3 +95,17 @@ The corrected run [40078821677](https://github.com/Orbitane-Limited/NoteHush/act
 The retained result JSON SHA-256 is `613b22192a6a48bfa168dd544b0adba4326983000adc8a73a9a2f625120eed68`; probe stderr SHA-256 is `9d206200624979d172ce1bb6d539b17f2f3777a16d57ccb142942f7311beb4a2`; source SHA-256 is `49549ca5359eec54d4b1d75dbde83d87b4d7634b0f76ea3802be3d897ef5ce07`; compiled binary SHA-256 is `8c7accec7ee7c07e6eeb486f1fdc775ed525640c565b66fb29b4026fad477ead`. Earlier attempts are retained separately: run `40078393645` observed the same incomplete paragraph but its shutdown did not return from `NSApplication.run`; run `40078640123` used an invalid Core Foundation run-loop mode and produced zero polls, so it is a harness failure, not a layout observation.
 
 This headless generated fixture demonstrates that assigning the public asynchronous fragment queue kept the AppKit timer polling for one minute but did not complete this 10 MiB paragraph. It does not establish editor input, IME, undo, selection, recovery, sustained resource use, physical rendering or shipping-app behavior. No application source, limits or acceptance criteria changed.
+
+## Native single-line field fallback
+
+On 2026-10-29, a generated-data probe tested whether replacing `NSTextView` with a single-line `NSTextField` would avoid whole-paragraph shaping. It created exactly 10,485,760 UTF-8 bytes by repeating `خط📝`, configured the same 14-point monospaced font and 868-point width, assigned the full string, attached the field to an unshown borderless window, forced content layout, and rendered the field into an in-memory bitmap. The field's stored string remained byte-for-byte equivalent in all three cases.
+
+| Cell configuration | Attach/layout | Draw | Total process |
+| --- | ---: | ---: | ---: |
+| Clipping | 2.877 s | 7.028 s | 9.919 s |
+| Tail truncation | 2.514 s | 4.920 s | 7.375 s |
+| Clipping with `NSCell.isScrollable` | 2.769 s | 6.770 s | 9.471 s |
+
+String generation took 14–34 ms, field configuration 2–3 ms, and assigning the text 9–14 ms. The remaining cost is native layout and drawing; neither truncation nor the cell's scrolling setting provides a responsive fallback. This is a rendering-control observation, not an app comparison or latency percentile. It does not test live field-editor input, IME, undo, selection, accessibility, file recovery or sandboxed app behavior.
+
+The field-editor activation branch of the same probe called `selectText(_:)` while its window was unshown; it terminated with signal 5 before producing output. This is retained as a harness failure and is excluded from the timing conclusions. The exact generated-data probe is [`NSTextFieldLongParagraphProbe.swift`](reproducers/NSTextFieldLongParagraphProbe.swift). Source SHA-256: `36248a13ddde85b929fa045dbfb4da9d404ed97c5338987b39450e9bf1b1526c`; binary SHA-256: `b327404a720a706ec048415b840d13145df8867dbceac8185ed12e967c93d93f`. Environment: MacBook Pro 16,8, Apple M4 Pro, 24 GB, arm64, macOS 26.6.2, Xcode 26.6 (17F113). The app source, product behavior and limits remain unchanged; #75 remains unresolved.
