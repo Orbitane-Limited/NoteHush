@@ -39,3 +39,15 @@ python3 -c 'import subprocess; subprocess.run(["/private/tmp/TextKit2SystemFontL
 The system-font source records the exact stage output before full layout begins. The TextKit 1 source flushes stage output so its visible-range result remains observable when the bounded host kills the stalled process. These are one-off diagnostic observations, not performance percentiles, complete editor tests, or proof of user-visible rendering.
 
 Apple describes `backgroundLayoutEnabled` as scheduling glyph generation/layout when the app's run loop is idle, and cautions that a layout-manager object graph must not be accessed concurrently across threads. See [NSLayoutManager](https://developer.apple.com/documentation/appkit/nslayoutmanager). Neither property changes the synchronous behavior observed when the probe explicitly requests visible-range layout.
+
+## Shared AppKit typesetter control
+
+[`SharedTypesetterLongParagraphProbe.swift`](reproducers/SharedTypesetterLongParagraphProbe.swift) repeats the TextKit 1 visible-range fixture and layout request in two isolated processes. One keeps the layout manager's default typesetter; the other assigns `NSATSTypesetter.shared`. Both report the concrete class as `NSATSTypesetter`, assign the exact fixture in approximately 3.8 seconds, return visible glyph range `{0, 2304}` in under 0.00001 seconds, and then exceed the 10.5-second process bound in `ensureLayout(forGlyphRange:)`. This is not a faster native typesetter route. No product behavior was changed.
+
+```sh
+swiftc -parse-as-library -target arm64-apple-macosx14.0 -swift-version 6 -O \
+  docs/validation/reproducers/SharedTypesetterLongParagraphProbe.swift \
+  -framework AppKit -framework CryptoKit -o /private/tmp/SharedTypesetterLongParagraphProbe
+python3 -c 'import subprocess; subprocess.run(["/private/tmp/SharedTypesetterLongParagraphProbe"], timeout=10.5, check=True)'
+python3 -c 'import subprocess; subprocess.run(["/private/tmp/SharedTypesetterLongParagraphProbe", "--shared-typesetter"], timeout=10.5, check=True)'
+```
