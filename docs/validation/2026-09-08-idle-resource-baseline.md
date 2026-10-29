@@ -26,3 +26,5 @@ M4 Pro, 24 GiB, arm64; macOS 26.6.2 (25G83); Xcode 26.6 (17F113), Swift 6.3.3. A
 The private run directory is `build/logs/Idle-F0F2C3B1-4E4A-4B47-9063-65BDEF64396F` in this issue worktree. It retains both raw JSONL recordings, environment, manifest, collection log and summary. Generated recovery workspaces remain retained; no normal NoteHush workspace was opened. The complete operator log is `build/logs/idle-window-20260908T2215Z.log`.
 
 This is one process/window per workload, not 20 independent launches. M1/8 GiB, macOS 14/Intel runtime, physical energy, typing/switching, large-file/display/printing/history workloads and installed TestFlight remain separate acceptance work. PR #60 must merge before this PR, and full final-head functional CI/review is still required before closing #56.
+
+The current-main physical recheck attempts from 2026-10-30 are recorded separately in [the failed profiling and partial idle-collection report](2026-10-30-idle-memory-recheck.md). Neither attempt supersedes this complete 2026-09-08 baseline.
