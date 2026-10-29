@@ -93,3 +93,42 @@ The chunked comparison compiled `CoreTextChunkedParagraphProbe.swift` in a tempo
 Decompressing the chunked sample reproduces SHA-256 `fb5177033b22ce7532ab7a6dbadad9539769e069da91b73e1d559c6336ff82a9` exactly.
 
 The raw sample contains system stack and process metadata only; the source document was generated. No user file was read. This profile supports the TextKit/Core Text shaping diagnosis but is not an unprofiled performance result, an app-level acceptance pass, or a product correction. All #75 acceptance criteria remain open.
+
+## Corrected editable chunk control — 2026-10-30
+
+The initial edit/replan geometry failures above were not a valid comparison of matching text attributes: the probe created a monospaced source but left the `NSTextView`'s font and typing attributes at their defaults, then compared the edited view with a monospaced oracle. It also exposed each wrapped line as a separate `NSTextParagraph`. A corrected generated-data control now sets the view font and typing attributes to the source font and groups contiguous native-line ranges into bounded paragraph elements. The old probe outputs remain historical observations, but they do not establish that a correctly configured editor must diverge after edits.
+
+The corrected [`CoreTextIncrementalNSTextViewProbe.swift`](reproducers/CoreTextIncrementalNSTextViewProbe.swift) compiled with Swift 6.3.3, optimization, warnings treated as errors, and the macOS 14 deployment target. On arm64 macOS 26.6.2 / Xcode 26.6, it compared complete TextKit line starts, UTF-16 lengths, and typographic widths before and after a programmatic insertion, manager replacement, and Undo:
+
+| Generated control | UTF-16 units | Initial planned/native rows | Reflow windows | Edited geometry | Text, caret and Undo |
+| --- | ---: | ---: | ---: | --- | --- |
+| RTL Arabic and emoji | 120,000 | 1,305 / 1,305 | 1, converged at 67,621 | Exact starts, lengths and widths | Exact text; selection preserved; Undo restored text and caret |
+| Mixed Latin, Urdu, Hebrew, punctuation and emoji | 121,000 | 1,223 / 1,223 | 8, no suffix convergence | Exact starts, lengths and widths after replanning through the remainder | Exact text; selection preserved; Undo restored text and caret |
+| Combining marks, Arabic, Hebrew and emoji | 124,000 | 1,000 / 1,000 | 8, no suffix convergence | Exact starts, lengths and widths after replanning through the remainder | Exact text; selection preserved; Undo restored text and caret |
+
+The companion [`CoreTextLargeNSTextViewProbe.swift`](reproducers/CoreTextLargeNSTextViewProbe.swift) integrates the same bounded paragraph elements with the generated 10 MiB target. One arm64 run planned 56,989 lines in 1.303 seconds. A middle insertion took 15.736 ms in the probe, local native reflow used one 2,048-unit window in 13.090 ms, and the edited range was laid out in 14.758 ms. Targeted start, middle and end requests covered their full ranges in 9.378, 6.922 and 0.971 ms. Text and caret were restored by Undo. These are single diagnostic timings with a programmatic edit, not 20-run physical-input measurements or a first-visible-frame result.
+
+The 10 MiB case cannot be compared with complete native TextKit geometry because the native full-paragraph oracle does not finish within its existing diagnostic bound. The shorter controls support the grouped, line-aligned approach; they do not prove geometry for every 10 MiB Unicode input. Resize/font/wrap changes, real keyboard and IME input, Find, accessibility, recovery, save behavior, repeated edits during reflow, and normal app launch remain untested. No application source changed. Issue #75 remains open.
+
+Reproduction (run each process separately):
+
+```sh
+xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx14.0 \
+  -swift-version 6 -module-cache-path /private/tmp/NoteHushIncrementalProbeModuleCache \
+  docs/validation/reproducers/CoreTextIncrementalNSTextViewProbe.swift \
+  -framework AppKit -framework CoreText -o /private/tmp/CoreTextIncrementalNSTextViewProbe
+/private/tmp/CoreTextIncrementalNSTextViewProbe
+
+xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx14.0 \
+  -swift-version 6 -module-cache-path /private/tmp/NoteHushLargeProbeModuleCache \
+  docs/validation/reproducers/CoreTextLargeNSTextViewProbe.swift \
+  -framework AppKit -framework CoreText -o /private/tmp/CoreTextLargeNSTextViewProbe
+/private/tmp/CoreTextLargeNSTextViewProbe
+```
+
+| Artifact | SHA-256 |
+| --- | --- |
+| [Editable-control source](reproducers/CoreTextIncrementalNSTextViewProbe.swift) | `66b1f6df4d1cba7612e03f6972244e576dcc7f82883bb00c43f755c800b624f6` |
+| Editable-control binary | `32e4cc98e29a22dcdaffbb6bbe2e7864c6809e96fbb3186f745686705ede7e88` |
+| [10 MiB source](reproducers/CoreTextLargeNSTextViewProbe.swift) | `d9fbd855a541072398417610a64804144afc845130d75334e75a526e7072ea9f` |
+| 10 MiB binary | `332177a3377baf939ee1b4ee5c16566a94771bd3caff7a42d3dcccbab780dc64` |
