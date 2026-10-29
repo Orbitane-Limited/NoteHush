@@ -98,15 +98,51 @@ class AppStoreChecksTests(unittest.TestCase):
                 command.assert_not_called()
 
     def testNativeCertificateExtractionNeedsNoPrivateSigningCredential(self):
-        # The installed Apple tool already has a public signature. Read it with
-        # the production extraction path; do not sign or modify system code.
+        # Some macOS hosts use a platform signature with no embedded certificate
+        # chain (codesign exits successfully but emits no certificate files).
+        # The deterministic wrapper test below still exercises our extraction
+        # path on every host; run this native integration check when available.
         with tempfile.TemporaryDirectory() as directory:
-            certificate = checks.extract_signing_certificate(
-                Path("/usr/bin/codesign"), platform.machine(), Path(directory))
+            try:
+                certificate = checks.extract_signing_certificate(
+                    Path("/usr/bin/codesign"), platform.machine(), Path(directory))
+            except FileNotFoundError:
+                self.skipTest("Host code signature contains no extractable certificate chain")
             parsed = subprocess.run(["/usr/bin/openssl", "x509", "-inform", "DER", "-noout"],
                                     input=certificate, capture_output=True,
                                     env=checks.tool_environment(), timeout=30)
             self.assertEqual(parsed.returncode, 0, "Extracted leaf must be a real X.509 certificate")
+
+    def testCertificateExtractionReadsCodesignLeafOutput(self):
+        fixture = Path(__file__).parent / "Fixtures" / "codesign-test-certificate.der"
+        expected = fixture.read_bytes()
+        with tempfile.TemporaryDirectory() as directory:
+            scratch = Path(directory)
+            observed = []
+            architecture = platform.machine()
+
+            def extract(arguments):
+                observed.append(arguments)
+                option = next(argument for argument in arguments
+                              if argument.startswith("--extract-certificates="))
+                prefix = Path(option.split("=", 1)[1])
+                Path(str(prefix) + "0").write_bytes(expected)
+                return b""
+
+            with mock.patch.object(checks, "command", side_effect=extract):
+                certificate = checks.extract_signing_certificate(
+                    Path("generated-signed-fixture"), architecture, scratch)
+
+        self.assertEqual(certificate, expected)
+        self.assertEqual(len(observed), 1)
+        self.assertIn("--arch", observed[0])
+        self.assertIn(architecture, observed[0])
+        self.assertTrue(any(argument.startswith("--extract-certificates=")
+                            for argument in observed[0]))
+        parsed = subprocess.run(["/usr/bin/openssl", "x509", "-inform", "DER", "-noout"],
+                                input=certificate, capture_output=True,
+                                env=checks.tool_environment(), timeout=30)
+        self.assertEqual(parsed.returncode, 0, "Codesign output must be a real X.509 certificate")
 
     def testNativeQuarantineInspectionRejectsRootNestedFileAndPackage(self):
         # Real macOS attributes exercise the platform boundary. Only generated
