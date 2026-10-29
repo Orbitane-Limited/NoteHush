@@ -20,6 +20,27 @@ A second generated-data control used the retained [`CoreTextChunkedParagraphProb
 
 This fixed-slice strategy is not a correction: its 16 KiB control has 89 lines while native TextKit has 90, and native 10 MiB line geometry is unavailable for comparison. It cannot meet the exact layout, selection, editing, IME, undo, viewport, or recovery requirements by itself. The result is diagnostic evidence for further work on bounded shaping only.
 
+## `NSTextView` with a custom chunked content storage
+
+A further generated-data probe attached a custom `NSTextContentStorage` to a real TextKit 2 `NSTextView`, supplied 4,048-UTF-16-unit `NSTextParagraph` elements, and kept the original `NSTextStorage` as the editing source. A location-identity map was required because delegating unknown locations to `NSTextContentStorage.offset(from:to:)` caused an AppKit exception for null locations. The map and probe counter use `OSAllocatedUnfairLock`; this diagnostic compiled with Swift 6 and warnings treated as errors.
+
+On the 10 MiB fixture with a 16-byte header paragraph, targeted ranges at the start, middle, and end returned in 0.170, 0.154, and 0.133 seconds, respectively. Each range was completely covered. These are three single runs on this Mac, including process startup and editor construction, and the fixture's repeated `خط📝` pattern happens to align with the selected fixed chunk size. They show that the custom manager can attach and answer these generated range requests quickly; they do not establish correctness for general text.
+
+The geometry control explains why that limitation is decisive. With the header removed, the same repeated content forms one ordinary paragraph. Splitting it every 4,048 UTF-16 units still produced 90 rows for the 16,383-byte control, but did **not** match native TextKit: around chunk boundaries, native 92-unit lines became 91- and 93-unit rows, and later line starts shifted by one unit. The custom chunks therefore change visible wrapping on a valid single-paragraph input. The fixed chunking cannot ship.
+
+On the headed 16 KiB control, a focused insertion near a chunk boundary followed by full relayout completed and Undo restored the original text. This was a programmatic probe with an unshown borderless window, not real keyboard input; it did not validate edit fidelity, caret navigation, IME, viewport scrolling, recovery, or the location map after arbitrary edit sequences. The custom-manager result remains investigation evidence only.
+
+Retained reproducers: [`NSTextViewLineAlignedSafeLocationProbe.swift`](reproducers/NSTextViewLineAlignedSafeLocationProbe.swift) provides the header-fixture targeted-range and native-geometry controls; [`NSTextViewLineAlignedSingleParagraphProbe.swift`](reproducers/NSTextViewLineAlignedSingleParagraphProbe.swift) removes the header and reproduces the geometry mismatch. Both compile with the command below (substitute the source filename and output path):
+
+```sh
+xcrun swiftc -O -warnings-as-errors -parse-as-library \
+  -target arm64-apple-macosx14.0 -swift-version 6 \
+  -module-cache-path /private/tmp/NoteHushLineAlignedModuleCache \
+  docs/validation/reproducers/NSTextViewLineAlignedSafeLocationProbe.swift \
+  -framework AppKit -framework CryptoKit \
+  -o /private/tmp/NSTextViewLineAlignedProbe
+```
+
 ## Reproduction and provenance
 
 Compile the retained probe source and run the generated fixture with a bounded profiler attached to that process:
