@@ -6,7 +6,7 @@ Issue #75 remains unresolved. This generated-data control checks whether a custo
 
 The probe [`CustomTextSelectionNavigationProbe.swift`](reproducers/CustomTextSelectionNavigationProbe.swift) implements the public `NSTextSelectionDataSource` contract on the custom content manager, including value equality and hashing for generated UTF-16 locations. It creates `NSTextSelectionNavigation(dataSource:)` rather than using the layout manager's default navigation object. For caret geometry it delegates to `NSTextLayoutManager`'s own public selection-data-source implementation, preserving its visual-order leading/trailing edge flags instead of estimating caret positions itself.
 
-All four generated fixtures passed checks for document-end movement, forward/backward composed-character boundaries, extending from the original selection anchor, paragraph and visual-line selection, native caret enumeration, point hit-testing through `NSTextSelectionNavigation.textSelections(interactingAt:)`, point-to-line mapping, and vertical navigation into the next line. The synthetic hit point returned a selection range inside the expected native line. Each tested visual line had two native caret edges per extended grapheme, one leading and one trailing, ordered by visual x. Forward and backward movement across every generated chunk boundary matched the adjacent grapheme boundaries. The combining-mark and supplementary emoji checks each advanced by two UTF-16 units. Chunked native TextKit geometry also matched the unsplit paragraph's line starts, lengths, and typographic-width bit patterns:
+All four generated fixtures passed checks for document-end movement, forward/backward composed-character boundaries, extending from the original selection anchor, paragraph and visual-line selection, horizontal visual left/right and vertical navigation, native caret enumeration, point hit-testing through `NSTextSelectionNavigation.textSelections(interactingAt:)`, and point-to-line mapping. The synthetic hit point returned a selection range inside the expected native line. Each tested visual line had two native caret edges per extended grapheme, one leading and one trailing, ordered by visual x. Forward and backward movement across every generated chunk boundary matched the adjacent grapheme boundaries. The combining-mark and supplementary emoji checks each advanced by two UTF-16 units. Chunked native TextKit geometry also matched the unsplit paragraph's line starts, lengths, and typographic-width bit patterns:
 
 | Fixture | UTF-16 units | Chunks | Native lines | Exact geometry | Navigation |
 | --- | ---: | ---: | ---: | --- | --- |
@@ -15,7 +15,7 @@ All four generated fixtures passed checks for document-end movement, forward/bac
 | Combining Latin, Arabic, Hebrew, emoji | 15,500 | 4 | 132 | Yes | Pass |
 | Arabic/Hebrew punctuation and parentheses | 17,000 | 5 | 177 | Yes | Pass |
 
-The generated 10 MiB UTF-8 Arabic/emoji fixture also passed targeted navigation, paragraph/line selection, native caret-edge enumeration, point hit-testing and line mapping, and vertical movement at the midpoint and near the end of the document. The custom manager's shaped line rows matched the bounded planner exactly for both targeted chunks. Its 5,242,888 UTF-16 units were planned into 1,296 line-aligned chunks and 56,989 lines. Four diagnostic runs took 15.09, 13.58, 13.51, and 13.67 seconds; these observations span probe revisions, are not a performance benchmark, and do not establish interactive responsiveness. The selection control checked forward and backward movement around the midpoint chunk boundary. The 10 MiB diagnostic can be reproduced by adding `--ten-mib` to the executable command below.
+The generated 10 MiB UTF-8 Arabic/emoji fixture also passed targeted navigation, paragraph/line selection, horizontal visual movement, native caret-edge enumeration, point hit-testing and line mapping, and vertical movement at the midpoint and near the end of the document. The custom manager's shaped line rows matched the bounded planner exactly for both targeted chunks. Its 5,242,888 UTF-16 units were planned into 1,296 line-aligned chunks and 56,989 lines. Five diagnostic runs took 15.09, 13.58, 13.51, 13.67, and 13.65 seconds; these observations span probe revisions, are not a performance benchmark, and do not establish interactive responsiveness. The selection control checked forward and backward movement around the midpoint chunk boundary. The 10 MiB diagnostic can be reproduced by adding `--ten-mib` to the executable command below.
 
 The source compiled with Swift 6 and a macOS 14 deployment target on the local arm64 MacBook Pro 16,8 (M4 Pro, macOS 26.6.2, Xcode 26.6 / Swift 6.3.3). Reproduction from the repository root:
 
@@ -27,7 +27,7 @@ xcrun swiftc -parse-as-library -target arm64-apple-macosx14.0 -swift-version 6 -
 /private/tmp/CustomTextSelectionProbe
 ```
 
-Source SHA-256: `b697c14f14517078369f5b0768d57628cd56d653b5265bd5f675aa0284d9d265`. Binary SHA-256: `3f04f7c854eebe555f09bf4df1e9327a0675c2df6da81eeab59b193904d790c2`.
+Source SHA-256: `a9b5d6aa670a15a2fb6600e6e96676fc7f0afc889ed1c7fa2c27262f4341ecc9`. Binary SHA-256: `fee74a342d1dd08302997564c1231bcc1fe75b20651a9dbf8a1e2645098a78b3`.
 
 ## Limits
 

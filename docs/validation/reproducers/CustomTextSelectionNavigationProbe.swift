@@ -432,6 +432,24 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
       (selectedRange.location as? ProbeLocation)?.offset == expectedLine.0,
       (selectedRange.endLocation as? ProbeLocation)?.offset == expectedLine.1
     else { throw NSError(domain: "navigation", code: 10) }
+    let visualProbeIndex = expectedLine.0 + (expectedLine.1 - expectedLine.0) / 2
+    let visualProbeOffset = ns.rangeOfComposedCharacterSequence(at: visualProbeIndex).location
+    let visualOrigin = NSTextSelection(ProbeLocation(visualProbeOffset), affinity: .downstream)
+    let visualLeft =
+      navigation.destinationSelection(
+        for: visualOrigin, direction: .left, destination: .character, extending: false,
+        confined: true
+      )?.textRanges.first?.location as? ProbeLocation
+    let visualRight =
+      navigation.destinationSelection(
+        for: visualOrigin, direction: .right, destination: .character, extending: false,
+        confined: true
+      )?.textRanges.first?.location as? ProbeLocation
+    guard let visualLeft, let visualRight,
+      expectedLine.0 <= visualLeft.offset, visualLeft.offset < expectedLine.1,
+      expectedLine.0 <= visualRight.offset, visualRight.offset < expectedLine.1,
+      visualLeft.offset != visualProbeOffset, visualRight.offset != visualProbeOffset
+    else { throw NSError(domain: "navigation", code: 18) }
     var caretLocations: [Int] = []
     var caretOffsets: [CGFloat] = []
     var caretLeadingEdges: [Bool] = []
@@ -505,7 +523,7 @@ final class ChunkManager: NSTextContentManager, NSTextSelectionDataSource {
     }
   }
   print(
-    "navigation case=\(name) documentEnd=\(documentEnd.offset) firstGraphemeEnd=\(nextCharacter.offset) lastGraphemeStart=\(lastBackward.offset) paragraphSelection=passed visualLineSelection=passed caretEnumeration=passed pointHitTest=passed pointToLine=passed verticalMovement=passed"
+    "navigation case=\(name) documentEnd=\(documentEnd.offset) firstGraphemeEnd=\(nextCharacter.offset) lastGraphemeStart=\(lastBackward.offset) paragraphSelection=passed visualLineSelection=passed horizontalVisualMovement=passed caretEnumeration=passed pointHitTest=passed pointToLine=passed verticalMovement=passed"
   )
   if let preparedPlan {
     var exact = true
