@@ -110,6 +110,38 @@ The companion [`CoreTextLargeNSTextViewProbe.swift`](reproducers/CoreTextLargeNS
 
 The 10 MiB case cannot be compared with complete native TextKit geometry because the native full-paragraph oracle does not finish within its existing diagnostic bound. The shorter controls support the grouped, line-aligned approach; they do not prove geometry for every 10 MiB Unicode input. Resize/font/wrap changes, real keyboard and IME input, Find, accessibility, recovery, save behavior, repeated edits during reflow, and normal app launch remain untested. No application source changed. Issue #75 remains open.
 
+## Native reflow after edits — 2026-10-30
+
+[`NSTextStorageObserverChunkProbe.swift`](reproducers/NSTextStorageObserverChunkProbe.swift) is a generated-data experiment with the app's `ParagraphDirectionPresenter`, grouped line-aligned `NSTextParagraph` elements, and a standard `NSTextView`. It checks complete native line starts, UTF-16 lengths, and typographic widths before and after an insertion. It is not application code and does not read files.
+
+Updating only the custom elements' offsets and lengths keeps synthetic 10 MiB input events fast, but it is incorrect for mixed scripts: the 121,000-unit mixed Latin/Urdu/Hebrew control had 603 differing line records after one insertion. Replanning the affected grouped Core Text element did not correct that difference. The native bounded reflow control does match the full TextKit oracle on the 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining-mark controls. Mixed-script and combining controls needed eight 8,192-unit windows and had no suffix convergence. Their complete reflow and full geometry comparison took approximately 190–192 ms in these single diagnostic runs. The RTL/emoji control converged after one window.
+
+For the generated 10 MiB RTL/emoji target, the bounded observer prototype planned initial elements in 1.315 seconds. Twenty synthetic key events retained exact text, selection, targeted fragment coverage, and Undo, but event p95 was 21.1 ms. A capped 16-window native reflow did not converge after approximately 547 ms. Reflowing the entire edited suffix in 8,192-unit windows covered the complete document but took 10.982 seconds across 321 windows and found no reusable suffix. Increasing each window to 65,536 units reduced the count to 41 but took 53.529 seconds. A separate 65,536-unit mixed-script control matched geometry, then hit an AppKit temporary-attribute range assertion during Undo. These results reject both metadata-only updates and the measured larger-window strategy; they do not establish an acceptable live-edit correction.
+
+The probe compiled with Swift 6, `-warnings-as-errors`, and the macOS 14 deployment target on arm64 macOS 26.6.2 / Xcode 26.6. These are single synthetic observations, not physical-input, minimum-hardware, memory, recovery, or release measurements. No product source changed and #75 remains open.
+
+Reproduction (the full 10 MiB run uses the probe's 8,192-unit bounded control):
+
+```sh
+xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx14.0 \
+  -swift-version 6 -module-cache-path /private/tmp/NoteHushObserverProbeModuleCache \
+  docs/validation/reproducers/NSTextStorageObserverChunkProbe.swift \
+  App/NoteHush/Editor/ParagraphDirectionPresenter.swift \
+  -framework AppKit -framework CoreText -o /private/tmp/NoteHushObserverChunkProbe
+/private/tmp/NoteHushObserverChunkProbe 8192 400 8192
+# To repeat the larger-window control:
+/private/tmp/NoteHushObserverChunkProbe 65536 400 8192
+# To repeat the mixed-script 65,536-unit small-control assertion (expected failure):
+/private/tmp/NoteHushObserverChunkProbe 8192 16 65536
+```
+
+The executable arguments are large-run window size, large-run maximum window count, and small-control window size. The assertion reproduction is intentionally a failing control; its failure is retained rather than converted to success.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `92cae5316164a5da351f9fd8570744066ea40925f12c2f1a58ddb7f9b1abed3f` |
+| Compiled probe | `1511c011140070cc7f074819c9f852060bc902c4fdcb3891d71f0dd47c4aa74f` |
+
 Reproduction (run each process separately):
 
 ```sh
