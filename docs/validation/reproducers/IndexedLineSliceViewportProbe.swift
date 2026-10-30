@@ -228,6 +228,95 @@ private func checkNativeTextViewScrollSlice(
     }
     results.append((name, targetY, actualY, glyphPixels, host.displayedRange))
   }
+  let middleY = documentHeight / 2
+  try host.updateViewport(at: middleY, viewportHeight: viewportHeight, lineCount: lineCount)
+  let baselineDocument = host.documentText
+  let localReplacement = NSRange(location: 40, length: 1)
+  let globalReplacement = NSRange(
+    location: host.displayedRange.lowerBound + localReplacement.location,
+    length: localReplacement.length)
+  let originalUnit = (host.editor.string as NSString).substring(with: localReplacement)
+  let replacementUnit = originalUnit == "z" ? "y" : "z"
+  let expectedEditedDocument = (baselineDocument as NSString).replacingCharacters(
+    in: globalReplacement, with: replacementUnit)
+  host.editor.setSelectedRange(localReplacement)
+  host.editor.insertText(
+    replacementUnit, replacementRange: NSRange(location: NSNotFound, length: 0))
+  guard host.documentText == expectedEditedDocument,
+    host.editor.selectedRange().location == localReplacement.location + replacementUnit.utf16.count
+  else {
+    throw NSError(
+      domain: "line-index", code: 62,
+      userInfo: [NSLocalizedDescriptionKey: "native slice edit did not update exact global source and caret"])
+  }
+  guard let undoManager = host.editor.undoManager, undoManager.canUndo else {
+    throw NSError(domain: "line-index", code: 63, userInfo: [NSLocalizedDescriptionKey: "native slice edit did not register Undo"])
+  }
+  undoManager.undo()
+  guard host.documentText == baselineDocument else {
+    throw NSError(
+      domain: "line-index", code: 64,
+      userInfo: [
+        NSLocalizedDescriptionKey:
+          "native slice Undo did not restore global source; sourceMatch=\(host.documentText == baselineDocument), editorSliceMatch=\(host.editor.string == (baselineDocument as NSString).substring(with: NSRange(location: host.displayedRange.lowerBound, length: host.displayedRange.count))), range=\(host.displayedRange)"
+      ])
+  }
+  undoManager.redo()
+  guard host.documentText == expectedEditedDocument else {
+    throw NSError(domain: "line-index", code: 65, userInfo: [NSLocalizedDescriptionKey: "native slice Redo did not restore the exact global source"])
+  }
+  try host.updateViewport(at: 0, viewportHeight: viewportHeight, lineCount: lineCount)
+  try host.updateViewport(at: middleY, viewportHeight: viewportHeight, lineCount: lineCount)
+  guard host.editor.string == (expectedEditedDocument as NSString).substring(
+    with: NSRange(location: host.displayedRange.lowerBound, length: host.displayedRange.count)),
+    host.editor.selectedRange().location == globalReplacement.location + 1
+      - host.displayedRange.lowerBound
+  else {
+    throw NSError(
+      domain: "line-index", code: 66,
+      userInfo: [
+        NSLocalizedDescriptionKey:
+          "native slice rebind lost edited text or global caret; range=\(host.displayedRange), selection=\(host.editor.selectedRange())"
+      ])
+  }
+  print("nativeTextViewEditRebind=passed sameUTF16Length=true source=exact undo=exact redo=exact globalCaret=restored")
+  let beforeRepeatedTyping = host.documentText
+  let typingLocation = host.displayedRange.lowerBound + 40
+  guard let typingUndoManager = host.editor.undoManager else {
+    throw NSError(domain: "line-index", code: 67, userInfo: [NSLocalizedDescriptionKey: "native slice typing has no UndoManager"])
+  }
+  typingUndoManager.removeAllActions()
+  typingUndoManager.beginUndoGrouping()
+  var typingSamples: [Duration] = []
+  for step in 0..<20 {
+    let replacement = step.isMultiple(of: 2) ? "x" : "y"
+    host.editor.setSelectedRange(NSRange(location: 40, length: 1))
+    let started = ContinuousClock.now
+    host.editor.insertText(
+      replacement, replacementRange: NSRange(location: NSNotFound, length: 0))
+    host.ensureVisibleLayout()
+    typingSamples.append(started.duration(to: .now))
+    let expectedSource = (beforeRepeatedTyping as NSString).replacingCharacters(
+      in: NSRange(location: typingLocation, length: 1), with: replacement)
+    guard host.documentText == expectedSource else {
+      throw NSError(
+        domain: "line-index", code: 68,
+        userInfo: [NSLocalizedDescriptionKey: "native slice input \(step) did not synchronize exact source"])
+    }
+  }
+  typingUndoManager.endUndoGrouping()
+  let sortedTyping = typingSamples.sorted()
+  print("nativeTextViewGlobalTyping=passed samples=\(typingSamples.count) p50=\(sortedTyping[9]) p95=\(sortedTyping[18]) max=\(sortedTyping[19]) sourceSync=exact")
+  typingUndoManager.undo()
+  guard host.documentText == beforeRepeatedTyping else {
+    throw NSError(domain: "line-index", code: 69, userInfo: [NSLocalizedDescriptionKey: "grouped native typing Undo did not restore exact source"])
+  }
+  typingUndoManager.redo()
+  let afterRepeatedTyping = (beforeRepeatedTyping as NSString).replacingCharacters(
+    in: NSRange(location: typingLocation, length: 1), with: "y")
+  guard host.documentText == afterRepeatedTyping else {
+    throw NSError(domain: "line-index", code: 70, userInfo: [NSLocalizedDescriptionKey: "grouped native typing Redo did not restore exact source"])
+  }
   var rebindSamples: [Duration] = []
   for step in 0..<20 {
     let targetY = min(
@@ -254,15 +343,18 @@ private func checkNativeTextViewScrollSlice(
 }
 
 @MainActor
-private final class NativeTextViewSliceHost: NSView {
+private final class NativeTextViewSliceHost: NSView, NSTextViewDelegate, @preconcurrency NSTextStorageDelegate {
   let editor: NSTextView
   private let storage: NSTextStorage
   private let layoutManager: NSTextLayoutManager
-  private let source: NSAttributedString
+  private let source: NSMutableAttributedString
   private let plan: LinePlan
   private let lineHeight: CGFloat
   private let viewportWidth: CGFloat
   private(set) var displayedRange: Range<Int> = 0..<0
+  private var globalSelection = NSRange(location: 0, length: 0)
+  private var isReplacingSlice = false
+  var documentText: String { source.string }
 
   override var isFlipped: Bool { true }
 
@@ -277,7 +369,7 @@ private final class NativeTextViewSliceHost: NSView {
     self.editor = editorView
     self.storage = storage
     self.layoutManager = manager
-    self.source = source
+    self.source = NSMutableAttributedString(attributedString: source)
     self.plan = plan
     self.lineHeight = lineHeight
     self.viewportWidth = width
@@ -285,6 +377,9 @@ private final class NativeTextViewSliceHost: NSView {
       frame: NSRect(x: 0, y: 0, width: width, height: CGFloat(plan.lines.count) * lineHeight))
     editor.isRichText = false
     editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+    editor.allowsUndo = true
+    editor.delegate = self
+    storage.delegate = self
     editor.drawsBackground = true
     editor.backgroundColor = .white
     editor.textColor = .black
@@ -300,6 +395,17 @@ private final class NativeTextViewSliceHost: NSView {
   required init?(coder: NSCoder) { nil }
 
   func updateViewport(at requestedY: CGFloat, viewportHeight: CGFloat, lineCount: Int) throws {
+    if globalSelection.location >= displayedRange.lowerBound,
+      NSMaxRange(globalSelection) <= displayedRange.upperBound
+    {
+      let local = editor.selectedRange()
+      if local.location != NSNotFound,
+        local.location >= 0, NSMaxRange(local) <= displayedRange.count
+      {
+        globalSelection = NSRange(
+          location: displayedRange.lowerBound + local.location, length: local.length)
+      }
+    }
     let documentHeight = CGFloat(plan.lines.count) * lineHeight
     let targetY = min(max(0, requestedY), max(0, documentHeight - viewportHeight))
     let targetLine = min(Int(targetY / lineHeight), max(0, plan.lines.count - 1))
@@ -308,12 +414,57 @@ private final class NativeTextViewSliceHost: NSView {
     let start = plan.lines[first].range.lowerBound
     let end = plan.lines[last - 1].range.upperBound
     let slice = source.attributedSubstring(from: NSRange(location: start, length: end - start))
+    isReplacingSlice = true
     storage.setAttributedString(slice)
     layoutManager.ensureLayout(for: layoutManager.documentRange)
     editor.frame = NSRect(
       x: 0, y: CGFloat(first) * lineHeight, width: viewportWidth,
       height: max(viewportHeight, CGFloat(last - first) * lineHeight))
     displayedRange = start..<end
+    if globalSelection.location >= start, NSMaxRange(globalSelection) <= end {
+      editor.setSelectedRange(
+        NSRange(location: globalSelection.location - start, length: globalSelection.length))
+    } else {
+      editor.setSelectedRange(NSRange(location: 0, length: 0))
+    }
+    isReplacingSlice = false
+  }
+
+  func ensureVisibleLayout() {
+    layoutManager.ensureLayout(for: layoutManager.documentRange)
+  }
+
+  func textDidChange(_ notification: Notification) {
+    guard !isReplacingSlice else { return }
+    synchronizeGlobalSelection()
+  }
+
+  private func synchronizeSource() {
+    guard let editorStorage = editor.textStorage,
+      displayedRange.lowerBound >= 0, displayedRange.upperBound <= source.length
+    else { return }
+    let priorRange = NSRange(
+      location: displayedRange.lowerBound, length: displayedRange.count)
+    let priorStart = displayedRange.lowerBound
+    source.replaceCharacters(in: priorRange, with: editorStorage)
+    displayedRange = priorStart..<(priorStart + editorStorage.length)
+  }
+
+  private func synchronizeGlobalSelection() {
+    let local = editor.selectedRange()
+    if local.location != NSNotFound, local.location >= 0,
+      NSMaxRange(local) <= displayedRange.count
+    {
+      globalSelection = NSRange(location: displayedRange.lowerBound + local.location, length: local.length)
+    }
+  }
+
+  func textStorage(
+    _ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions,
+    range: NSRange, changeInLength delta: Int
+  ) {
+    guard !isReplacingSlice else { return }
+    synchronizeSource()
   }
 }
 
