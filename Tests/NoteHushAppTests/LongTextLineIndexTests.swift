@@ -21,7 +21,8 @@ final class LongTextLineIndexTests: XCTestCase {
       }
       XCTAssertEqual(
         actual.count, expected.count,
-        "fixture \(fixtureIndex) line counts differ: indexed \(actual.count), native \(expected.count)")
+        "fixture \(fixtureIndex) line counts differ: indexed \(actual.count), native \(expected.count)"
+      )
       XCTAssertNil(
         firstMismatch,
         "fixture \(fixtureIndex) first range mismatch at \(String(describing: firstMismatch))")
@@ -40,9 +41,10 @@ final class LongTextLineIndexTests: XCTestCase {
       fontSize: 14, textWidth: 840)
     XCTAssertEqual(index.lines.first?.range.lowerBound, 0)
     XCTAssertEqual(index.lines.last?.range.upperBound, text.utf16.count)
-    XCTAssertTrue(zip(index.lines, index.lines.dropFirst()).allSatisfy {
-      $0.range.upperBound == $1.range.lowerBound && $0.y + $0.height == $1.y
-    })
+    XCTAssertTrue(
+      zip(index.lines, index.lines.dropFirst()).allSatisfy {
+        $0.range.upperBound == $1.range.lowerBound && $0.y + $0.height == $1.y
+      })
     XCTAssertNotNil(index.lineIndex(atUTF16Offset: text.utf16.count / 2))
     XCTAssertNotNil(index.lineIndex(atY: index.height / 2))
   }
@@ -64,7 +66,9 @@ final class LongTextLineIndexTests: XCTestCase {
     let documentRange = manager.documentRange
     manager.ensureLayout(for: documentRange)
     var ranges: [Range<Int>] = []
-    _ = manager.enumerateTextLayoutFragments(from: documentRange.location, options: [.ensuresLayout]) {
+    _ = manager.enumerateTextLayoutFragments(
+      from: documentRange.location, options: [.ensuresLayout]
+    ) {
       fragment in
       guard let elementRange = fragment.textElement?.elementRange else { return true }
       let base = content.offset(from: documentRange.location, to: elementRange.location)
