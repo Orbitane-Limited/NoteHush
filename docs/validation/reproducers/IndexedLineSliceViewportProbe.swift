@@ -187,6 +187,86 @@ private func checkNativeTextViewInput(_ source: NSAttributedString, containerWid
 }
 
 @MainActor
+private func checkNativeTextViewScrollSlice(
+  _ source: NSAttributedString, plan: LinePlan, requestedY: CGFloat, lineHeight: CGFloat,
+  viewportWidth: CGFloat, viewportHeight: CGFloat, lineCount: Int
+) throws -> (actualY: CGFloat, glyphPixels: Int, displayedRange: Range<Int>) {
+  let documentHeight = CGFloat(plan.lines.count) * lineHeight
+  let targetY = min(max(0, requestedY), max(0, documentHeight - viewportHeight))
+  let targetLine = min(Int(targetY / lineHeight), max(0, plan.lines.count - 1))
+  let first = min(max(0, targetLine - lineCount / 2), max(0, plan.lines.count - lineCount))
+  let last = min(plan.lines.count, first + lineCount)
+  let sliceStart = plan.lines[first].range.lowerBound
+  let sliceEnd = plan.lines[last - 1].range.upperBound
+  let slice = source.attributedSubstring(
+    from: NSRange(location: sliceStart, length: sliceEnd - sliceStart))
+  let scroll = NSScrollView(
+    frame: NSRect(x: 0, y: 0, width: viewportWidth, height: viewportHeight))
+  scroll.hasVerticalScroller = true
+  scroll.autohidesScrollers = false
+  let host = try NativeTextViewSliceHost(
+    width: viewportWidth, documentHeight: documentHeight, sliceStart: first,
+    lineCount: last - first, slice: slice, lineHeight: lineHeight)
+  scroll.documentView = host
+  let window = NSWindow(
+    contentRect: scroll.frame, styleMask: .borderless, backing: .buffered, defer: false)
+  window.contentView = scroll
+  scroll.contentView.scroll(to: NSPoint(x: 0, y: targetY))
+  scroll.reflectScrolledClipView(scroll.contentView)
+  let actualY = scroll.contentView.bounds.origin.y
+  let glyphPixels = try visibleGlyphPixelCount(host, y: actualY, height: viewportHeight)
+  let displayedRange = sliceStart..<sliceEnd
+  window.close()
+  guard abs(actualY - targetY) <= 0.5, glyphPixels > 0 else {
+    throw NSError(
+      domain: "line-index", code: 58,
+      userInfo: [
+        NSLocalizedDescriptionKey:
+          "standard NSTextView scroll slice target=\(targetY), actual=\(actualY), glyphPixels=\(glyphPixels), globalRange=\(displayedRange)"
+      ])
+  }
+  return (actualY, glyphPixels, displayedRange)
+}
+
+@MainActor
+private final class NativeTextViewSliceHost: NSView {
+  let editor: NSTextView
+
+  override var isFlipped: Bool { true }
+
+  init(
+    width: CGFloat, documentHeight: CGFloat, sliceStart: Int, lineCount: Int,
+    slice: NSAttributedString, lineHeight: CGFloat
+  ) throws {
+    let sliceHeight = CGFloat(max(1, lineCount)) * lineHeight
+    let editorView = NSTextView(usingTextLayoutManager: true)
+    self.editor = editorView
+    super.init(frame: NSRect(x: 0, y: 0, width: width, height: documentHeight))
+    let frame = NSRect(
+      x: 0, y: CGFloat(sliceStart) * lineHeight, width: width, height: max(500, sliceHeight))
+    editor.frame = frame
+    editor.isRichText = false
+    editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+    editor.drawsBackground = true
+    editor.backgroundColor = .white
+    editor.textColor = .black
+    editor.isVerticallyResizable = false
+    editor.isHorizontallyResizable = false
+    editor.textContainerInset = NSSize(width: 16, height: 0)
+    guard let storage = editor.textStorage, let manager = editor.textLayoutManager,
+      let container = editor.textContainer
+    else { throw NSError(domain: "line-index", code: 57) }
+    container.widthTracksTextView = false
+    container.containerSize = NSSize(width: width - 32, height: .greatestFiniteMagnitude)
+    storage.setAttributedString(slice)
+    manager.ensureLayout(for: manager.documentRange)
+    addSubview(editor)
+  }
+
+  required init?(coder: NSCoder) { nil }
+}
+
+@MainActor
 private func checkSmallGeometry() throws {
   let font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
   let style = NSMutableParagraphStyle()
@@ -1015,6 +1095,17 @@ private enum IndexedLineSliceViewportProbe {
           print("nativeTextViewInsert=passed samples=20 cold=\(inputMetrics.cold) p95=\(inputMetrics.p95) max=\(inputMetrics.max) undo=exact")
         }
       }
+      let nativeDocumentHeight = CGFloat(plan.lines.count) * 17
+      let nativeTargetY: CGFloat
+      switch name {
+      case "start": nativeTargetY = 0
+      case "middle": nativeTargetY = nativeDocumentHeight / 2
+      default: nativeTargetY = max(0, nativeDocumentHeight - 500)
+      }
+      let nativeScrollResult = try checkNativeTextViewScrollSlice(
+        source, plan: plan, requestedY: nativeTargetY, lineHeight: 17,
+        viewportWidth: 900, viewportHeight: 500, lineCount: 32)
+      print("nativeTextViewScrollSlice=\(name) requestedY=\(nativeTargetY) actualY=\(nativeScrollResult.actualY) range=\(nativeScrollResult.displayedRange) glyphPixels=\(nativeScrollResult.glyphPixels) result=passed")
     }
     window.close()
     let keyWindow = NSWindow(
