@@ -37,9 +37,15 @@ A separate 20-sample control applied alternating insertions and deletions at the
 
 The `IndexedSliceView` input-client control now applies 20 direct `insertText` callbacks to a 28-line slice, updates the backing 10 MiB generated string and local `NSTextStorage`, and ensures the slice's native TextKit layout after each change. Callback-to-local-layout p95 was 11.97 ms (p50 11.75, max 12.17 ms); exact resulting UTF-16 text and caret offset matched. A direct `setMarkedText` followed by `insertText` preserved exact composition text and selection. One explicitly grouped insertion followed by `UndoManager.undo()` restored the exact pre-edit text and caret. The isolated process could not become a key window because its AppKit activation policy remained prohibited, so keyboard event delivery was not exercised. This remains a prototype; actual IME, accessibility, incremental global-index repair, persistence and NoteHush integration are unverified.
 
+## Background indexing control
+
+The probe now also runs the full 10 MiB Core Text index on a user-initiated dispatch worker while the main thread repeatedly services its run loop. Two clean optimized Swift 6 runs took 1.70 and 1.75 seconds, ran 77 and 79 main-run-loop cycles, and matched every foreground line range and height. The probe exits normally. This shows the full-index computation can run away from the main thread without changing the tested line geometry; it gives the app a way to show the first viewport before the complete index is ready. It does not reduce total index time, measure a visible app's input latency during planning, or validate index updates after edits.
+
+An earlier `async` entry-point/`Task` variant printed its measurements and then crashed during process teardown with `EXC_BAD_ACCESS` in `objc_release` on the main thread, inside the async `main` epilogue. A subsequent dispatch worker with synchronous process teardown exits cleanly. The crash stack localizes the failure to async teardown, but does not establish the underlying object lifetime defect; that variant is not retained as a passing result or used by the app.
+
 ## Limits
 
-This result demonstrates a promising scroll-and-render primitive, not a shippable editor. It misses the PRD's one-second 10 MiB opening target because index construction alone took 1.68–1.75 seconds in the recent single runs. The probe does not test incremental index updates after edits, typing, IME, selection, undo, accessibility, find, save, recovery, memory limits, arbitrary document styles, or integration with NoteHush's editor. The generated case is one RTL/emoji paragraph. Do not treat this probe as closing issue #75 or as acceptance evidence for v1.
+This result demonstrates a promising scroll-and-render primitive and an off-main indexing control, not a shippable editor. The full index still takes 1.70–1.75 seconds; the first viewport took about 0.36 seconds in the isolated bitmap probe. The probe does not measure an interactive NoteHush window while indexing, incremental index updates after edits, real keyboard delivery, actual IME, selection navigation, accessibility, find, save, recovery, memory limits, arbitrary document styles, or app integration. The generated case is one RTL/emoji paragraph. Do not treat this probe as closing issue #75 or as acceptance evidence for v1.
 
 Reproduce with:
 

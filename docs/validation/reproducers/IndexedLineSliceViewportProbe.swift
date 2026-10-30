@@ -2,8 +2,7 @@
 import CoreText
 import Foundation
 
-@MainActor
-private struct IndexedLine {
+private struct IndexedLine: Sendable {
   let range: Range<Int>
   let y: CGFloat
   let height: CGFloat
@@ -18,10 +17,27 @@ private struct GeometryRow: Equatable {
   let height: Double
 }
 
-@MainActor
-private struct LinePlan {
+private struct LinePlan: Sendable {
   let lines: [IndexedLine]
   let height: CGFloat
+}
+
+/// A worker result transferred under an explicit lock after the group signals completion.
+private final class PlanResultBox: @unchecked Sendable {
+  private let lock = NSLock()
+  private var stored: Result<LinePlan, Error>?
+
+  func store(_ result: Result<LinePlan, Error>) {
+    lock.lock()
+    defer { lock.unlock() }
+    stored = result
+  }
+
+  func load() -> Result<LinePlan, Error>? {
+    lock.lock()
+    defer { lock.unlock() }
+    return stored
+  }
 }
 
 @MainActor
@@ -233,6 +249,70 @@ private func makePlan(
     lines.last?.range.upperBound == source.length,
     zip(lines, lines.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
   else { throw NSError(domain: "line-index", code: 3) }
+  return LinePlan(lines: lines, height: y)
+}
+
+private func makeStringPlan(text: String, fontName: String, width: CGFloat, window: Int) throws
+  -> LinePlan
+{
+  let font = CTFontCreateWithName(fontName as CFString, 14, nil)
+  let attributes = [kCTFontAttributeName: font] as CFDictionary
+  guard let source = CFAttributedStringCreate(nil, text as CFString, attributes) else {
+    throw NSError(domain: "line-index", code: 33)
+  }
+  let sourceLength = CFAttributedStringGetLength(source)
+  let textWidth = max(1, width - 10)
+  var spans: [Range<Int>] = []
+  var heights: [Range<Int>: CGFloat] = [:]
+  var widths: [Range<Int>: Double] = [:]
+  var start = 0
+  while start < sourceLength {
+    let count = min(window, sourceLength - start)
+    guard
+      let candidate = CFAttributedStringCreateWithSubstring(
+        nil, source, CFRange(location: start, length: count))
+    else {
+      throw NSError(domain: "line-index", code: 34)
+    }
+    let typesetter = CTTypesetterCreateWithAttributedString(candidate)
+    var local: [Range<Int>] = []
+    var offset = 0
+    while offset < count {
+      let length = CTTypesetterSuggestLineBreak(typesetter, offset, Double(textWidth))
+      guard length > 0 else { throw NSError(domain: "line-index", code: 35) }
+      let range = (start + offset)..<(start + offset + length)
+      local.append(range)
+      let line = CTTypesetterCreateLine(typesetter, CFRange(location: offset, length: length))
+      var ascent: CGFloat = 0
+      var descent: CGFloat = 0
+      var leading: CGFloat = 0
+      let lineWidth = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
+      heights[range] = max(1, ceil(ascent + descent + leading))
+      widths[range] = lineWidth
+      offset += length
+    }
+    guard !local.isEmpty else { throw NSError(domain: "line-index", code: 36) }
+    if start + count < sourceLength, local.count > 1 {
+      spans.append(contentsOf: local.dropLast())
+      start = local[local.count - 2].upperBound
+    } else {
+      spans.append(contentsOf: local)
+      start += count
+    }
+  }
+  var lines: [IndexedLine] = []
+  var y: CGFloat = 0
+  for range in spans {
+    guard let height = heights[range], let lineWidth = widths[range] else {
+      throw NSError(domain: "line-index", code: 37)
+    }
+    lines.append(IndexedLine(range: range, y: y, height: height, width: lineWidth))
+    y += height
+  }
+  guard lines.first?.range.lowerBound == 0,
+    lines.last?.range.upperBound == sourceLength,
+    zip(lines, lines.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
+  else { throw NSError(domain: "line-index", code: 38) }
   return LinePlan(lines: lines, height: y)
 }
 
@@ -676,5 +756,46 @@ private enum IndexedLineSliceViewportProbe {
       print("target=\(name) requestedY=\(y) actualY=\(actualY) range=\(view.displayedRange) lines=\(view.displayedLineCount) firstLineY=\(firstVisibleY) layout=\(layoutDuration) glyphPixels=\(glyphPixels)")
     }
     window.close()
+
+    let backgroundResult = PlanResultBox()
+    let backgroundGroup = DispatchGroup()
+    let backgroundText = source.string
+    let backgroundFontName = font.fontName
+    let backgroundStart = ContinuousClock.now
+    var mainRunLoopCycles = 0
+    backgroundGroup.enter()
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        backgroundResult.store(
+          Result {
+            try makeStringPlan(
+              text: backgroundText, fontName: backgroundFontName, width: 858, window: 65_536)
+          })
+        backgroundGroup.leave()
+      }
+    }
+    while backgroundGroup.wait(timeout: .now()) == .timedOut {
+      _ = RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.016))
+      mainRunLoopCycles += 1
+    }
+    let backgroundDuration = backgroundStart.duration(to: ContinuousClock.now)
+    guard let backgroundPlan = backgroundResult.load() else {
+      throw NSError(
+        domain: "line-index", code: 40,
+        userInfo: [NSLocalizedDescriptionKey: "background index returned no result"])
+    }
+    let completedBackgroundPlan = try backgroundPlan.get()
+    guard completedBackgroundPlan.lines.map(\.range) == plan.lines.map(\.range),
+      completedBackgroundPlan.lines.map(\.height) == plan.lines.map(\.height)
+    else {
+      throw NSError(
+        domain: "line-index", code: 41,
+        userInfo: [
+          NSLocalizedDescriptionKey: "background index geometry differed from foreground geometry"
+        ])
+    }
+    print(
+      "backgroundIndex=passed duration=\(backgroundDuration) mainRunLoopCycles=\(mainRunLoopCycles) geometry=exact"
+    )
   }
 }
