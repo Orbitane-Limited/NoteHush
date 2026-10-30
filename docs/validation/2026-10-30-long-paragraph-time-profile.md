@@ -118,6 +118,10 @@ Updating only the custom elements' offsets and lengths keeps synthetic 10 MiB in
 
 For the generated 10 MiB RTL/emoji target, the bounded observer prototype planned initial elements in about 1.3 seconds. Twenty metadata-only synthetic key events retained exact text, caret, contiguous span coverage, targeted fragment coverage, and Undo at 9.60 ms p95. That range-shift strategy is still incorrect on the mixed-script control (603 differing line records), and complete 10 MiB geometry has no oracle. Twenty events with local Core Text replanning took 21.0 ms p95. A capped 16-window native reflow did not converge after approximately 555 ms. Reflowing the entire edited suffix in 8,192-unit windows covered the complete document but took 10.982 seconds across 321 windows and found no reusable suffix. A 2,048-unit run covered the complete suffix in 1,296 windows and 6.817 seconds, with exact text, caret, targeted fragment coverage, and Undo; complete 10 MiB native geometry still has no oracle. Increasing each window to 65,536 units reduced the count to 41 but took 53.529 seconds. A separate 65,536-unit mixed-script control matched geometry, then hit an AppKit temporary-attribute range assertion during Undo. Using synchronous full-suffix Core Text replanning for one generated 10 MiB insertion took 711 ms and preserved text, caret, span coverage, targeted layout and Undo, but misses the 16.7 ms typing target and has no full-size native geometry oracle. These results reject metadata-only updates and synchronous full-suffix reflow as a live-edit correction; the smaller windows remain a diagnostic result only.
 
+### Attribute-edit notification follow-up
+
+The probe then applied a synchronous whole-document Core Text line plan after each generated edit, updated its line-aligned text elements, and notified the attached `NSTextStorage` with a no-op `.editedAttributes` edit. This avoided the temporary-selection-attribute assertion from direct layout invalidation. The 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining controls all matched native TextKit line starts, UTF-16 lengths, and widths exactly after editing. In the 10 MiB target, text, caret, contiguous span coverage, targeted fragment coverage, and Undo also remained exact. But generating the updated 10 MiB plan took 1.319 seconds, and the 20 synthetic event dispatches measured 20.61 ms p95 in this run. This notification route therefore also misses the typing budget and is not a live-edit fix. A detached Core Text planning attempt yielded to the main run loop while metadata-only spans were active and hit the same AppKit temporary-attribute assertion before the plan could be published; it was discarded and is not part of the retained reproducer.
+
 The probe compiled with Swift 6, `-warnings-as-errors`, and the macOS 14 deployment target on arm64 macOS 26.6.2 / Xcode 26.6. These are single synthetic observations, not physical-input, minimum-hardware, memory, recovery, or release measurements. No product source changed and #75 remains open.
 
 Reproduction (the full 10 MiB run uses the probe's 8,192-unit bounded control):
@@ -135,6 +139,8 @@ xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx
 /private/tmp/NoteHushObserverChunkProbe 2048 2000 8192
 # To repeat the responsive metadata-only input control (its small mixed-script geometry fails):
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 metadata-only large-only
+# To compare a synchronous whole-document plan published through an attribute edit:
+/private/tmp/NoteHushObserverChunkProbe 8192 16 8192 attribute-notify
 # To compare whole-suffix Core Text replanning on small controls and the 10 MiB target:
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 coretext-suffix
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 coretext-suffix large-only
@@ -146,8 +152,8 @@ The executable arguments are large-run window size, large-run maximum window cou
 
 | Artifact | SHA-256 |
 | --- | --- |
-| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `777e1c2f3467970d5afef9954768f8e6cc3be38598f2618be4a42c9d777d4d54` |
-| Compiled probe | `ce8cff32d3029454ce84382f78be7aafe70051b839795ff2d95941b6817675e5` |
+| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `ea36e3bac566c6a2c87f71e12c56d9a3ef5bf57c9460b8ef0d85fec0dc65876f` |
+| Compiled probe | `67edf722a7d7cd9892063e72533008de610743a6e5870f84df763d004dc4f16e` |
 
 Reproduction (run each process separately):
 

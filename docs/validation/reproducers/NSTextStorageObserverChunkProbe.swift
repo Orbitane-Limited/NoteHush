@@ -287,7 +287,8 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
 }
 
 @MainActor func verifySmallGeometry(
-  _ name: String, text: String, reflowWindow: Int, wholeSuffixCoreText: Bool
+  _ name: String, text: String, reflowWindow: Int, wholeSuffixCoreText: Bool,
+  attributeEditNotification: Bool
 ) throws {
   let style = NSMutableParagraphStyle()
   style.baseWritingDirection = .natural
@@ -312,9 +313,11 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   let nativeRows = geometry(nativeManager, content: nativeContent)
 
   let content = PlannedContentStorage()
-  content.textStorage = NSTextStorage(attributedString: source)
+  let backing = NSTextStorage(attributedString: source)
+  content.textStorage = backing
   content.setSpans(groupedSpans(spans, maximumLength: 2048))
   content.setWholeSuffixCoreTextReplan(wholeSuffixCoreText)
+  content.setMetadataOnlyReplan(attributeEditNotification)
   let presenter = ParagraphDirectionPresenter()
   content.delegate = presenter
   let manager = NSTextLayoutManager()
@@ -360,16 +363,22 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   nativeEditedManager.ensureLayout(for: nativeEditedManager.documentRange)
   let nativeEditedRows = geometry(nativeEditedManager, content: nativeEditedContent)
   let reflowStart = ContinuousClock.now
+  if attributeEditNotification {
+    let refreshed = plannedSpans(editedSource, width: 858, cap: hasCombining ? 8192 : 65536)
+    content.setSpans(groupedSpans(refreshed, maximumLength: 2048))
+    backing.edited(
+      .editedAttributes, range: NSRange(location: 0, length: backing.length), changeInLength: 0)
+  }
   let nativeReflow =
-    wholeSuffixCoreText
+    (wholeSuffixCoreText || attributeEditNotification)
     ? (spans: content.spansSnapshot(), windows: 0, convergence: 0)
     : incrementalSpans(
       spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
       direction: name == "rtl-emoji" ? .rightToLeft : .leftToRight)
-  if !wholeSuffixCoreText {
+  if !wholeSuffixCoreText && !attributeEditNotification {
     content.setSpans(groupedSpans(nativeReflow.spans, maximumLength: 2048))
+    manager.invalidateLayout(for: manager.documentRange)
   }
-  manager.invalidateLayout(for: manager.documentRange)
   manager.ensureLayout(for: manager.documentRange)
   let reflowElapsed = reflowStart.duration(to: .now).components
   let reflowMilliseconds =
@@ -388,7 +397,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     $0.element.0 != $0.element.1
   }
   fputs(
-    "editGeometry=\(name) strategy=\(wholeSuffixCoreText ? "coretext-whole-suffix" : "native-bounded") reflowWindows=\(nativeReflow.windows) convergence=\(nativeReflow.convergence) reflowMs=\(reflowMilliseconds) diffCount=\(editedDiffs.count) first=\(String(describing: editedFirstDiff)) last=\(String(describing: editedDiffs.last))\n",
+    "editGeometry=\(name) strategy=\(wholeSuffixCoreText ? "coretext-whole-suffix" : attributeEditNotification ? "attribute-edit-notification" : "native-bounded") reflowWindows=\(nativeReflow.windows) convergence=\(nativeReflow.convergence) reflowMs=\(reflowMilliseconds) diffCount=\(editedDiffs.count) first=\(String(describing: editedFirstDiff)) last=\(String(describing: editedDiffs.last))\n",
     stderr)
   fputs(
     "editGeometry=\(name) exact=\(editedExact) nativeRows=\(nativeEditedRows.count) customRows=\(observedEditedRows.count) firstDiff=\(String(describing: editedFirstDiff))\n",
@@ -409,7 +418,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
 
 @MainActor func largeTarget(
   _ target: String, reflowWindow: Int, maximumReflowWindows: Int,
-  wholeSuffixCoreText: Bool, metadataOnlyReplan: Bool
+  wholeSuffixCoreText: Bool, metadataOnlyReplan: Bool, attributeEditNotification: Bool
 ) throws {
   let header = "123456789012345\n"
   let unit = "خط📝"
@@ -484,18 +493,28 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   fflush(stderr)
   let editedSource = NSAttributedString(
     string: edited, attributes: [.font: font, .paragraphStyle: style])
+  if attributeEditNotification {
+    let refreshed = plannedSpans(editedSource, width: 858, cap: 65_536)
+    customContent.setSpans(groupedSpans(refreshed, maximumLength: 2048))
+    // Diagnostic only: ask TextKit to invalidate layout after the external
+    // span map changes, without changing document text or attributes.
+    backing.edited(
+      .editedAttributes, range: NSRange(location: 0, length: backing.length), changeInLength: 0)
+  }
   let reflowStart = ContinuousClock.now
   let reflow =
     metadataOnlyReplan
     ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
     : wholeSuffixCoreText
       ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
-      : incrementalSpans(
-        spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
-        direction: .rightToLeft, maximumWindows: maximumReflowWindows)
+      : attributeEditNotification
+        ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
+        : incrementalSpans(
+          spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
+          direction: .rightToLeft, maximumWindows: maximumReflowWindows)
   let reflowCoversDocument =
     reflow.spans.last.map { $0.start + $0.length } == edited.utf16.count
-  if !metadataOnlyReplan && !wholeSuffixCoreText
+  if !metadataOnlyReplan && !wholeSuffixCoreText && !attributeEditNotification
     && (reflow.convergence != 0 || reflowCoversDocument)
   {
     customContent.setSpans(groupedSpans(reflow.spans, maximumLength: 2048))
@@ -545,7 +564,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     editedLayoutCovered = coveredThrough >= insertion + inputCount
   }
   print(
-    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(metadataOnlyReplan ? "metadata-only" : wholeSuffixCoreText ? "coretext-whole-suffix" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
+    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(metadataOnlyReplan ? "metadata-only" : wholeSuffixCoreText ? "coretext-whole-suffix" : attributeEditNotification ? "attribute-edit-notification" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
   )
   guard eventExact, selectionExact, spansCoverDocument, editedLayoutCovered,
     editor.textContentStorage === customContent
@@ -574,6 +593,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     let smallReflowWindow = arguments.dropFirst(2).first.flatMap(Int.init) ?? 8192
     let wholeSuffixCoreText = arguments.dropFirst(3).contains("coretext-suffix")
     let metadataOnlyReplan = arguments.dropFirst(3).contains("metadata-only")
+    let attributeEditNotification = arguments.dropFirst(3).contains("attribute-notify")
     let largeOnly = arguments.contains("large-only")
     guard (1...65_536).contains(reflowWindow), (1...2_000).contains(maximumReflowWindows),
       (1...65_536).contains(smallReflowWindow)
@@ -583,16 +603,20 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     if !largeOnly {
       try verifySmallGeometry(
         "rtl-emoji", text: String(repeating: "خط📝", count: 30_000),
-        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText)
+        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText,
+        attributeEditNotification: attributeEditNotification)
       try verifySmallGeometry(
         "mixed-scripts", text: String(repeating: "abc اردو 123 — שלום🙂 ", count: 5_500),
-        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText)
+        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText,
+        attributeEditNotification: attributeEditNotification)
       try verifySmallGeometry(
         "combining", text: String(repeating: "e\u{301} العربية العربية אבג 🧑🏽‍💻 ", count: 4_000),
-        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText)
+        reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText,
+        attributeEditNotification: attributeEditNotification)
     }
     try largeTarget(
       "all", reflowWindow: reflowWindow, maximumReflowWindows: maximumReflowWindows,
-      wholeSuffixCoreText: wholeSuffixCoreText, metadataOnlyReplan: metadataOnlyReplan)
+      wholeSuffixCoreText: wholeSuffixCoreText, metadataOnlyReplan: metadataOnlyReplan,
+      attributeEditNotification: attributeEditNotification)
   }
 }
