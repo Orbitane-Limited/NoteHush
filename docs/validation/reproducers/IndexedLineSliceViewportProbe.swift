@@ -349,6 +349,7 @@ private enum IndexedLineSliceViewportProbe {
   static func main() throws {
     NSApplication.shared.setActivationPolicy(.prohibited)
     try checkSmallGeometry()
+    let loadStart = ContinuousClock.now
     let header = "123456789012345\n"
     let unit = "خط📝"
     let byteCount = 10_485_760
@@ -359,6 +360,25 @@ private enum IndexedLineSliceViewportProbe {
     style.baseWritingDirection = .natural
     let font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
     let source = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: style])
+    let modelReady = ContinuousClock.now
+    let previewStart = ContinuousClock.now
+    let previewLength = min(8_192, source.length)
+    let previewSource = source.attributedSubstring(from: NSRange(location: 0, length: previewLength))
+    let previewPlan = try makePlan(previewSource, width: 858, window: 8_192)
+    let previewScroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 900, height: 500))
+    let previewView = IndexedSliceView(
+      source: source, plan: previewPlan, width: 868, viewportHeight: 500)
+    previewScroll.documentView = previewView
+    let previewWindow = NSWindow(
+      contentRect: previewScroll.frame, styleMask: .borderless, backing: .buffered, defer: false)
+    previewWindow.contentView = previewScroll
+    try previewView.layoutViewport(at: 0)
+    let previewGlyphPixels = try visibleGlyphPixelCount(previewView, y: 0, height: 500)
+    let previewDuration = previewStart.duration(to: .now)
+    guard previewGlyphPixels > 0 else { throw NSError(domain: "line-index", code: 22) }
+    print("prefixViewport=utf16=\(previewLength) lines=\(previewView.displayedLineCount) glyphPixels=\(previewGlyphPixels) prefixLayout=\(previewDuration) sourcePreparation=\(loadStart.duration(to: modelReady)) sourceToFirstViewport=\(loadStart.duration(to: .now))")
+    previewWindow.close()
+
     let planStart = ContinuousClock.now
     let plan = try makePlan(source, width: 858, window: 65_536)
     let planDuration = planStart.duration(to: .now)

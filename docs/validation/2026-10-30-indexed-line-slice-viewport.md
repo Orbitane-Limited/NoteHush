@@ -21,6 +21,8 @@ The optimized Swift 6 build with warnings treated as errors succeeded on an Appl
 
 The width difference is between Core Text's typographic width and TextKit's line-fragment width; line boundaries and heights matched, and visible glyphs were drawn by TextKit. It remains a reason to avoid using Core Text widths as TextKit drawing geometry.
 
+Before building the full index, a prefix-only plan for the first 8,192 UTF-16 units rendered 64 visible lines and 40,144 glyph pixels. Generated source preparation took 21.0 ms, and source preparation through the first captured viewport took 291 ms. This suggests a first-viewport-before-index sequence is fast enough in this isolated probe. It is only a bitmap-render measurement: the view does not accept text input, the window is not the NoteHush app, and disk reading, workspace restoration, and interactive input are not included. It does not establish the PRD's interactive-opening target.
+
 The generated 10 MiB document had 5,242,888 UTF-16 units and 56,989 indexed lines. Index construction with a 65,536-unit window took 1.75 seconds in the final run. Increasing the window to 262,144, 524,288, and 1,048,576 units took 1.87, 1.89, and 2.08 seconds, respectively; each produced the same line count and total height. At start, middle, and end, the scroll view reached the requested vertical offset, the corresponding source range was selected, native local layout took 10.0–61.2 ms in the final run, and the captured viewport contained 39,090–40,842 dark glyph pixels.
 
 ## Planning speed follow-ups
