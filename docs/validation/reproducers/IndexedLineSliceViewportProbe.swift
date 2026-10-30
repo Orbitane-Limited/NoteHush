@@ -412,6 +412,21 @@ private enum IndexedLineSliceViewportProbe {
     window.contentView = scroll
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
+    let middleY = plan.height / 2
+    for renderedLineCount in [28, 32, 64] {
+      var samples: [Duration] = []
+      for _ in 0..<20 {
+        let started = ContinuousClock.now
+        try view.layoutViewport(at: middleY, linesToRender: renderedLineCount)
+        samples.append(started.duration(to: .now))
+      }
+      let sorted = samples.sorted()
+      let pixels = try visibleGlyphPixelCount(view, y: middleY, height: 500)
+      guard view.displayedLineCount == renderedLineCount, pixels > 0 else {
+        throw NSError(domain: "line-index", code: 23, userInfo: [NSLocalizedDescriptionKey: "middle slice \(renderedLineCount) lines did not render visible pixels"])
+      }
+      print("middleSliceLines=\(renderedLineCount) p50=\(sorted[9]) p95=\(sorted[18]) min=\(sorted[0]) max=\(sorted[19]) glyphPixels=\(pixels)")
+    }
     for (name, y) in [("start", CGFloat(0)), ("middle", plan.height / 2), ("end", max(0, plan.height - 500))] {
       scroll.contentView.scroll(to: NSPoint(x: 0, y: y))
       scroll.reflectScrolledClipView(scroll.contentView)
