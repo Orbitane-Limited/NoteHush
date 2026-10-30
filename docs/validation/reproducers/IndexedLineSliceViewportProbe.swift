@@ -788,7 +788,7 @@ private enum IndexedLineSliceViewportProbe {
       "backgroundIndex=passed duration=\(backgroundDuration) mainRunLoopCycles=\(mainRunLoopCycles) geometry=exact"
     )
     let sortedInputSamples = inputSamples.sorted()
-    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact keyDispatch=not-tested backgroundIndex=concurrent")
+    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact backgroundIndex=concurrent")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
     for renderedLineCount in [28, 32, 64] {
@@ -821,6 +821,30 @@ private enum IndexedLineSliceViewportProbe {
       print("target=\(name) requestedY=\(y) actualY=\(actualY) range=\(view.displayedRange) lines=\(view.displayedLineCount) firstLineY=\(firstVisibleY) layout=\(layoutDuration) glyphPixels=\(glyphPixels)")
     }
     window.close()
-
+    let keyWindow = NSWindow(
+      contentRect: NSRect(x: 0, y: 0, width: 900, height: 500), styleMask: .borderless,
+      backing: .buffered, defer: false)
+    keyWindow.contentView = inputView
+    guard keyWindow.makeFirstResponder(inputView),
+      let event = NSEvent.keyEvent(
+        with: .keyDown, location: .zero, modifierFlags: [],
+        timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: keyWindow.windowNumber,
+        context: nil, characters: "a", charactersIgnoringModifiers: "a", isARepeat: false,
+        keyCode: 0)
+    else { throw NSError(domain: "line-index", code: 43) }
+    let beforeEvent = inputView.text
+    let eventSelection = inputView.selectedRange()
+    let expectedEventText = (beforeEvent as NSString).replacingCharacters(
+      in: eventSelection, with: "a")
+    inputView.keyDown(with: event)
+    guard inputView.text == expectedEventText else {
+      throw NSError(
+        domain: "line-index", code: 44,
+        userInfo: [
+          NSLocalizedDescriptionKey: "synthetic keyDown was not inserted by the input context"
+        ])
+    }
+    print("syntheticKeyDown=passed inputContext=inserted")
+    keyWindow.close()
   }
 }
