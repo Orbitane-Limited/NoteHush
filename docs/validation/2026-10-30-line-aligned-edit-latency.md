@@ -54,6 +54,14 @@ and a direct `ensureLayout` for the target range returned. Calling the native
 initial attachment and first viewport, but did not make actual midpoint
 scrolling work; planning to the midpoint also exceeded the one-second target.
 
+Replacing `scrollRangeToVisible` with a direct clip-view scroll avoids that
+exception but also fails to move the viewport. The target fragment reports
+`frameY=0.0`, the `NSTextView` remains 500 points tall, and the clip-view origin
+stays at zero. Thus targeted range layout has no document-space position for
+the middle fragment in this setup. The retained
+`NativeProgressive512ManualScrollProbe.swift` records this control; source
+SHA-256: `873f831aa5235f3ea28b26703cf147f417949652f6e91671be6606af031023c5`.
+
 No app source was changed. Keep #75 open. A candidate still needs bounded
 repeated typing latency, exact native geometry and selection behavior across
 Unicode, IME, undo/redo, viewport coverage and scrolling, recovery, and full app
