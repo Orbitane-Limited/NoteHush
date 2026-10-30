@@ -69,6 +69,8 @@ On a long-paragraph timeout, the harness samples only the exact owned app PID fo
 
 [`NativeTextKitChunkedViewportProbe.swift`](NativeTextKitChunkedViewportProbe.swift) tests targeted native TextKit 2 layout, fragment geometry and offscreen drawing at three points in a generated 10 MiB paragraph. See the [range-rendering report](../2026-10-29-native-textkit-range-rendering.md); it does not integrate with the app editor.
 
+[`TextKit2ContainerCharWrapProbe.swift`](TextKit2ContainerCharWrapProbe.swift) measures initial viewport layout after setting TextKit 2's native text container to character wrapping, using generated 1 MiB and 10 MiB Arabic/emoji paragraphs. Both cases hit the fixed ten-second diagnostic bound; see the [2026-10-30 result](../2026-10-30-textkit2-container-char-wrap.md). This is a rejected configuration control, not application behavior or a release test.
+
 [`LongResolvedDirectionTextViewProbe.swift`](LongResolvedDirectionTextViewProbe.swift) asks the shipping TextKit 2 view to lay out the first range after presenting an explicit base direction for each generated paragraph. The viewport request exceeded its 30-second bound; see the [full-paragraph direction control](../2026-10-29-full-paragraph-direction-control.md) and retained console stage output. No user text or product source was involved.
 
 [`IncrementalChunkEditProbe.swift`](IncrementalChunkEditProbe.swift) combines generated chunk edits, synthetic window-dispatched AppKit key events, direct marked-text callbacks, and indexed TextKit viewport requests. The [report](../2026-10-29-incremental-chunk-input.md) records exact-text checks and latency limits. It is an isolated prototype, not a shipping editor or an issue #75 correction.
