@@ -41,11 +41,15 @@ func plannedSpans(_ source: NSAttributedString, width: Double, cap: Int) -> [Lin
   nonisolated private let emittedLock = OSAllocatedUnfairLock(initialState: 0)
   nonisolated private let wholeSuffixCoreTextReplanLock = OSAllocatedUnfairLock(
     initialState: false)
+  nonisolated private let metadataOnlyReplanLock = OSAllocatedUnfairLock(initialState: false)
   var emitted: Int { emittedLock.withLock { $0 } }
   func setSpans(_ spans: [LineSpan]) { spansLock.withLock { $0 = spans } }
   func spansSnapshot() -> [LineSpan] { spansLock.withLock { $0 } }
   func setWholeSuffixCoreTextReplan(_ enabled: Bool) {
     wholeSuffixCoreTextReplanLock.withLock { $0 = enabled }
+  }
+  func setMetadataOnlyReplan(_ enabled: Bool) {
+    metadataOnlyReplanLock.withLock { $0 = enabled }
   }
   nonisolated override func processEditing(
     for textStorage: NSTextStorage,
@@ -56,6 +60,7 @@ func plannedSpans(_ source: NSAttributedString, width: Double, cap: Int) -> [Lin
   ) {
     if editMask.contains(.editedCharacters) {
       let replanWholeSuffix = wholeSuffixCoreTextReplanLock.withLock { $0 }
+      let replanMetadataOnly = metadataOnlyReplanLock.withLock { $0 }
       let old = spansLock.withLock { $0 }
       let oldEnd = newRange.location + newRange.length - delta
       let first = old.lastIndex(where: { $0.start <= newRange.location }) ?? 0
@@ -63,26 +68,35 @@ func plannedSpans(_ source: NSAttributedString, width: Double, cap: Int) -> [Lin
       if first < old.count, last < old.count {
         let base = old[first].start
         let priorEnd = old[last].start + old[last].length
-        let newEnd = replanWholeSuffix ? textStorage.length : priorEnd + delta
-        let newLength = max(0, newEnd - base)
-        let local = textStorage.attributedSubstring(
-          from: NSRange(location: base, length: newLength))
-        let replanned = groupedSpans(
-          plannedSpans(local, width: 858, cap: 65_536), maximumLength: 2048
-        )
-        .map { LineSpan(start: base + $0.start, length: $0.length) }
-        let oldRangeLength = priorEnd - base
-        let appliedDelta =
-          replanned.reduce(0) { $0 + $1.length }
-          - (replanWholeSuffix ? newEnd - base : oldRangeLength)
-        let suffix =
-          replanWholeSuffix
-          ? []
-          : old.dropFirst(last + 1).map {
-            LineSpan(start: $0.start + appliedDelta, length: $0.length)
+        if replanMetadataOnly {
+          let newLength = max(0, priorEnd - base + delta)
+          let replacement = newLength > 0 ? [LineSpan(start: base, length: newLength)] : []
+          let suffix = old.dropFirst(last + 1).map {
+            LineSpan(start: $0.start + delta, length: $0.length)
           }
-        let updated = Array(old.prefix(first)) + replanned + suffix
-        spansLock.withLock { $0 = updated }
+          spansLock.withLock { $0 = Array(old.prefix(first)) + replacement + suffix }
+        } else {
+          let newEnd = replanWholeSuffix ? textStorage.length : priorEnd + delta
+          let newLength = max(0, newEnd - base)
+          let local = textStorage.attributedSubstring(
+            from: NSRange(location: base, length: newLength))
+          let replanned = groupedSpans(
+            plannedSpans(local, width: 858, cap: 65_536), maximumLength: 2048
+          )
+          .map { LineSpan(start: base + $0.start, length: $0.length) }
+          let oldRangeLength = priorEnd - base
+          let appliedDelta =
+            replanned.reduce(0) { $0 + $1.length }
+            - (replanWholeSuffix ? newEnd - base : oldRangeLength)
+          let suffix =
+            replanWholeSuffix
+            ? []
+            : old.dropFirst(last + 1).map {
+              LineSpan(start: $0.start + appliedDelta, length: $0.length)
+            }
+          let updated = Array(old.prefix(first)) + replanned + suffix
+          spansLock.withLock { $0 = updated }
+        }
       }
     }
     super.processEditing(
@@ -395,7 +409,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
 
 @MainActor func largeTarget(
   _ target: String, reflowWindow: Int, maximumReflowWindows: Int,
-  wholeSuffixCoreText: Bool
+  wholeSuffixCoreText: Bool, metadataOnlyReplan: Bool
 ) throws {
   let header = "123456789012345\n"
   let unit = "خط📝"
@@ -414,6 +428,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   customContent.textStorage = backing
   customContent.setSpans(groupedSpans(spans, maximumLength: 2048))
   customContent.setWholeSuffixCoreTextReplan(wholeSuffixCoreText)
+  customContent.setMetadataOnlyReplan(metadataOnlyReplan)
   let paragraphPresenter = ParagraphDirectionPresenter()
   customContent.delegate = paragraphPresenter
   let customManager = NSTextLayoutManager()
@@ -457,22 +472,32 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   var expectedUnits = Array(before.utf16)
   expectedUnits.insert(contentsOf: repeatElement(UInt16(88), count: inputCount), at: insertion)
   let expected = String(decoding: expectedUnits, as: UTF16.self)
+  fputs("stage=before-read-editor-string\n", stderr)
+  fflush(stderr)
   let edited = editor.string
+  fputs("stage=after-read-editor-string\n", stderr)
+  fflush(stderr)
   let eventExact = edited.utf16.elementsEqual(expected.utf16)
   let selectionExact =
     editor.selectedRange() == NSRange(location: insertion + inputCount, length: 0)
+  fputs("stage=after-read-selection\n", stderr)
+  fflush(stderr)
   let editedSource = NSAttributedString(
     string: edited, attributes: [.font: font, .paragraphStyle: style])
   let reflowStart = ContinuousClock.now
   let reflow =
-    wholeSuffixCoreText
+    metadataOnlyReplan
     ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
-    : incrementalSpans(
-      spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
-      direction: .rightToLeft, maximumWindows: maximumReflowWindows)
+    : wholeSuffixCoreText
+      ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
+      : incrementalSpans(
+        spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
+        direction: .rightToLeft, maximumWindows: maximumReflowWindows)
   let reflowCoversDocument =
     reflow.spans.last.map { $0.start + $0.length } == edited.utf16.count
-  if !wholeSuffixCoreText && (reflow.convergence != 0 || reflowCoversDocument) {
+  if !metadataOnlyReplan && !wholeSuffixCoreText
+    && (reflow.convergence != 0 || reflowCoversDocument)
+  {
     customContent.setSpans(groupedSpans(reflow.spans, maximumLength: 2048))
     customManager.invalidateLayout(for: customManager.documentRange)
   }
@@ -520,7 +545,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     editedLayoutCovered = coveredThrough >= insertion + inputCount
   }
   print(
-    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(wholeSuffixCoreText ? "coretext-whole-suffix" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
+    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(metadataOnlyReplan ? "metadata-only" : wholeSuffixCoreText ? "coretext-whole-suffix" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
   )
   guard eventExact, selectionExact, spansCoverDocument, editedLayoutCovered,
     editor.textContentStorage === customContent
@@ -548,6 +573,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     let maximumReflowWindows = arguments.dropFirst().first.flatMap(Int.init) ?? 16
     let smallReflowWindow = arguments.dropFirst(2).first.flatMap(Int.init) ?? 8192
     let wholeSuffixCoreText = arguments.dropFirst(3).contains("coretext-suffix")
+    let metadataOnlyReplan = arguments.dropFirst(3).contains("metadata-only")
     let largeOnly = arguments.contains("large-only")
     guard (1...65_536).contains(reflowWindow), (1...2_000).contains(maximumReflowWindows),
       (1...65_536).contains(smallReflowWindow)
@@ -567,6 +593,6 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     }
     try largeTarget(
       "all", reflowWindow: reflowWindow, maximumReflowWindows: maximumReflowWindows,
-      wholeSuffixCoreText: wholeSuffixCoreText)
+      wholeSuffixCoreText: wholeSuffixCoreText, metadataOnlyReplan: metadataOnlyReplan)
   }
 }
