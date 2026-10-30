@@ -44,6 +44,16 @@ unmatching type (null)`. The stack enters
 `NSScrollView.setDocumentView`. Targeted-range coverage in the prior probe did
 not establish scroll-view integration; this attempt failed that requirement.
 
+A second integration control used native superclass locations from
+`NSTextContentStorage`, 512-unit planner chunks, and a real scroll view. The
+editor attached and laid out its first 4,716 UTF-16 units in 6.87 ms. Planning
+the generated document through its midpoint took 2,666 ms across 5,587 chunks,
+and a direct `ensureLayout` for the target range returned. Calling the native
+`scrollRangeToVisible` then threw the same location-comparison exception from
+`NSTextView._boundingRectForTextRange`. So native locations improved the
+initial attachment and first viewport, but did not make actual midpoint
+scrolling work; planning to the midpoint also exceeded the one-second target.
+
 No app source was changed. Keep #75 open. A candidate still needs bounded
 repeated typing latency, exact native geometry and selection behavior across
 Unicode, IME, undo/redo, viewport coverage and scrolling, recovery, and full app
@@ -59,7 +69,11 @@ edit control. `CoreTextLargeNSTextView512Window512TypingProbe.swift` repeats
 the 20-edit probe with 512-unit reflow windows.
 `CoreTextLargeNSTextView512ScrollProbe.swift` attempts actual `NSScrollView`
 attachment and midpoint scrolling. The probes are independent diagnostics and
-do not form part of the release test suite.
+`NativeProgressive512ViewportProbe.swift` combines native superclass
+locations with 512-unit chunks and a midpoint scroll request. These probes
+are diagnostics and are not part of the release test suite. The native-location
+source SHA-256 is
+`7192158a3b1bdee12d22eec870f3f6a0aa39b7b1b7f29d0cdafc1fc59e9f59c2`.
 
 ## Exact repeated-input observations
 
