@@ -1,0 +1,55 @@
+name: Long paragraph fragment queue completion
+
+on:
+  push:
+    branches: [issue-75/long-paragraphs]
+    paths:
+      - docs/validation/reproducers/TextKitFragmentQueueCompletionProbe.swift
+      - docs/validation/reproducers/run-fragment-queue-completion.py
+      - .github/workflows/long-paragraph-fragment-queue.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: notehush-long-paragraph-fragment-queue
+  cancel-in-progress: false
+
+jobs:
+  completion:
+    name: Generated fragment completion observation
+    runs-on: macos-26
+    timeout-minutes: 10
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Record runner and source provenance
+        run: |
+          set -euo pipefail
+          printf 'commit=%s\n' "$(git rev-parse HEAD)"
+          printf 'architecture=%s\n' "$(uname -m)"
+          printf 'macOS='; sw_vers -productVersion
+          printf 'hardware_model='; sysctl -n hw.model
+          xcodebuild -version
+          swift --version
+
+      - name: Check disk headroom
+        run: python3 scripts/check_runner_storage.py
+
+      - name: Run generated 10 MiB completion observation
+        run: python3 docs/validation/reproducers/run-fragment-queue-completion.py
+
+      - name: Preserve full results, including failed observations
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: long-paragraph-fragment-queue-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/logs/FragmentQueueCompletion-*/
+          retention-days: 7
+          if-no-files-found: error

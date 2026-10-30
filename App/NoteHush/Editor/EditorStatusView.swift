@@ -51,7 +51,7 @@ final class EditorStatusView: NSStackView {
       format.setAccessibilityHelp(nil)
       return
     }
-    let range = tab.editor.selectedRange()
+    let range = tab.textSelection
     let location = metrics.position(atUTF16Offset: range.location)
     position.stringValue = String(localized: "Ln \(location.line), Col \(location.column)")
     let selected = metrics.selectedCharacterCount(
