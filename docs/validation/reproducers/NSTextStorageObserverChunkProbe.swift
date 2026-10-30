@@ -34,6 +34,14 @@ func plannedSpans(_ source: NSAttributedString, width: Double, cap: Int) -> [Lin
   return spans
 }
 
+func plannedSpansOffMain(
+  _ source: sending NSAttributedString, width: Double, cap: Int
+) async -> [LineSpan] {
+  await Task.detached(priority: .userInitiated) {
+    plannedSpans(source, width: width, cap: cap)
+  }.value
+}
+
 @MainActor final class PlannedContentStorage: NSTextContentStorage {
   nonisolated private let spansLock = OSAllocatedUnfairLock(initialState: [LineSpan]())
   nonisolated private let locationsLock = OSAllocatedUnfairLock(
@@ -418,8 +426,9 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
 
 @MainActor func largeTarget(
   _ target: String, reflowWindow: Int, maximumReflowWindows: Int,
-  wholeSuffixCoreText: Bool, metadataOnlyReplan: Bool, attributeEditNotification: Bool
-) throws {
+  wholeSuffixCoreText: Bool, metadataOnlyReplan: Bool, attributeEditNotification: Bool,
+  asyncNotifyAfterReselection: Bool
+) async throws {
   let header = "123456789012345\n"
   let unit = "خط📝"
   let bytes = 10_485_760
@@ -437,7 +446,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   customContent.textStorage = backing
   customContent.setSpans(groupedSpans(spans, maximumLength: 2048))
   customContent.setWholeSuffixCoreTextReplan(wholeSuffixCoreText)
-  customContent.setMetadataOnlyReplan(metadataOnlyReplan)
+  customContent.setMetadataOnlyReplan(metadataOnlyReplan || asyncNotifyAfterReselection)
   let paragraphPresenter = ParagraphDirectionPresenter()
   customContent.delegate = paragraphPresenter
   let customManager = NSTextLayoutManager()
@@ -493,7 +502,17 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
   fflush(stderr)
   let editedSource = NSAttributedString(
     string: edited, attributes: [.font: font, .paragraphStyle: style])
-  if attributeEditNotification {
+  if asyncNotifyAfterReselection {
+    // Resynchronize the insertion point's temporary attributes before a
+    // detached planner yields to AppKit's next viewport/layout pass.
+    editor.setSelectedRange(editor.selectedRange())
+    let backgroundSnapshot = NSAttributedString(
+      string: editedSource.string, attributes: [.font: font, .paragraphStyle: style])
+    let refreshed = await plannedSpansOffMain(backgroundSnapshot, width: 858, cap: 65_536)
+    customContent.setSpans(groupedSpans(refreshed, maximumLength: 2048))
+    backing.edited(
+      .editedAttributes, range: NSRange(location: 0, length: backing.length), changeInLength: 0)
+  } else if attributeEditNotification {
     let refreshed = plannedSpans(editedSource, width: 858, cap: 65_536)
     customContent.setSpans(groupedSpans(refreshed, maximumLength: 2048))
     // Diagnostic only: ask TextKit to invalidate layout after the external
@@ -507,14 +526,17 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
     : wholeSuffixCoreText
       ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
-      : attributeEditNotification
+      : asyncNotifyAfterReselection
         ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
-        : incrementalSpans(
-          spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
-          direction: .rightToLeft, maximumWindows: maximumReflowWindows)
+        : attributeEditNotification
+          ? (spans: customContent.spansSnapshot(), windows: 0, convergence: 0)
+          : incrementalSpans(
+            spans, edited: editedSource, position: insertion, width: 868, window: reflowWindow,
+            direction: .rightToLeft, maximumWindows: maximumReflowWindows)
   let reflowCoversDocument =
     reflow.spans.last.map { $0.start + $0.length } == edited.utf16.count
   if !metadataOnlyReplan && !wholeSuffixCoreText && !attributeEditNotification
+    && !asyncNotifyAfterReselection
     && (reflow.convergence != 0 || reflowCoversDocument)
   {
     customContent.setSpans(groupedSpans(reflow.spans, maximumLength: 2048))
@@ -564,7 +586,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     editedLayoutCovered = coveredThrough >= insertion + inputCount
   }
   print(
-    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(metadataOnlyReplan ? "metadata-only" : wholeSuffixCoreText ? "coretext-whole-suffix" : attributeEditNotification ? "attribute-edit-notification" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
+    "editAtMiddle=\(insertion) planMs=\(planElapsed * 1000) events=\(eventSamples.count) medianMs=\(median) p95Ms=\(p95) strategy=\(metadataOnlyReplan ? "metadata-only" : wholeSuffixCoreText ? "coretext-whole-suffix" : asyncNotifyAfterReselection ? "async-reselect-notify" : attributeEditNotification ? "attribute-edit-notification" : "native-bounded") nativeReflowWindows=\(reflow.windows) nativeReflowConvergence=\(reflow.convergence) nativeReflowCoversDocument=\(reflowCoversDocument) nativeReflowMs=\(reflowMilliseconds) selectionExact=\(selectionExact) textExact=\(eventExact) spansCoverDocument=\(spansCoverDocument) lineCount=\(laidOutLineCount) coveredThrough=\(coveredThrough) fragmentsCovered=\(editedLayoutCovered) managerAttached=\(editor.textContentStorage === customContent)"
   )
   guard eventExact, selectionExact, spansCoverDocument, editedLayoutCovered,
     editor.textContentStorage === customContent
@@ -585,7 +607,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
 }
 
 @main @MainActor enum Main {
-  static func main() throws {
+  static func main() async throws {
     NSApplication.shared.setActivationPolicy(.prohibited)
     let arguments = Array(CommandLine.arguments.dropFirst())
     let reflowWindow = arguments.first.flatMap(Int.init) ?? 8192
@@ -594,6 +616,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     let wholeSuffixCoreText = arguments.dropFirst(3).contains("coretext-suffix")
     let metadataOnlyReplan = arguments.dropFirst(3).contains("metadata-only")
     let attributeEditNotification = arguments.dropFirst(3).contains("attribute-notify")
+    let asyncNotifyAfterReselection = arguments.dropFirst(3).contains("async-notify-reselect")
     let largeOnly = arguments.contains("large-only")
     guard (1...65_536).contains(reflowWindow), (1...2_000).contains(maximumReflowWindows),
       (1...65_536).contains(smallReflowWindow)
@@ -614,9 +637,10 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
         reflowWindow: smallReflowWindow, wholeSuffixCoreText: wholeSuffixCoreText,
         attributeEditNotification: attributeEditNotification)
     }
-    try largeTarget(
+    try await largeTarget(
       "all", reflowWindow: reflowWindow, maximumReflowWindows: maximumReflowWindows,
       wholeSuffixCoreText: wholeSuffixCoreText, metadataOnlyReplan: metadataOnlyReplan,
-      attributeEditNotification: attributeEditNotification)
+      attributeEditNotification: attributeEditNotification,
+      asyncNotifyAfterReselection: asyncNotifyAfterReselection)
   }
 }

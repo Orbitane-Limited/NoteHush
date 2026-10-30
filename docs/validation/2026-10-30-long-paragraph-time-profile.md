@@ -120,7 +120,7 @@ For the generated 10 MiB RTL/emoji target, the bounded observer prototype planne
 
 ### Attribute-edit notification follow-up
 
-The probe then applied a synchronous whole-document Core Text line plan after each generated edit, updated its line-aligned text elements, and notified the attached `NSTextStorage` with a no-op `.editedAttributes` edit. This avoided the temporary-selection-attribute assertion from direct layout invalidation. The 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining controls all matched native TextKit line starts, UTF-16 lengths, and widths exactly after editing. In the 10 MiB target, text, caret, contiguous span coverage, targeted fragment coverage, and Undo also remained exact. But generating the updated 10 MiB plan took 1.319 seconds, and the 20 synthetic event dispatches measured 20.61 ms p95 in this run. This notification route therefore also misses the typing budget and is not a live-edit fix. A detached Core Text planning attempt yielded to the main run loop while metadata-only spans were active and hit the same AppKit temporary-attribute assertion before the plan could be published; it was discarded and is not part of the retained reproducer.
+The probe then applied a synchronous whole-document Core Text line plan after each generated edit, updated its line-aligned text elements, and notified the attached `NSTextStorage` with a no-op `.editedAttributes` edit. This avoided the temporary-selection-attribute assertion from direct layout invalidation. The 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining controls all matched native TextKit line starts, UTF-16 lengths, and widths exactly after editing. In the 10 MiB target, text, caret, contiguous span coverage, targeted fragment coverage, and Undo also remained exact. But generating the updated 10 MiB plan took 1.319 seconds; two 20-event runs measured 20.61 and 20.87 ms p95. This notification route therefore also misses the typing budget and is not a live-edit fix. A detached Core Text planning attempt yielded to the main run loop while metadata-only spans were active and hit the same AppKit temporary-attribute assertion before the plan could be published. Reapplying the current selection immediately after the edit hit that assertion even before the detached plan started. Both asynchronous routes were discarded.
 
 The probe compiled with Swift 6, `-warnings-as-errors`, and the macOS 14 deployment target on arm64 macOS 26.6.2 / Xcode 26.6. These are single synthetic observations, not physical-input, minimum-hardware, memory, recovery, or release measurements. No product source changed and #75 remains open.
 
@@ -141,6 +141,8 @@ xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 metadata-only large-only
 # To compare a synchronous whole-document plan published through an attribute edit:
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 attribute-notify
+# To reproduce the expected selection-range assertion before detached planning:
+/private/tmp/NoteHushObserverChunkProbe 8192 16 8192 async-notify-reselect large-only
 # To compare whole-suffix Core Text replanning on small controls and the 10 MiB target:
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 coretext-suffix
 /private/tmp/NoteHushObserverChunkProbe 8192 16 8192 coretext-suffix large-only
@@ -152,8 +154,8 @@ The executable arguments are large-run window size, large-run maximum window cou
 
 | Artifact | SHA-256 |
 | --- | --- |
-| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `ea36e3bac566c6a2c87f71e12c56d9a3ef5bf57c9460b8ef0d85fec0dc65876f` |
-| Compiled probe | `67edf722a7d7cd9892063e72533008de610743a6e5870f84df763d004dc4f16e` |
+| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `96a7da37aa45dfd3c8b27a71f4387bbd2db3cf28fd64fba35b441987da7c1ad4` |
+| Compiled probe | `5ca4dd1179e059e8823bb80560aa054ae72a3e078d9cd592fed350c8d08e89d6` |
 
 Reproduction (run each process separately):
 
