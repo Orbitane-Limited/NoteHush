@@ -887,6 +887,39 @@ private func benchmarkPlan(
 }
 
 @MainActor
+private func measureEditReplan(
+  _ source: NSAttributedString, plan: LinePlan, width: CGFloat, window: Int
+) throws -> (Duration, Int, Int, Int) {
+  let text = source.string as NSString
+  let composed = text.rangeOfComposedCharacterSequence(at: source.length / 2)
+  let insertionPoint = NSMaxRange(composed)
+  let attributes = source.attributes(at: max(0, insertionPoint - 1), effectiveRange: nil)
+  let edited = NSMutableAttributedString(attributedString: source)
+  edited.insert(NSAttributedString(string: "x", attributes: attributes), at: insertionPoint)
+  let started = ContinuousClock.now
+  let updated = try makePlan(edited, width: width, window: window)
+  let duration = started.duration(to: .now)
+  var unchangedPrefix = 0
+  while unchangedPrefix < min(plan.lines.count, updated.lines.count) {
+    let oldLine = plan.lines[unchangedPrefix]
+    let newLine = updated.lines[unchangedPrefix]
+    guard oldLine.range == newLine.range else { break }
+    unchangedPrefix += 1
+  }
+  var shiftedSuffix = 0
+  while shiftedSuffix < min(plan.lines.count, updated.lines.count) {
+    let oldLine = plan.lines[plan.lines.count - shiftedSuffix - 1]
+    let newLine = updated.lines[updated.lines.count - shiftedSuffix - 1]
+    guard oldLine.range.count == newLine.range.count,
+      newLine.range.lowerBound == oldLine.range.lowerBound + 1
+    else { break }
+    shiftedSuffix += 1
+  }
+  let invalidated = max(0, plan.lines.count - unchangedPrefix - shiftedSuffix)
+  return (duration, updated.lines.count - plan.lines.count, invalidated, shiftedSuffix)
+}
+
+@MainActor
 private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient {
   private let source: NSMutableAttributedString
   private let plan: LinePlan
@@ -1275,6 +1308,8 @@ private enum IndexedLineSliceViewportProbe {
     print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact backgroundIndex=concurrent")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
+    let editReplan = try measureEditReplan(source, plan: plan, width: 858, window: 65_536)
+    print("fullReplanAfterOneUnitInsert=duration:\(editReplan.0) lineCountDelta:\(editReplan.1) middleLinesInvalidated:\(editReplan.2) shiftedSuffixLines:\(editReplan.3)")
     for renderedLineCount in [28, 32, 64] {
       var samples: [Duration] = []
       for _ in 0..<20 {
