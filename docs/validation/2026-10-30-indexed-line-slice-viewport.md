@@ -10,7 +10,7 @@ Small generated fixtures compare the index's UTF-16 line starts, lengths, and he
 
 ## Result
 
-The optimized Swift 6 build with warnings treated as errors succeeded on an Apple Silicon Mac. All four small generated fixtures matched native TextKit line starts, UTF-16 lengths, and heights. Native TextKit slices at the start, middle, and end also matched the full-document geometry exactly:
+The optimized Swift 6 build with warnings treated as errors succeeded on an Apple Silicon Mac. All five small generated fixtures matched native TextKit line starts, UTF-16 lengths, and heights. Native TextKit slices at the start, middle, and end also matched the full-document geometry exactly:
 
 | Fixture | UTF-16 units | Lines | Largest Core Text/TextKit width difference | Height difference |
 | --- | ---: | ---: | ---: | ---: |
@@ -51,6 +51,16 @@ An earlier `async` entry-point/`Task` variant printed its measurements and then 
 ## Limits
 
 This result demonstrates a promising scroll-and-render primitive and an off-main indexing control, not a shippable editor. The full index still takes 1.70–1.75 seconds; the first viewport took about 0.36 seconds in the isolated bitmap probe. The probe does not measure an interactive NoteHush window while indexing, incremental index updates after edits, real keyboard delivery, actual IME, selection navigation, accessibility, find, save, recovery, memory limits, arbitrary document styles, or app integration. The generated case is one RTL/emoji paragraph. Do not treat this probe as closing issue #75 or as acceptance evidence for v1.
+
+## Standard `NSTextView` geometry follow-up
+
+The earlier height-shortcut comparison used a plain TextKit 2 storage/layout-manager configuration, whose per-line reported heights were 18 points for the 14-point monospaced fixture. A standard `NSTextView` configured with its text container and inset reports 17-point vertical line positions. The distinction matters: the former is not the shipping editor's scroll geometry.
+
+The updated diagnostic also laid out each complete small fixture in a standard `NSTextView`. Every UTF-16 line start and length matched the full TextKit source geometry, and every row's y coordinate matched a 17-point font-height stride. This held for RTL/emoji, mixed bidi, combining marks, punctuation, and all six hard line separators (including the empty rows produced by separators). Separate 28-, 32-, and 64-line `NSTextView` slices at the start, midpoint, and end of the 10 MiB paragraph matched the indexed UTF-16 ranges and stepped by 17 points. Thus a font-height stride is a plausible standard-`NSTextView` scroll model for these uniform-font fixtures; it is not validated for user-selected font sizes, font changes during planning, width changes, edits, or integration.
+
+The same 10 MiB run continued to pass direct `NSTextView.insertText` callbacks with a forced local `ensureLayout` after every insertion and exact Undo restoration. One run measured cold 12.47 ms, p95 5.95 ms, and max 12.47 ms across 20 inserts in a 28-line slice. This remains a direct API callback in a hidden headless window: it does not establish physical keyboard, application-wide event routing, real IME, or interactive latency.
+
+A follow-up attempt to ask a standard `NSTextView` to lay out and enumerate all 56,989 lines of the 10 MiB unbroken paragraph did not return within roughly one minute and was interrupted. It produced no full-document geometry result. This reinforces the need to keep work bounded to visible slices, but the successful slice measurements still do not establish safe app integration or exact full-document scrolling. No production code changed, and issue #75 remains unresolved.
 
 Reproduce with:
 

@@ -13,6 +13,7 @@ private struct IndexedLine: Sendable {
 private struct GeometryRow: Equatable {
   let start: Int
   let length: Int
+  let y: Double
   let width: Double
   let height: Double
 }
@@ -61,12 +62,128 @@ private func nativeGeometry(_ source: NSAttributedString, width: CGFloat) throws
         GeometryRow(
           start: base + line.characterRange.location,
           length: line.characterRange.length,
+          y: Double(fragment.layoutFragmentFrame.minY + line.typographicBounds.minY),
           width: Double(line.typographicBounds.width),
           height: Double(line.typographicBounds.height)))
     }
     return true
   }
   return rows
+}
+
+@MainActor
+private func nativeTextViewGeometry(_ source: NSAttributedString, containerWidth: CGFloat) throws
+  -> [GeometryRow]
+{
+  let frame = NSRect(x: 0, y: 0, width: containerWidth + 32, height: 500)
+  let scroll = NSScrollView(frame: frame)
+  scroll.hasVerticalScroller = true
+  scroll.autohidesScrollers = false
+  let editor = NSTextView(usingTextLayoutManager: true)
+  editor.frame = frame
+  editor.isRichText = false
+  editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+  editor.isVerticallyResizable = true
+  editor.isHorizontallyResizable = false
+  editor.textContainerInset = NSSize(width: 16, height: 0)
+  scroll.documentView = editor
+  guard let storage = editor.textStorage,
+    let manager = editor.textLayoutManager,
+    let container = editor.textContainer,
+    let content = manager.textContentManager as? NSTextContentStorage
+  else { throw NSError(domain: "line-index", code: 45) }
+  container.widthTracksTextView = true
+  container.containerSize = NSSize(width: containerWidth, height: .greatestFiniteMagnitude)
+  storage.setAttributedString(source)
+  let range = manager.documentRange
+  manager.ensureLayout(for: range)
+  var rows: [GeometryRow] = []
+  _ = manager.enumerateTextLayoutFragments(from: range.location, options: [.ensuresLayout]) {
+    fragment in
+    guard let elementRange = fragment.textElement?.elementRange else { return true }
+    let base = content.offset(from: range.location, to: elementRange.location)
+    guard base != NSNotFound, base >= 0 else { return true }
+    for line in fragment.textLineFragments {
+      rows.append(
+        GeometryRow(
+          start: base + line.characterRange.location,
+          length: line.characterRange.length,
+          y: Double(fragment.layoutFragmentFrame.minY + line.typographicBounds.minY),
+          width: Double(line.typographicBounds.width),
+          height: Double(line.typographicBounds.height)))
+    }
+    return true
+  }
+  withExtendedLifetime(scroll) {}
+  let storageRows = try nativeGeometry(source, width: containerWidth)
+  print(
+    "nativeTextViewDiagnostic viewFirst=\(rows.prefix(3).map { ($0.start, $0.length, $0.y, $0.height) }) storageFirst=\(storageRows.prefix(3).map { ($0.start, $0.length, $0.y, $0.height) }) padding=\(container.lineFragmentPadding) containerWidth=\(container.containerSize.width)"
+  )
+  return rows
+}
+
+@MainActor
+private func checkNativeTextViewInput(_ source: NSAttributedString, containerWidth: CGFloat) throws
+  -> (cold: Duration, p95: Duration, max: Duration)
+{
+  let frame = NSRect(x: 0, y: 0, width: containerWidth + 32, height: 500)
+  let scroll = NSScrollView(frame: frame)
+  scroll.hasVerticalScroller = true
+  scroll.autohidesScrollers = false
+  let editor = NSTextView(usingTextLayoutManager: true)
+  editor.frame = frame
+  editor.isRichText = false
+  editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+  editor.isVerticallyResizable = true
+  editor.isHorizontallyResizable = false
+  editor.textContainerInset = NSSize(width: 16, height: 0)
+  scroll.documentView = editor
+  guard let storage = editor.textStorage,
+    let manager = editor.textLayoutManager,
+    let container = editor.textContainer
+  else { throw NSError(domain: "line-index", code: 47) }
+  container.widthTracksTextView = true
+  container.containerSize = NSSize(width: containerWidth, height: .greatestFiniteMagnitude)
+  editor.allowsUndo = true
+  storage.setAttributedString(source)
+  let range = manager.documentRange
+  manager.ensureLayout(for: range)
+
+  let window = NSWindow(
+    contentRect: frame, styleMask: .borderless, backing: .buffered, defer: false)
+  window.contentView = scroll
+  guard window.makeFirstResponder(editor) else { throw NSError(domain: "line-index", code: 48) }
+  let location = source.length / 2
+  editor.setSelectedRange(NSRange(location: location, length: 0))
+  let original = editor.string
+  let expected = (original as NSString).replacingCharacters(
+    in: NSRange(location: location, length: 0), with: String(repeating: "a", count: 20))
+  var samples: [Duration] = []
+  guard let undoManager = editor.undoManager else { throw NSError(domain: "line-index", code: 51) }
+  undoManager.beginUndoGrouping()
+  for _ in 0..<20 {
+    let started = ContinuousClock.now
+    editor.insertText("a", replacementRange: NSRange(location: NSNotFound, length: 0))
+    manager.ensureLayout(for: manager.documentRange)
+    samples.append(started.duration(to: .now))
+  }
+  undoManager.endUndoGrouping()
+  guard editor.string == expected, editor.selectedRange().location == location + 20 else {
+    throw NSError(
+      domain: "line-index", code: 50,
+      userInfo: [
+        NSLocalizedDescriptionKey:
+          "native NSTextView key input textMatch=\(editor.string == expected), utf16=\(editor.string.utf16.count), selection=\(editor.selectedRange()), expected=\(location + 20)"
+      ])
+  }
+  undoManager.undo()
+  manager.ensureLayout(for: manager.documentRange)
+  guard editor.string == original else {
+    throw NSError(domain: "line-index", code: 52, userInfo: [NSLocalizedDescriptionKey: "native NSTextView Undo did not restore exact text"])
+  }
+  window.close()
+  let sorted = samples.sorted()
+  return (samples[0], sorted[18], sorted[19])
 }
 
 @MainActor
@@ -95,6 +212,7 @@ private func checkSmallGeometry() throws {
     let plan = try makePlan(source, width: width, window: window)
     let framePlan = try makeFramePlan(source, width: width, window: window)
     let expected = try nativeGeometry(source, width: width)
+    let nativeEditorRows = try nativeTextViewGeometry(source, containerWidth: width)
     guard framePlan.lines.map(\.range) == plan.lines.map(\.range),
       framePlan.lines.map(\.height) == plan.lines.map(\.height)
     else {
@@ -102,6 +220,19 @@ private func checkSmallGeometry() throws {
     }
     guard plan.lines.count == expected.count else {
       throw NSError(domain: "line-index", code: 9, userInfo: [NSLocalizedDescriptionKey: "\(name): CoreText lines \(plan.lines.count), native TextKit lines \(expected.count)"])
+    }
+    guard nativeEditorRows.map(\.start) == expected.map(\.start),
+      nativeEditorRows.map(\.length) == expected.map(\.length)
+    else {
+      let firstMismatch = zip(nativeEditorRows, expected).enumerated().first {
+        _, pair in pair.0.start != pair.1.start || pair.0.length != pair.1.length
+      }
+      throw NSError(
+        domain: "line-index", code: 53,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "\(name): NSTextView editor lines differ from complete-source TextKit at \(String(describing: firstMismatch))"
+        ])
     }
     var maxWidthDelta = 0.0
     var maxHeightDelta = 0.0
@@ -145,7 +276,26 @@ private func checkSmallGeometry() throws {
         }
       }
     }
-    print("geometryFixture=\(name) utf16=\(source.length) lines=\(plan.lines.count) maxCoreTextWidthDelta=\(maxWidthDelta) maxHeightDelta=\(maxHeightDelta) slices=start/middle/end result=match")
+    let nativeYSteps = zip(nativeEditorRows, nativeEditorRows.dropFirst()).map {
+      $1.y - $0.y
+    }
+    let uniformLineHeight = ceil(
+      CTFontGetAscent(font as CTFont) + CTFontGetDescent(font as CTFont)
+        + CTFontGetLeading(font as CTFont))
+    let fontHeightMismatch = nativeEditorRows.enumerated().first {
+      abs($0.element.y - Double($0.offset) * Double(uniformLineHeight)) > 0.01
+    }
+    guard fontHeightMismatch == nil else {
+      throw NSError(
+        domain: "line-index", code: 54,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "\(name): native editor y=\(String(describing: fontHeightMismatch)) differs from font-height stride \(uniformLineHeight)"
+        ])
+    }
+    let minNativeYStep = nativeYSteps.min() ?? 0
+    let maxNativeYStep = nativeYSteps.max() ?? 0
+    print("geometryFixture=\(name) utf16=\(source.length) lines=\(plan.lines.count) maxCoreTextWidthDelta=\(maxWidthDelta) maxHeightDelta=\(maxHeightDelta) nativeEditorLines=exact yStep=\(minNativeYStep)...\(maxNativeYStep) fontHeightStride=\(uniformLineHeight) result=match")
   }
 }
 
@@ -631,6 +781,7 @@ private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient 
 @MainActor
 private enum IndexedLineSliceViewportProbe {
   static func main() throws {
+    setbuf(stdout, nil)
     NSApplication.shared.setActivationPolicy(.prohibited)
     try checkSmallGeometry()
     let loadStart = ContinuousClock.now
@@ -819,6 +970,51 @@ private enum IndexedLineSliceViewportProbe {
         throw NSError(domain: "line-index", code: 12, userInfo: [NSLocalizedDescriptionKey: "\(name): rendered glyph pixels=\(glyphPixels)"])
       }
       print("target=\(name) requestedY=\(y) actualY=\(actualY) range=\(view.displayedRange) lines=\(view.displayedLineCount) firstLineY=\(firstVisibleY) layout=\(layoutDuration) glyphPixels=\(glyphPixels)")
+      for lineCount in [28, 32, 64] {
+        try view.layoutViewport(at: y, linesToRender: lineCount)
+        let sliceStart = view.displayedRange.lowerBound
+        let slice = source.attributedSubstring(
+          from: NSRange(location: sliceStart, length: view.displayedRange.count))
+        let textViewStart = ContinuousClock.now
+        let textViewRows = try nativeTextViewGeometry(slice, containerWidth: 858)
+        let textViewDuration = textViewStart.duration(to: .now)
+        let indexedRows = plan.lines.filter {
+          $0.range.lowerBound >= view.displayedRange.lowerBound
+            && $0.range.upperBound <= view.displayedRange.upperBound
+        }
+        let firstMismatch = zip(textViewRows, indexedRows).enumerated().first {
+          _, pair in
+          let (textViewRow, indexedRow) = pair
+          return textViewRow.start + sliceStart != indexedRow.range.lowerBound
+            || textViewRow.length != indexedRow.range.count
+        }
+        guard textViewRows.count == indexedRows.count, firstMismatch == nil else {
+          let mismatchDescription: String
+          if let firstMismatch {
+            let index = firstMismatch.offset
+            let textViewRow = firstMismatch.element.0
+            let indexedRow = firstMismatch.element.1
+            mismatchDescription =
+              "first mismatch line \(index): NSTextView (\(textViewRow.start), \(textViewRow.length)) vs index (\(indexedRow.range.lowerBound), \(indexedRow.range.count))"
+          } else {
+            mismatchDescription = "line counts differ"
+          }
+          throw NSError(
+            domain: "line-index", code: 46,
+            userInfo: [
+              NSLocalizedDescriptionKey:
+                "\(name): \(mismatchDescription); NSTextView rows \(textViewRows.count), indexed rows \(indexedRows.count)"
+            ])
+        }
+        let verticalSteps = zip(textViewRows, textViewRows.dropFirst()).map { $1.y - $0.y }
+        let minStep = verticalSteps.min() ?? 0
+        let maxStep = verticalSteps.max() ?? 0
+        print("nativeTextViewSlice=\(name) requestedLines=\(lineCount) lines=\(textViewRows.count) layout=\(textViewDuration) yStep=\(minStep)...\(maxStep) lineRanges=match")
+        if name == "start", lineCount == 28 {
+          let inputMetrics = try checkNativeTextViewInput(slice, containerWidth: 858)
+          print("nativeTextViewInsert=passed samples=20 cold=\(inputMetrics.cold) p95=\(inputMetrics.p95) max=\(inputMetrics.max) undo=exact")
+        }
+      }
     }
     window.close()
     let keyWindow = NSWindow(
