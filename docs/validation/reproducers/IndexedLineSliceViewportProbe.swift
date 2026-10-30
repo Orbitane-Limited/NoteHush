@@ -131,6 +131,46 @@ private func visibleGlyphPixelCount(_ view: NSView, y: CGFloat, height: CGFloat)
 }
 
 @MainActor
+private func measureVisibleSliceEdits(_ source: NSAttributedString, width: CGFloat) throws
+  -> (Duration, Duration, String)
+{
+  let storage = NSTextStorage(attributedString: source)
+  let content = NSTextContentStorage()
+  content.textStorage = storage
+  let manager = NSTextLayoutManager()
+  content.addTextLayoutManager(manager)
+  content.primaryTextLayoutManager = manager
+  manager.textContainer = NSTextContainer(size: NSSize(width: width - 10, height: .greatestFiniteMagnitude))
+  let original = storage.string
+  let originalLength = storage.length
+  let nsSource = original as NSString
+  let composition = nsSource.rangeOfComposedCharacterSequence(at: originalLength / 2)
+  let insertionPoint = NSMaxRange(composition)
+  var samples: [Duration] = []
+  for index in 0..<20 {
+    let insertion = index.isMultiple(of: 2)
+    let replacement = insertion ? (index % 4 == 0 ? "🙂" : "x") : ""
+    let replacementLength = insertion ? replacement.utf16.count : (index % 4 == 1 ? 2 : 1)
+    let range = NSRange(location: insertionPoint, length: insertion ? 0 : replacementLength)
+    let attributes = storage.attributes(at: max(0, min(storage.length - 1, insertionPoint - 1)), effectiveRange: nil)
+    let attributedReplacement = NSAttributedString(string: replacement, attributes: attributes)
+    let started = ContinuousClock.now
+    storage.replaceCharacters(in: range, with: attributedReplacement)
+    let documentRange = manager.documentRange
+    guard let textRange = NSTextRange(location: documentRange.location, end: documentRange.endLocation)
+    else { throw NSError(domain: "line-index", code: 24) }
+    manager.ensureLayout(for: textRange)
+    _ = manager.enumerateTextLayoutFragments(from: textRange.location, options: [.ensuresLayout]) { _ in true }
+    samples.append(started.duration(to: .now))
+  }
+  guard storage.string == original, storage.length == originalLength else {
+    throw NSError(domain: "line-index", code: 25, userInfo: [NSLocalizedDescriptionKey: "visible slice edit/undo control changed its source"])
+  }
+  let sorted = samples.sorted()
+  return (sorted[9], sorted[18], "samples=20 min=\(sorted[0]) max=\(sorted[19])")
+}
+
+@MainActor
 private func makePlan(
   _ source: NSAttributedString, width: CGFloat, window: Int, metricStride: Int? = 1
 ) throws -> LinePlan {
@@ -382,6 +422,14 @@ private enum IndexedLineSliceViewportProbe {
     let planStart = ContinuousClock.now
     let plan = try makePlan(source, width: 858, window: 65_536)
     let planDuration = planStart.duration(to: .now)
+    let editFirstLine = max(0, plan.lines.count / 2 - 14)
+    let editLastLine = min(plan.lines.count, editFirstLine + 28)
+    let editStart = plan.lines[editFirstLine].range.lowerBound
+    let editEnd = plan.lines[editLastLine - 1].range.upperBound
+    let editSlice = source.attributedSubstring(
+      from: NSRange(location: editStart, length: editEnd - editStart))
+    let (editP50, editP95, editExtremes) = try measureVisibleSliceEdits(editSlice, width: 858)
+    print("nativeSliceEditLines=\(editLastLine - editFirstLine) p50=\(editP50) p95=\(editP95) \(editExtremes) sourceRestored=true")
     for windowSize in [262_144, 524_288, 1_048_576] {
       let (duration, lineCount, height) = try benchmarkPlan(source, width: 858, window: windowSize)
       guard lineCount == plan.lines.count, height == plan.height else {
