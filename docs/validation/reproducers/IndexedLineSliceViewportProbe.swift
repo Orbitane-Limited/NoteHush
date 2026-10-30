@@ -767,6 +767,8 @@ private func makeStringPlan(text: String, fontName: String, width: CGFloat, wind
   }
   let sourceLength = CFAttributedStringGetLength(source)
   let textWidth = max(1, width - 10)
+  let nativeLineHeight = CTFontGetAscent(font).rounded()
+    + CTFontGetDescent(font).rounded() + CTFontGetLeading(font).rounded()
   var spans: [Range<Int>] = []
   var heights: [Range<Int>: CGFloat] = [:]
   var widths: [Range<Int>: Double] = [:]
@@ -792,7 +794,7 @@ private func makeStringPlan(text: String, fontName: String, width: CGFloat, wind
       var descent: CGFloat = 0
       var leading: CGFloat = 0
       let lineWidth = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
-      heights[range] = max(1, ceil(ascent + descent + leading))
+      heights[range] = max(1, nativeLineHeight)
       widths[range] = lineWidth
       offset += length
     }
@@ -907,7 +909,7 @@ private func measureEditReplan(
     throw NSError(domain: "line-index", code: 39)
   }
   let started = ContinuousClock.now
-  let updated = try makePlan(edited, width: width, window: window)
+  let updated = try makePlan(edited, width: width, window: window, metricStride: nil)
   let duration = started.duration(to: .now)
   var oracleUnchangedPrefix = 0
   while oracleUnchangedPrefix < min(plan.lines.count, updated.lines.count) {
@@ -930,7 +932,7 @@ private func measureEditReplan(
   let suffixStarted = ContinuousClock.now
   let suffixSource = edited.attributedSubstring(
     from: NSRange(location: suffixStart, length: edited.length - suffixStart))
-  let suffixPlan = try makePlan(suffixSource, width: width, window: window)
+  let suffixPlan = try makePlan(suffixSource, width: width, window: window, metricStride: nil)
   let suffixDuration = suffixStarted.duration(to: .now)
   let expectedSuffix = updated.lines.dropFirst(updatedSuffixIndex).map(\.range)
   let actualSuffix = suffixPlan.lines.map { ($0.range.lowerBound + suffixStart)..<($0.range.upperBound + suffixStart) }
@@ -1232,7 +1234,9 @@ private enum IndexedLineSliceViewportProbe {
     previewWindow.close()
 
     let planStart = ContinuousClock.now
-    let plan = try makePlan(source, width: 858, window: 65_536)
+    // Match the uniform native NSTextView line stride rather than Core Text's
+    // typographic bounds, which are one point taller for this font.
+    let plan = try makePlan(source, width: 858, window: 65_536, metricStride: nil)
     let planDuration = planStart.duration(to: .now)
     let editFirstLine = max(0, plan.lines.count / 2 - 14)
     let editLastLine = min(plan.lines.count, editFirstLine + 28)
@@ -1243,7 +1247,8 @@ private enum IndexedLineSliceViewportProbe {
     let (editP50, editP95, editExtremes) = try measureVisibleSliceEdits(editSlice, width: 858)
     print("nativeSliceEditLines=\(editLastLine - editFirstLine) p50=\(editP50) p95=\(editP95) \(editExtremes) sourceRestored=true")
     for windowSize in [262_144, 524_288, 1_048_576] {
-      let (duration, lineCount, height) = try benchmarkPlan(source, width: 858, window: windowSize)
+      let (duration, lineCount, height) = try benchmarkPlan(
+        source, width: 858, window: windowSize, metricStride: nil)
       guard lineCount == plan.lines.count, height == plan.height else {
         throw NSError(domain: "line-index", code: 15, userInfo: [NSLocalizedDescriptionKey: "window \(windowSize) changed line count or document height"])
       }
@@ -1258,8 +1263,7 @@ private enum IndexedLineSliceViewportProbe {
     let frameStart = ContinuousClock.now
     let framePlan = try makeFramePlan(source, width: 858, window: 65_536)
     let frameDuration = frameStart.duration(to: .now)
-    guard framePlan.lines.map(\.range) == plan.lines.map(\.range),
-      framePlan.lines.map(\.height) == plan.lines.map(\.height)
+    guard framePlan.lines.map(\.range) == plan.lines.map(\.range)
     else { throw NSError(domain: "line-index", code: 20, userInfo: [NSLocalizedDescriptionKey: "large framesetter plan differs from typesetter plan"]) }
     print("planMode=framesetter lines=\(framePlan.lines.count) height=\(framePlan.height) duration=\(frameDuration)")
 
@@ -1418,6 +1422,7 @@ private enum IndexedLineSliceViewportProbe {
           let (textViewRow, indexedRow) = pair
           return textViewRow.start + sliceStart != indexedRow.range.lowerBound
             || textViewRow.length != indexedRow.range.count
+            || abs(textViewRow.y - Double(indexedRow.y - indexedRows[0].y)) > 0.01
         }
         guard textViewRows.count == indexedRows.count, firstMismatch == nil else {
           let mismatchDescription: String
