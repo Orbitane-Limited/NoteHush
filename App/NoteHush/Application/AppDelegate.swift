@@ -123,7 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
       return workspace?.canNavigate ?? false
     case #selector(printSelection(_:)):
       return workspace?.canNavigate == true
-        && (workspace?.selectedTab?.editor.selectedRange().length ?? 0) > 0
+        && (workspace?.selectedTab?.textSelection.length ?? 0) > 0
     case #selector(performTextFinderAction(_:)):
       return workspace?.validateFindAction(menuItem) ?? false
     case #selector(goToLine(_:)), #selector(newTab(_:)), #selector(nextTab(_:)),

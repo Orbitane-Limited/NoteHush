@@ -36,11 +36,11 @@ extension WorkspaceWindowController {
   func textForPrinting(selectionOnly: Bool) -> String? {
     guard let tab = selectedTab else { return nil }
     if selectionOnly {
-      let range = tab.editor.selectedRange()
+      let range = tab.textSelection
       guard range.length > 0 else { return nil }
-      return (tab.editor.string as NSString).substring(with: range)
+      return (tab.text as NSString).substring(with: range)
     } else {
-      return tab.editor.string
+      return tab.text
     }
   }
 }
