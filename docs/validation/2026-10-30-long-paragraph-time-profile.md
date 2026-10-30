@@ -114,9 +114,9 @@ The 10 MiB case cannot be compared with complete native TextKit geometry because
 
 [`NSTextStorageObserverChunkProbe.swift`](reproducers/NSTextStorageObserverChunkProbe.swift) is a generated-data experiment with the app's `ParagraphDirectionPresenter`, grouped line-aligned `NSTextParagraph` elements, and a standard `NSTextView`. It checks complete native line starts, UTF-16 lengths, and typographic widths before and after an insertion. It is not application code and does not read files.
 
-Updating only the custom elements' offsets and lengths keeps synthetic 10 MiB input events fast, but it is incorrect for mixed scripts: the 121,000-unit mixed Latin/Urdu/Hebrew control had 603 differing line records after one insertion. Replanning the affected grouped Core Text element did not correct that difference. The native bounded reflow control does match the full TextKit oracle on the 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining-mark controls. Mixed-script and combining controls needed eight 8,192-unit windows and had no suffix convergence. Their complete reflow and full geometry comparison took approximately 190–192 ms in these single diagnostic runs. The RTL/emoji control converged after one window.
+Updating only the custom elements' offsets and lengths keeps synthetic 10 MiB input events fast, but it is incorrect for mixed scripts: the 121,000-unit mixed Latin/Urdu/Hebrew control had 603 differing line records after one insertion. Replanning the affected grouped Core Text element did not correct that difference. The native bounded reflow control does match the full TextKit oracle on the 120,000-unit RTL/emoji, 121,000-unit mixed-script, and 124,000-unit combining-mark controls. Mixed-script and combining controls needed eight 8,192-unit windows and had no suffix convergence. Their complete reflow and full geometry comparison took approximately 190–198 ms in these single diagnostic runs. The RTL/emoji control converged after one window. Repeating the mixed and combining controls with 2,048-unit windows was also exact; they needed 31 and 32 windows and took approximately 182–192 ms.
 
-For the generated 10 MiB RTL/emoji target, the bounded observer prototype planned initial elements in 1.315 seconds. Twenty synthetic key events retained exact text, selection, targeted fragment coverage, and Undo, but event p95 was 21.1 ms. A capped 16-window native reflow did not converge after approximately 547 ms. Reflowing the entire edited suffix in 8,192-unit windows covered the complete document but took 10.982 seconds across 321 windows and found no reusable suffix. Increasing each window to 65,536 units reduced the count to 41 but took 53.529 seconds. A separate 65,536-unit mixed-script control matched geometry, then hit an AppKit temporary-attribute range assertion during Undo. These results reject both metadata-only updates and the measured larger-window strategy; they do not establish an acceptable live-edit correction.
+For the generated 10 MiB RTL/emoji target, the bounded observer prototype planned initial elements in 1.322 seconds. Twenty synthetic key events retained exact text, selection, targeted fragment coverage, and Undo, but event p95 was 20.7 ms. A capped 16-window native reflow did not converge after approximately 556 ms. Reflowing the entire edited suffix in 8,192-unit windows covered the complete document but took 10.982 seconds across 321 windows and found no reusable suffix. A 2,048-unit run covered the complete suffix in 1,296 windows and 6.817 seconds, with exact text, caret, targeted fragment coverage, and Undo; complete 10 MiB native geometry still has no oracle. Increasing each window to 65,536 units reduced the count to 41 but took 53.529 seconds. A separate 65,536-unit mixed-script control matched geometry, then hit an AppKit temporary-attribute range assertion during Undo. These results reject metadata-only updates and synchronous full-suffix reflow as a live-edit correction; the smaller windows remain a diagnostic result only.
 
 The probe compiled with Swift 6, `-warnings-as-errors`, and the macOS 14 deployment target on arm64 macOS 26.6.2 / Xcode 26.6. These are single synthetic observations, not physical-input, minimum-hardware, memory, recovery, or release measurements. No product source changed and #75 remains open.
 
@@ -131,6 +131,8 @@ xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx
 /private/tmp/NoteHushObserverChunkProbe 8192 400 8192
 # To repeat the larger-window control:
 /private/tmp/NoteHushObserverChunkProbe 65536 400 8192
+# To repeat the smaller-window full-suffix control:
+/private/tmp/NoteHushObserverChunkProbe 2048 2000 8192
 # To repeat the mixed-script 65,536-unit small-control assertion (expected failure):
 /private/tmp/NoteHushObserverChunkProbe 8192 16 65536
 ```
@@ -139,8 +141,8 @@ The executable arguments are large-run window size, large-run maximum window cou
 
 | Artifact | SHA-256 |
 | --- | --- |
-| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `92cae5316164a5da351f9fd8570744066ea40925f12c2f1a58ddb7f9b1abed3f` |
-| Compiled probe | `1511c011140070cc7f074819c9f852060bc902c4fdcb3891d71f0dd47c4aa74f` |
+| [Probe source](reproducers/NSTextStorageObserverChunkProbe.swift) | `bb6f6cd215ea890674aba9274f21dd6c67e3bc0513dbd8955510906dc43d6dc8` |
+| Compiled probe | `a3efbdca13de334d80065b945e0a20233190a831d7877792f2497ff8917e907a` |
 
 Reproduction (run each process separately):
 

@@ -518,7 +518,7 @@ func groupedSpans(_ lines: [LineSpan], maximumLength: Int) -> [LineSpan] {
     let reflowWindow = arguments.first.flatMap(Int.init) ?? 8192
     let maximumReflowWindows = arguments.dropFirst().first.flatMap(Int.init) ?? 16
     let smallReflowWindow = arguments.dropFirst(2).first.flatMap(Int.init) ?? 8192
-    guard (1...65_536).contains(reflowWindow), (1...400).contains(maximumReflowWindows),
+    guard (1...65_536).contains(reflowWindow), (1...2_000).contains(maximumReflowWindows),
       (1...65_536).contains(smallReflowWindow)
     else {
       throw NSError(domain: "observer-probe", code: 40)
