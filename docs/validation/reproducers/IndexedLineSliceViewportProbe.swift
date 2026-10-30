@@ -1359,8 +1359,13 @@ private enum IndexedLineSliceViewportProbe {
     print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact backgroundIndex=concurrent")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
-    for operation in ["insert", "delete"] {
-      for fraction in [0.0, 0.25, 0.5, 0.75, 0.999999] {
+    let editCases: [(String, [Double])] = [
+      ("insert", [0.0, 0.25, 0.5, 0.75, 0.999999]),
+      ("delete", [0.0, 0.25, 0.5, 0.75, 0.999999]),
+      ("replace", [0.25, 0.5, 0.75]),
+    ]
+    for (operation, fractions) in editCases {
+      for fraction in fractions {
         let offset = Int(Double(source.length) * fraction)
         let editReplan = try measureEditReplan(
           source, plan: plan, editOffset: offset, operation: operation, width: 858, window: 65_536)
