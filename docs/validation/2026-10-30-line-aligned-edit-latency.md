@@ -29,6 +29,12 @@ The separate fixed-size `IncrementalChunkEditProbe` remains unsuitable: its
 coverage assertion. Therefore the promising small-control geometry and single
 edit sample do not establish a usable editor design.
 
+Reducing the incremental reflow window from 2,048 to 512 UTF-16 units also did
+not bound the worst case. It converged after roughly 20 units for many
+insertions, but alternating insertions still processed the full 5.24-million-
+unit suffix in 5,699 windows; the 20-edit p95 was 7,644 ms. Exact text and undo
+still passed. This rules out window size alone as a correction.
+
 No app source was changed. Keep #75 open. A candidate still needs bounded
 repeated typing latency, exact native geometry and selection behavior across
 Unicode, IME, undo/redo, viewport coverage and scrolling, recovery, and full app
@@ -40,5 +46,6 @@ Compile and run the `CoreTextLargeNSTextView512MiddleTypingProbe.swift` source
 with Swift 6 and the macOS 14 SDK. It generates the 10 MiB paragraph in
 memory. `CoreTextIncrementalNSTextView512Probe.swift` contains the three small
 geometry controls; `CoreTextLargeNSTextView512Probe.swift` contains the single
-edit control. The latency probes are independent diagnostic sources and do not
-form part of the release test suite.
+edit control. `CoreTextLargeNSTextView512Window512TypingProbe.swift` repeats
+the 20-edit probe with 512-unit reflow windows. The latency probes are
+independent diagnostic sources and do not form part of the release test suite.
