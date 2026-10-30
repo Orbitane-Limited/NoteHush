@@ -314,6 +314,7 @@ private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient 
   private var textInputContext: NSTextInputContext?
   private var selection = NSRange(location: 0, length: 0)
   private var marked = NSRange(location: NSNotFound, length: 0)
+  private let history = UndoManager()
   private(set) var displayedRange: Range<Int> = 0..<0
   private(set) var displayedLineCount = 0
   var text: String { source.string }
@@ -351,6 +352,8 @@ private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient 
   override func keyDown(with event: NSEvent) {
     if textInputContext?.handleEvent(event) != true { super.keyDown(with: event) }
   }
+
+  override var undoManager: UndoManager? { history }
 
   func layoutViewport(at documentY: CGFloat, linesToRender: Int = 64) throws {
     let targetY = min(max(0, documentY), max(0, plan.height - viewportHeight))
@@ -417,12 +420,19 @@ private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient 
     } else {
       attributes = [:]
     }
+    let previousText = source.attributedSubstring(from: range).string
+    let previousSelection = selection
     let attributedReplacement = NSAttributedString(string: replacement, attributes: attributes)
     source.replaceCharacters(in: range, with: attributedReplacement)
     let localRange = NSRange(location: range.location - displayedRange.lowerBound, length: range.length)
     localStorage.replaceCharacters(in: localRange, with: attributedReplacement)
     displayedRange = displayedRange.lowerBound..<(displayedRange.upperBound + replacement.utf16.count - range.length)
     selection = nextSelection
+    history.registerUndo(withTarget: self) { target in
+      target.replace(
+        NSRange(location: range.location, length: replacement.utf16.count),
+        with: previousText, selection: previousSelection)
+    }
     let documentRange = manager.documentRange
     guard let textRange = NSTextRange(location: documentRange.location, end: documentRange.endLocation)
     else { return }
@@ -621,8 +631,19 @@ private enum IndexedLineSliceViewportProbe {
     guard !inputView.hasMarkedText(), inputView.text == afterComposition,
       inputView.selectedRange() == NSRange(location: inputLocation + 22, length: 0)
     else { throw NSError(domain: "line-index", code: 30, userInfo: [NSLocalizedDescriptionKey: "marked-text commit changed unexpected text or selection"]) }
+    guard let undoManager = inputView.undoManager else { throw NSError(domain: "line-index", code: 31) }
+    undoManager.removeAllActions()
+    let beforeUndoText = inputView.text
+    let beforeUndoSelection = inputView.selectedRange()
+    undoManager.beginUndoGrouping()
+    inputView.insertText("Q", replacementRange: NSRange(location: NSNotFound, length: 0))
+    undoManager.endUndoGrouping()
+    undoManager.undo()
+    guard inputView.text == beforeUndoText, inputView.selectedRange() == beforeUndoSelection else {
+      throw NSError(domain: "line-index", code: 32, userInfo: [NSLocalizedDescriptionKey: "slice undo did not restore exact text and caret"])
+    }
     let sortedInputSamples = inputSamples.sorted()
-    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed keyDispatch=not-tested")
+    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact keyDispatch=not-tested")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
     for renderedLineCount in [28, 32, 64] {
