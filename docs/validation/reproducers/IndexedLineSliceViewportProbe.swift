@@ -302,25 +302,55 @@ private func benchmarkPlan(
 }
 
 @MainActor
-private final class IndexedSliceView: NSView {
-  private let source: NSAttributedString
+private final class IndexedSliceView: NSView, @preconcurrency NSTextInputClient {
+  private let source: NSMutableAttributedString
   private let plan: LinePlan
   private var fragments: [NSTextLayoutFragment] = []
   private var drawOriginY: CGFloat = 0
   private let viewportHeight: CGFloat
+  private var localStorage: NSTextStorage?
+  private var localContentStorage: NSTextContentStorage?
+  private var localLayoutManager: NSTextLayoutManager?
+  private var textInputContext: NSTextInputContext?
+  private var selection = NSRange(location: 0, length: 0)
+  private var marked = NSRange(location: NSNotFound, length: 0)
   private(set) var displayedRange: Range<Int> = 0..<0
   private(set) var displayedLineCount = 0
+  var text: String { source.string }
 
   override var isFlipped: Bool { true }
 
   init(source: NSAttributedString, plan: LinePlan, width: CGFloat, viewportHeight: CGFloat) {
-    self.source = source
+    self.source = NSMutableAttributedString(attributedString: source)
     self.plan = plan
     self.viewportHeight = viewportHeight
     super.init(frame: NSRect(x: 0, y: 0, width: width, height: max(viewportHeight, plan.height)))
   }
 
   required init?(coder: NSCoder) { nil }
+
+  override var acceptsFirstResponder: Bool { true }
+
+  override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+    if window != nil { textInputContext = NSTextInputContext(client: self) }
+  }
+
+  override func becomeFirstResponder() -> Bool {
+    let accepted = super.becomeFirstResponder()
+    if accepted { textInputContext?.activate() }
+    return accepted
+  }
+
+  override func resignFirstResponder() -> Bool {
+    unmarkText()
+    textInputContext?.deactivate()
+    return super.resignFirstResponder()
+  }
+
+  override func keyDown(with event: NSEvent) {
+    if textInputContext?.handleEvent(event) != true { super.keyDown(with: event) }
+  }
 
   func layoutViewport(at documentY: CGFloat, linesToRender: Int = 64) throws {
     let targetY = min(max(0, documentY), max(0, plan.height - viewportHeight))
@@ -362,6 +392,9 @@ private final class IndexedSliceView: NSView {
         userInfo: [NSLocalizedDescriptionKey: "indexed lines \(last - first + 1), local TextKit lines \(actualLineCount)"])
     }
     fragments = next
+    localStorage = storage
+    localContentStorage = content
+    localLayoutManager = manager
     drawOriginY = plan.lines[first].y
     displayedRange = start..<end
     displayedLineCount = actualLineCount
@@ -371,6 +404,105 @@ private final class IndexedSliceView: NSView {
   func indexedY(for rangeStart: Int) -> CGFloat {
     plan.lines.first(where: { $0.range.lowerBound == rangeStart })?.y ?? 0
   }
+
+  private func replace(_ range: NSRange, with replacement: String, selection nextSelection: NSRange) {
+    guard range.location != NSNotFound, range.location >= displayedRange.lowerBound,
+      range.length >= 0, NSMaxRange(range) <= displayedRange.upperBound,
+      let localStorage, let manager = localLayoutManager
+    else { return }
+    let attributes: [NSAttributedString.Key: Any]
+    if source.length > 0 {
+      let attributeIndex = max(0, min(source.length - 1, range.location - 1))
+      attributes = source.attributes(at: attributeIndex, effectiveRange: nil)
+    } else {
+      attributes = [:]
+    }
+    let attributedReplacement = NSAttributedString(string: replacement, attributes: attributes)
+    source.replaceCharacters(in: range, with: attributedReplacement)
+    let localRange = NSRange(location: range.location - displayedRange.lowerBound, length: range.length)
+    localStorage.replaceCharacters(in: localRange, with: attributedReplacement)
+    displayedRange = displayedRange.lowerBound..<(displayedRange.upperBound + replacement.utf16.count - range.length)
+    selection = nextSelection
+    let documentRange = manager.documentRange
+    guard let textRange = NSTextRange(location: documentRange.location, end: documentRange.endLocation)
+    else { return }
+    manager.ensureLayout(for: textRange)
+    var updated: [NSTextLayoutFragment] = []
+    _ = manager.enumerateTextLayoutFragments(from: textRange.location, options: [.ensuresLayout]) { fragment in
+      updated.append(fragment)
+      return true
+    }
+    fragments = updated
+    needsDisplay = true
+    textInputContext?.invalidateCharacterCoordinates()
+  }
+
+  func insertText(_ string: Any, replacementRange: NSRange) {
+    let value = (string as? NSAttributedString)?.string ?? (string as? String) ?? ""
+    let range = replacementRange.location == NSNotFound
+      ? (marked.location == NSNotFound ? selection : marked) : replacementRange
+    replace(range, with: value, selection: NSRange(location: range.location + value.utf16.count, length: 0))
+    marked = NSRange(location: NSNotFound, length: 0)
+  }
+
+  func setMarkedText(_ string: Any, selectedRange: NSRange, replacementRange: NSRange) {
+    let value = (string as? NSAttributedString)?.string ?? (string as? String) ?? ""
+    let range = replacementRange.location == NSNotFound
+      ? (marked.location == NSNotFound ? selection : marked) : replacementRange
+    replace(
+      range, with: value,
+      selection: NSRange(location: range.location + selectedRange.location, length: selectedRange.length))
+    marked = NSRange(location: range.location, length: value.utf16.count)
+  }
+
+  func unmarkText() { marked = NSRange(location: NSNotFound, length: 0) }
+  func selectedRange() -> NSRange { selection }
+  func setSelectedRange(_ range: NSRange) { selection = range }
+  func markedRange() -> NSRange { marked }
+  func hasMarkedText() -> Bool { marked.location != NSNotFound }
+  func validAttributesForMarkedText() -> [NSAttributedString.Key] { [.underlineStyle] }
+
+  func attributedSubstring(forProposedRange range: NSRange, actualRange: NSRangePointer?)
+    -> NSAttributedString?
+  {
+    guard range.location >= 0, range.length >= 0, NSMaxRange(range) <= source.length else { return nil }
+    actualRange?.pointee = range
+    return source.attributedSubstring(from: range)
+  }
+
+  func firstRect(forCharacterRange range: NSRange, actualRange: NSRangePointer?) -> NSRect {
+    guard let window, let content = localContentStorage, let manager = localLayoutManager,
+      range.location >= displayedRange.lowerBound,
+      NSMaxRange(range) <= displayedRange.upperBound,
+      let start = content.location(content.documentRange.location, offsetBy: range.location - displayedRange.lowerBound),
+      let end = content.location(start, offsetBy: range.length),
+      let textRange = NSTextRange(location: start, end: end)
+    else { return .zero }
+    var result = CGRect.zero
+    manager.enumerateTextSegments(in: textRange, type: .standard, options: []) { segment, rect, _, _ in
+      if let segment {
+        let offset = content.offset(from: content.documentRange.location, to: segment.location)
+        actualRange?.pointee = NSRange(location: displayedRange.lowerBound + offset, length: 1)
+      }
+      result = rect.offsetBy(dx: 0, dy: drawOriginY)
+      return false
+    }
+    return window.convertToScreen(convert(result, to: nil))
+  }
+
+  func characterIndex(for point: NSPoint) -> Int {
+    guard let window, let content = localContentStorage, let manager = localLayoutManager else { return NSNotFound }
+    let viewPoint = convert(window.convertPoint(fromScreen: point), from: nil)
+    let localPoint = CGPoint(x: viewPoint.x, y: viewPoint.y - drawOriginY)
+    guard let fragment = manager.textLayoutFragment(for: localPoint),
+      let elementRange = fragment.textElement?.elementRange,
+      let line = fragment.textLineFragments.first(where: { $0.typographicBounds.contains(localPoint) })
+    else { return NSNotFound }
+    let elementStart = content.offset(from: content.documentRange.location, to: elementRange.location)
+    return displayedRange.lowerBound + elementStart + line.characterRange.location
+  }
+
+  override func doCommand(by selector: Selector) {}
 
   override func draw(_ dirtyRect: NSRect) {
     guard let context = NSGraphicsContext.current?.cgContext else { return }
@@ -459,8 +591,40 @@ private enum IndexedLineSliceViewportProbe {
     let window = NSWindow(contentRect: scroll.frame, styleMask: .borderless, backing: .buffered, defer: false)
     window.contentView = scroll
 
-    print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
+    let inputView = IndexedSliceView(source: source, plan: plan, width: 868, viewportHeight: 500)
     let middleY = plan.height / 2
+    try inputView.layoutViewport(at: middleY, linesToRender: 28)
+    let inputLocation = inputView.displayedRange.lowerBound + 100
+    inputView.setSelectedRange(NSRange(location: inputLocation, length: 0))
+    let baselineText = inputView.text
+    let afterKeys = (baselineText as NSString).replacingCharacters(
+      in: NSRange(location: inputLocation, length: 0), with: String(repeating: "z", count: 20))
+    let afterComposition = (baselineText as NSString).replacingCharacters(
+      in: NSRange(location: inputLocation, length: 0),
+      with: String(repeating: "z", count: 20) + "🙂")
+    var inputSamples: [Duration] = []
+    for _ in 0..<20 {
+      let started = ContinuousClock.now
+      inputView.insertText("z", replacementRange: NSRange(location: NSNotFound, length: 0))
+      inputSamples.append(started.duration(to: .now))
+    }
+    let expectedKeySelection = NSRange(location: inputLocation + 20, length: 0)
+    guard inputView.text == afterKeys, inputView.selectedRange() == expectedKeySelection
+    else {
+      throw NSError(domain: "line-index", code: 28, userInfo: [NSLocalizedDescriptionKey: "direct callbacks textMatch=\(inputView.text == afterKeys) utf16=\(inputView.text.utf16.count)/\(afterKeys.utf16.count) selection=\(inputView.selectedRange()) expected=\(expectedKeySelection) inputStart=\(inputLocation) displayed=\(inputView.displayedRange)"])
+    }
+    inputView.setMarkedText(
+      "界", selectedRange: NSRange(location: 1, length: 0),
+      replacementRange: NSRange(location: NSNotFound, length: 0))
+    guard inputView.hasMarkedText() else { throw NSError(domain: "line-index", code: 29) }
+    inputView.insertText("🙂", replacementRange: NSRange(location: NSNotFound, length: 0))
+    guard !inputView.hasMarkedText(), inputView.text == afterComposition,
+      inputView.selectedRange() == NSRange(location: inputLocation + 22, length: 0)
+    else { throw NSError(domain: "line-index", code: 30, userInfo: [NSLocalizedDescriptionKey: "marked-text commit changed unexpected text or selection"]) }
+    let sortedInputSamples = inputSamples.sorted()
+    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed keyDispatch=not-tested")
+
+    print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
     for renderedLineCount in [28, 32, 64] {
       var samples: [Duration] = []
       for _ in 0..<20 {
