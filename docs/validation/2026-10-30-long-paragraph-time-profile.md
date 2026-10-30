@@ -132,3 +132,20 @@ xcrun swiftc -parse-as-library -O -warnings-as-errors -target arm64-apple-macosx
 | Editable-control binary | `32e4cc98e29a22dcdaffbb6bbe2e7864c6809e96fbb3186f745686705ede7e88` |
 | [10 MiB source](reproducers/CoreTextLargeNSTextViewProbe.swift) | `d9fbd855a541072398417610a64804144afc845130d75334e75a526e7072ea9f` |
 | 10 MiB binary | `332177a3377baf939ee1b4ee5c16566a94771bd3caff7a42d3dcccbab780dc64` |
+
+## Reusing the chunked editor's layout manager — 2026-10-30
+
+The generated [`IncrementalChunkLayoutReuseProbe.swift`](reproducers/IncrementalChunkLayoutReuseProbe.swift) removes the prototype's layout-manager recreation after edits and invalidates the existing manager's document range. It uses the exact 10 MiB Arabic/emoji fixture, the same synthetic window-dispatched key events, generated edit/marked-text cases, and scroll-render oracle as [`IncrementalChunkEditProbe.swift`](reproducers/IncrementalChunkEditProbe.swift). Neither probe reads user files or changes application source.
+
+Reusing the manager made synthetic key dispatch appear substantially faster: the passing control measured 29.10 ms p95, while the candidate measured 0.129 ms p95 after manager reuse. The candidate then failed at the first viewport render: zero layout fragments covered the requested range, the bitmap contained only its 2,000 nonwhite background pixels, and the probe exited with code 16. AppKit also logged calls to `documentRange` while the layout manager's content manager was nil. The lower input timings therefore do not represent a visible edit and are rejected.
+
+The candidate compiled with Swift 6, optimization, and a macOS 14 deployment target. One fresh process completed in 7.718 seconds through the failed viewport assertion. It reported 2,495.55 ms initial construction, 1.67 ms first synthetic key dispatch, and 0.129 ms p95 over 20 repeated key events. These are single-run diagnostic timings, not latency acceptance measurements. The unchanged passing control took 8.563 seconds and reported 2,502.01 ms initial construction and 29.10 ms repeated-key p95.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| [Probe source](reproducers/IncrementalChunkLayoutReuseProbe.swift) | `681f8a52794970429c03dadfce93cd45b7b2f6317e1f74f9599c0cc1e4762eab` |
+| Compiled candidate | `599a36ed80636a885e9a1a6e92b6a3b88ffc78ca0ad6f37b6c7c243c5d5942e2` |
+| Candidate stdout (empty because the render oracle failed) | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| Candidate stderr | `f4e4f3b728382b73617d36fff607910e33b639af8d49692381d057c4a8bdab3d` |
+
+This rejects layout-manager reuse in this prototype. Correct change notifications and line-fragment invalidation remain necessary to keep both input response and visible content correct; no production change is established and issue #75 remains open.
