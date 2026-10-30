@@ -56,6 +56,14 @@ A two-second sample of the identified app process contained 1,207 main-thread sa
 
 The complete generated-data observation and sample are retained locally in `build/logs/LargeOpen-40972338413/` and as [Actions artifact 12941495832](https://github.com/Orbitane-Limited/NoteHush/actions/runs/40972338413/artifacts/12941495832) (artifact SHA-256 `83f2f2db6e3e32ca910145a12c33d32eac4a4a7f3b215879494a31c0f83f56a4`; profile SHA-256 `793ba830c4b4dc2e39af74892d7a5a850b95e4502dc1790c221397779bfa9562`). Source and binary provenance were unchanged during the run. No application source changed. Issue #75 remains unresolved.
 
+## AppKit editor integration spike, 2026-10-30
+
+A local, uncommitted spike installed the line-grouped Core Text plan into the existing `NSTextView`. The production app compiled, and a separate generated 1,152,000-UTF-16-unit Latin paragraph plan completed in 2.637 seconds. This already exceeds the PRD's one-second file-open target and excludes window presentation and recovery.
+
+The first custom `NSTextLocation` attempt failed in `NSTextContentStorage`: AppKit sent `characterIndex` to the custom location object, which does not implement the storage-backed location contract. Using the content storage's native locations instead, with a fallback offset lookup for locations not previously enumerated, allowed the editor to read its text and restore a selection at a deep offset. A generated `NSTextView.insertText` edit at the start of the paragraph still failed to return before the AppKit test runner's timeout. An edit-time reflow callback computed and published 12,000 updated line spans before that timeout, so replanning alone did not make the native edit transaction complete.
+
+The experiment added no production behavior: its app and test source edits were reverted. Its build, generated plan benchmark and focused AppKit test logs are retained locally in `build/logs/LongParagraphNSTextViewIntegration-20261030/`. These observations reject this particular content-storage integration attempt; they do not rule out a different public-API design. Issue #75 remains unresolved.
+
 ## Font fallback and attributed-run controls
 
 A separate twelve-case Core Text matrix completed at 03:43 UTC. Its fixed sizes were 16 KiB, 256 KiB and 1 MiB, with native font fallback, explicit public fallback-font selection, alternating diagnostic attributes, and diagnostic attributes every 4,096 UTF-16 units. All four variants reached the first native line at both smaller sizes. All four 1 MiB variants timed out at the unchanged ten-second bound. No variant demonstrated a correction, and none was adopted in the app.
