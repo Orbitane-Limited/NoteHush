@@ -687,6 +687,23 @@ private enum IndexedLineSliceViewportProbe {
     let inputLocation = inputView.displayedRange.lowerBound + 100
     inputView.setSelectedRange(NSRange(location: inputLocation, length: 0))
     let baselineText = inputView.text
+    let backgroundResult = PlanResultBox()
+    let backgroundGroup = DispatchGroup()
+    let backgroundText = baselineText
+    let backgroundFontName = font.fontName
+    let backgroundStart = ContinuousClock.now
+    var mainRunLoopCycles = 0
+    backgroundGroup.enter()
+    DispatchQueue.global(qos: .userInitiated).async {
+      autoreleasepool {
+        backgroundResult.store(
+          Result {
+            try makeStringPlan(
+              text: backgroundText, fontName: backgroundFontName, width: 858, window: 65_536)
+          })
+        backgroundGroup.leave()
+      }
+    }
     let afterKeys = (baselineText as NSString).replacingCharacters(
       in: NSRange(location: inputLocation, length: 0), with: String(repeating: "z", count: 20))
     let afterComposition = (baselineText as NSString).replacingCharacters(
@@ -722,8 +739,34 @@ private enum IndexedLineSliceViewportProbe {
     guard inputView.text == beforeUndoText, inputView.selectedRange() == beforeUndoSelection else {
       throw NSError(domain: "line-index", code: 32, userInfo: [NSLocalizedDescriptionKey: "slice undo did not restore exact text and caret"])
     }
+    guard backgroundGroup.wait(timeout: .now()) == .timedOut else {
+      throw NSError(domain: "line-index", code: 42, userInfo: [NSLocalizedDescriptionKey: "background index finished before input callbacks were measured"])
+    }
+    while backgroundGroup.wait(timeout: .now()) == .timedOut {
+      _ = RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.016))
+      mainRunLoopCycles += 1
+    }
+    let backgroundDuration = backgroundStart.duration(to: ContinuousClock.now)
+    guard let backgroundPlan = backgroundResult.load() else {
+      throw NSError(
+        domain: "line-index", code: 40,
+        userInfo: [NSLocalizedDescriptionKey: "background index returned no result"])
+    }
+    let completedBackgroundPlan = try backgroundPlan.get()
+    guard completedBackgroundPlan.lines.map(\.range) == plan.lines.map(\.range),
+      completedBackgroundPlan.lines.map(\.height) == plan.lines.map(\.height)
+    else {
+      throw NSError(
+        domain: "line-index", code: 41,
+        userInfo: [
+          NSLocalizedDescriptionKey: "background index geometry differed from foreground geometry"
+        ])
+    }
+    print(
+      "backgroundIndex=passed duration=\(backgroundDuration) mainRunLoopCycles=\(mainRunLoopCycles) geometry=exact"
+    )
     let sortedInputSamples = inputSamples.sorted()
-    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact keyDispatch=not-tested")
+    print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact keyDispatch=not-tested backgroundIndex=concurrent")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
     for renderedLineCount in [28, 32, 64] {
@@ -757,45 +800,5 @@ private enum IndexedLineSliceViewportProbe {
     }
     window.close()
 
-    let backgroundResult = PlanResultBox()
-    let backgroundGroup = DispatchGroup()
-    let backgroundText = source.string
-    let backgroundFontName = font.fontName
-    let backgroundStart = ContinuousClock.now
-    var mainRunLoopCycles = 0
-    backgroundGroup.enter()
-    DispatchQueue.global(qos: .userInitiated).async {
-      autoreleasepool {
-        backgroundResult.store(
-          Result {
-            try makeStringPlan(
-              text: backgroundText, fontName: backgroundFontName, width: 858, window: 65_536)
-          })
-        backgroundGroup.leave()
-      }
-    }
-    while backgroundGroup.wait(timeout: .now()) == .timedOut {
-      _ = RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.016))
-      mainRunLoopCycles += 1
-    }
-    let backgroundDuration = backgroundStart.duration(to: ContinuousClock.now)
-    guard let backgroundPlan = backgroundResult.load() else {
-      throw NSError(
-        domain: "line-index", code: 40,
-        userInfo: [NSLocalizedDescriptionKey: "background index returned no result"])
-    }
-    let completedBackgroundPlan = try backgroundPlan.get()
-    guard completedBackgroundPlan.lines.map(\.range) == plan.lines.map(\.range),
-      completedBackgroundPlan.lines.map(\.height) == plan.lines.map(\.height)
-    else {
-      throw NSError(
-        domain: "line-index", code: 41,
-        userInfo: [
-          NSLocalizedDescriptionKey: "background index geometry differed from foreground geometry"
-        ])
-    }
-    print(
-      "backgroundIndex=passed duration=\(backgroundDuration) mainRunLoopCycles=\(mainRunLoopCycles) geometry=exact"
-    )
   }
 }
