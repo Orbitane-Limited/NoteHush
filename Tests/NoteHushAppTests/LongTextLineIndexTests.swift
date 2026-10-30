@@ -47,6 +47,15 @@ final class LongTextLineIndexTests: XCTestCase {
       })
     XCTAssertNotNil(index.lineIndex(atUTF16Offset: text.utf16.count / 2))
     XCTAssertNotNil(index.lineIndex(atY: index.height / 2))
+    for y in [CGFloat.zero, index.height / 2, max(0, index.height - 500)] {
+      let visibleLines = try XCTUnwrap(
+        index.visibleLineRange(atY: y, viewportHeight: 500, overscan: 4))
+      let visibleText = try XCTUnwrap(index.textRange(for: visibleLines))
+      XCTAssertLessThanOrEqual(visibleLines.count, 40)
+      XCTAssertEqual(visibleText.lowerBound, index.lines[visibleLines.lowerBound].range.lowerBound)
+      XCTAssertEqual(
+        visibleText.upperBound, index.lines[visibleLines.upperBound - 1].range.upperBound)
+    }
   }
 
   private func nativeLines(for text: String, width: CGFloat) throws -> [Range<Int>] {

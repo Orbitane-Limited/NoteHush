@@ -40,6 +40,28 @@ struct LongTextLineIndex: Sendable, Equatable {
     }
     return min(low, lines.count - 1)
   }
+
+  func visibleLineRange(atY y: CGFloat, viewportHeight: CGFloat, overscan: Int) -> Range<Int>? {
+    guard !lines.isEmpty, height > 0, y.isFinite, viewportHeight.isFinite,
+      viewportHeight > 0, overscan >= 0
+    else { return nil }
+    let top = min(max(0, y), height)
+    let bottom = min(height, top + viewportHeight)
+    guard let firstVisible = lineIndex(atY: top), let lastVisible = lineIndex(atY: bottom)
+    else { return nil }
+    let lowerBound = max(0, firstVisible - overscan)
+    let upperBound = min(lines.count, lastVisible + overscan + 1)
+    return lowerBound..<max(lowerBound + 1, upperBound)
+  }
+
+  func textRange(for lineRange: Range<Int>) -> Range<Int>? {
+    guard !lineRange.isEmpty, lineRange.lowerBound >= 0,
+      lineRange.upperBound <= lines.count
+    else { return nil }
+    let start = lines[lineRange.lowerBound].range.lowerBound
+    let end = lines[lineRange.upperBound - 1].range.upperBound
+    return start..<end
+  }
 }
 
 enum LongTextLineIndexer {
@@ -62,6 +84,7 @@ enum LongTextLineIndexer {
     var segmentStart = 0
 
     while segmentStart < length {
+      try Task<Never, Never>.checkCancellation()
       let segmentLength = min(windowSize, length - segmentStart)
       let segment = source.substring(with: NSRange(location: segmentStart, length: segmentLength))
       let attributes = [kCTFontAttributeName: font] as CFDictionary
