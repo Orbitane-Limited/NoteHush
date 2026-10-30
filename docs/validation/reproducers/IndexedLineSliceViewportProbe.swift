@@ -82,7 +82,8 @@ private func nativeTextViewGeometry(_ source: NSAttributedString, containerWidth
   let editor = NSTextView(usingTextLayoutManager: true)
   editor.frame = frame
   editor.isRichText = false
-  editor.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
+  editor.font = (source.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
+    ?? .monospacedSystemFont(ofSize: 14, weight: .regular)
   editor.isVerticallyResizable = true
   editor.isHorizontallyResizable = false
   editor.textContainerInset = NSSize(width: 16, height: 0)
@@ -409,9 +410,9 @@ private func checkSmallGeometry() throws {
     let nativeYSteps = zip(nativeEditorRows, nativeEditorRows.dropFirst()).map {
       $1.y - $0.y
     }
-    let uniformLineHeight = ceil(
-      CTFontGetAscent(font as CTFont) + CTFontGetDescent(font as CTFont)
-        + CTFontGetLeading(font as CTFont))
+    let uniformLineHeight = CTFontGetAscent(font as CTFont).rounded()
+      + CTFontGetDescent(font as CTFont).rounded()
+      + CTFontGetLeading(font as CTFont).rounded()
     let fontHeightMismatch = nativeEditorRows.enumerated().first {
       abs($0.element.y - Double($0.offset) * Double(uniformLineHeight)) > 0.01
     }
@@ -426,6 +427,56 @@ private func checkSmallGeometry() throws {
     let minNativeYStep = nativeYSteps.min() ?? 0
     let maxNativeYStep = nativeYSteps.max() ?? 0
     print("geometryFixture=\(name) utf16=\(source.length) lines=\(plan.lines.count) maxCoreTextWidthDelta=\(maxWidthDelta) maxHeightDelta=\(maxHeightDelta) nativeEditorLines=exact yStep=\(minNativeYStep)...\(maxNativeYStep) fontHeightStride=\(uniformLineHeight) result=match")
+  }
+
+  let fontMatrix: [(String, NSFont)] = [
+    ("system-mono-9", .monospacedSystemFont(ofSize: 9, weight: .regular)),
+    ("system-mono-12", .monospacedSystemFont(ofSize: 12, weight: .regular)),
+    ("system-mono-14", font),
+    ("system-mono-18", .monospacedSystemFont(ofSize: 18, weight: .regular)),
+    ("system-mono-24", .monospacedSystemFont(ofSize: 24, weight: .regular)),
+    ("system-36", .systemFont(ofSize: 36)),
+    ("menlo-14", NSFont(name: "Menlo", size: 14) ?? font),
+  ]
+  let metricText = String(repeating: "Mixed العربية 🧑🏽‍💻 tabs and combining e\u{301} ", count: 100)
+  for (name, testFont) in fontMatrix {
+    let testSource = NSAttributedString(string: metricText, attributes: [.font: testFont])
+    let rows = try nativeTextViewGeometry(testSource, containerWidth: 420)
+    let index = try makePlan(testSource, width: 420, window: 4_096, metricStride: nil)
+    let step = CTFontGetAscent(testFont as CTFont).rounded()
+      + CTFontGetDescent(testFont as CTFont).rounded()
+      + CTFontGetLeading(testFont as CTFont).rounded()
+    let ceilSum = ceil(
+      CTFontGetAscent(testFont as CTFont) + CTFontGetDescent(testFont as CTFont)
+        + CTFontGetLeading(testFont as CTFont))
+    let mismatch = rows.enumerated().first {
+      abs($0.element.y - Double($0.offset) * Double(step)) > 0.01
+    }
+    guard !rows.isEmpty else {
+      throw NSError(
+        domain: "line-index", code: 60,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "\(name): NSTextView produced no line geometry"
+        ])
+    }
+    let actualStep = rows.count > 1 ? rows[1].y - rows[0].y : 0
+    let metrics = CTFontGetAscent(testFont as CTFont) + CTFontGetDescent(testFont as CTFont)
+      + CTFontGetLeading(testFont as CTFont)
+    guard mismatch == nil, index.lines.count == rows.count,
+      zip(index.lines, rows).allSatisfy({ pair in
+        pair.0.range.lowerBound == pair.1.start && pair.0.range.count == pair.1.length
+      }),
+      abs(index.height - CGFloat(rows.count) * step) < 0.01
+    else {
+      throw NSError(
+        domain: "line-index", code: 61,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "\(name): index and NSTextView geometry differ; rounded stride=\(step), actual first step=\(actualStep), mismatch line=\(String(describing: mismatch?.offset)), indexLines=\(index.lines.count), nativeLines=\(rows.count), indexHeight=\(index.height)"
+        ])
+    }
+    print("nativeFontStride=\(name) lines=\(rows.count) roundedMetricStep=\(step) ceilSum=\(ceilSum) actualStep=\(actualStep) ctMetrics=\(metrics) indexedHeight=\(index.height) ranges=exact result=match")
   }
 }
 
@@ -498,7 +549,8 @@ private func makePlan(
   var widthByRange: [Range<Int>: Double] = [:]
   let baseFont = (source.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
     .map { $0 as CTFont } ?? CTFontCreateWithName("Menlo" as CFString, 14, nil)
-  let baseLineHeight = ceil(CTFontGetAscent(baseFont) + CTFontGetDescent(baseFont) + CTFontGetLeading(baseFont))
+  let baseLineHeight = CTFontGetAscent(baseFont).rounded()
+    + CTFontGetDescent(baseFont).rounded() + CTFontGetLeading(baseFont).rounded()
   var start = 0
   while start < source.length {
     let count = min(window, source.length - start)
