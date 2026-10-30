@@ -177,6 +177,13 @@ private func makePlan(_ source: NSAttributedString, width: CGFloat, window: Int)
 }
 
 @MainActor
+private func benchmarkPlan(_ source: NSAttributedString, width: CGFloat, window: Int) throws -> (Duration, Int, CGFloat) {
+  let started = ContinuousClock.now
+  let plan = try makePlan(source, width: width, window: window)
+  return (started.duration(to: .now), plan.lines.count, plan.height)
+}
+
+@MainActor
 private final class IndexedSliceView: NSView {
   private let source: NSAttributedString
   private let plan: LinePlan
@@ -277,6 +284,13 @@ private enum IndexedLineSliceViewportProbe {
     let planStart = ContinuousClock.now
     let plan = try makePlan(source, width: 858, window: 65_536)
     let planDuration = planStart.duration(to: .now)
+    for windowSize in [262_144, 524_288, 1_048_576] {
+      let (duration, lineCount, height) = try benchmarkPlan(source, width: 858, window: windowSize)
+      guard lineCount == plan.lines.count, height == plan.height else {
+        throw NSError(domain: "line-index", code: 15, userInfo: [NSLocalizedDescriptionKey: "window \(windowSize) changed line count or document height"])
+      }
+      print("planWindow=\(windowSize) lines=\(lineCount) height=\(height) duration=\(duration)")
+    }
 
     let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 900, height: 500))
     scroll.hasVerticalScroller = true

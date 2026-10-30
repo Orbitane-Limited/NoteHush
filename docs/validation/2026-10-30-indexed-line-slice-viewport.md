@@ -21,7 +21,7 @@ The optimized Swift 6 build with warnings treated as errors succeeded on an Appl
 
 The width difference is between Core Text's typographic width and TextKit's line-fragment width; line boundaries and heights matched, and visible glyphs were drawn by TextKit. It remains a reason to avoid using Core Text widths as TextKit drawing geometry.
 
-The generated 10 MiB document had 5,242,888 UTF-16 units and 56,989 indexed lines. Index construction took 1.70 seconds. At start, middle, and end, the scroll view reached the requested vertical offset, the corresponding source range was selected, native local layout took 9.7–74.2 ms, and the captured viewport contained 39,090–40,842 dark glyph pixels.
+The generated 10 MiB document had 5,242,888 UTF-16 units and 56,989 indexed lines. Index construction with a 65,536-unit window took 1.72 seconds. Increasing the window to 262,144, 524,288, and 1,048,576 units took 1.85, 1.89, and 2.02 seconds, respectively; each produced the same line count and total height. At start, middle, and end, the scroll view reached the requested vertical offset, the corresponding source range was selected, native local layout took 9.7–36.3 ms in the final run, and the captured viewport contained 39,090–40,842 dark glyph pixels.
 
 ## Limits
 
