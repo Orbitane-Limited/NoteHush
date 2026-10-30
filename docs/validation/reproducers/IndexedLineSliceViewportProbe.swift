@@ -21,6 +21,7 @@ private struct GeometryRow: Equatable {
 private struct LinePlan: Sendable {
   let lines: [IndexedLine]
   let height: CGFloat
+  let segmentStarts: [Int]
 }
 
 /// A worker result transferred under an explicit lock after the group signals completion.
@@ -192,13 +193,15 @@ private func checkNativeTextViewScrollSlice(
   _ source: NSAttributedString, plan: LinePlan, lineHeight: CGFloat,
   viewportWidth: CGFloat, viewportHeight: CGFloat, lineCount: Int
 ) throws -> [(name: String, requestedY: CGFloat, actualY: CGFloat, glyphPixels: Int, range: Range<Int>)] {
-  let documentHeight = CGFloat(plan.lines.count) * lineHeight
+  let layoutWidth = max(1, viewportWidth - 32)
+  let layoutPlan = try makePlan(source, width: layoutWidth, window: 65_536, metricStride: nil)
+  let documentHeight = layoutPlan.height
   let scroll = NSScrollView(
     frame: NSRect(x: 0, y: 0, width: viewportWidth, height: viewportHeight))
   scroll.hasVerticalScroller = true
   scroll.autohidesScrollers = false
   let host = try NativeTextViewSliceHost(
-    source: source, plan: plan, width: viewportWidth, lineHeight: lineHeight)
+    source: source, plan: layoutPlan, width: viewportWidth, lineHeight: lineHeight)
   scroll.documentView = host
   let window = NSWindow(
     contentRect: scroll.frame, styleMask: .borderless, backing: .buffered, defer: false)
@@ -265,6 +268,15 @@ private func checkNativeTextViewScrollSlice(
   guard host.documentText == expectedEditedDocument else {
     throw NSError(domain: "line-index", code: 65, userInfo: [NSLocalizedDescriptionKey: "native slice Redo did not restore the exact global source"])
   }
+  guard host.waitForReplan() else {
+    throw NSError(domain: "line-index", code: 73, userInfo: [NSLocalizedDescriptionKey: "suffix replanning after insert/Undo/Redo failed: \(String(describing: host.lastPlanningError))"])
+  }
+  let editOracle = try makePlan(
+    NSAttributedString(string: host.documentText, attributes: source.attributes(at: 0, effectiveRange: nil)),
+    width: layoutWidth, window: 65_536, metricStride: nil)
+  guard host.indexMatches(editOracle) else {
+    throw NSError(domain: "line-index", code: 74, userInfo: [NSLocalizedDescriptionKey: "background suffix plan after edit differs from full oracle"])
+  }
   try host.updateViewport(at: 0, viewportHeight: viewportHeight, lineCount: lineCount)
   try host.updateViewport(at: middleY, viewportHeight: viewportHeight, lineCount: lineCount)
   guard host.editor.string == (expectedEditedDocument as NSString).substring(
@@ -317,6 +329,36 @@ private func checkNativeTextViewScrollSlice(
   guard host.documentText == afterRepeatedTyping else {
     throw NSError(domain: "line-index", code: 70, userInfo: [NSLocalizedDescriptionKey: "grouped native typing Redo did not restore exact source"])
   }
+  guard host.waitForReplanStart() else {
+    throw NSError(domain: "line-index", code: 77, userInfo: [NSLocalizedDescriptionKey: "debounced suffix planner did not start"])
+  }
+  let concurrentEditLocation = host.displayedRange.lowerBound + 42
+  let latestExpectedDocument = (host.documentText as NSString).replacingCharacters(
+    in: NSRange(location: concurrentEditLocation, length: 0), with: "z")
+  host.editor.setSelectedRange(NSRange(location: 42, length: 0))
+  let concurrentEditStart = ContinuousClock.now
+  host.editor.insertText("z", replacementRange: NSRange(location: NSNotFound, length: 0))
+  host.ensureVisibleLayout()
+  let concurrentEditDuration = concurrentEditStart.duration(to: .now)
+  guard host.documentText == latestExpectedDocument,
+    concurrentEditDuration < .microseconds(16_700)
+  else {
+    throw NSError(
+      domain: "line-index", code: 78,
+      userInfo: [NSLocalizedDescriptionKey: "typing during suffix replan was slow or changed text; duration=\(concurrentEditDuration), exact=\(host.documentText == latestExpectedDocument)"])
+  }
+  guard host.waitForReplan() else {
+    throw NSError(domain: "line-index", code: 75, userInfo: [NSLocalizedDescriptionKey: "suffix replanning after grouped typing failed: \(String(describing: host.lastPlanningError))"])
+  }
+  let typingOracle = try makePlan(
+    NSAttributedString(string: host.documentText, attributes: source.attributes(at: 0, effectiveRange: nil)),
+    width: layoutWidth, window: 65_536, metricStride: nil)
+  guard host.indexMatches(typingOracle) else {
+    throw NSError(
+      domain: "line-index", code: 76,
+      userInfo: [NSLocalizedDescriptionKey: "background suffix plan after grouped typing differs from the full line-plan oracle"])
+  }
+  print("nativeAsyncSuffixReplan=passed duration=\(String(describing: host.lastReplanDuration)) waitRunLoopCycles=\(host.lastWaitRunLoopCycles) concurrentInput=\(concurrentEditDuration) staleResultDiscarded=exact latestPlan=exact")
   var rebindSamples: [Duration] = []
   for step in 0..<20 {
     let targetY = min(
@@ -348,12 +390,22 @@ private final class NativeTextViewSliceHost: NSView, NSTextViewDelegate, @precon
   private let storage: NSTextStorage
   private let layoutManager: NSTextLayoutManager
   private let source: NSMutableAttributedString
-  private let plan: LinePlan
+  private var plan: LinePlan
   private let lineHeight: CGFloat
   private let viewportWidth: CGFloat
   private(set) var displayedRange: Range<Int> = 0..<0
   private var globalSelection = NSRange(location: 0, length: 0)
   private var isReplacingSlice = false
+  private var sourceRevision: UInt64 = 0
+  private(set) var planRevision: UInt64 = 0
+  private var pendingEditOffset: Int?
+  private var debounceTask: Task<Void, Never>?
+  private var replanTask: Task<Void, Never>?
+  private var replanInFlight = false
+  private var replanStartedAt: ContinuousClock.Instant?
+  private(set) var lastPlanningError: Error?
+  private(set) var lastReplanDuration: Duration?
+  private(set) var lastWaitRunLoopCycles = 0
   var documentText: String { source.string }
 
   override var isFlipped: Bool { true }
@@ -406,7 +458,7 @@ private final class NativeTextViewSliceHost: NSView, NSTextViewDelegate, @precon
           location: displayedRange.lowerBound + local.location, length: local.length)
       }
     }
-    let documentHeight = CGFloat(plan.lines.count) * lineHeight
+    let documentHeight = plan.height
     let targetY = min(max(0, requestedY), max(0, documentHeight - viewportHeight))
     let targetLine = min(Int(targetY / lineHeight), max(0, plan.lines.count - 1))
     let first = min(max(0, targetLine - lineCount / 2), max(0, plan.lines.count - lineCount))
@@ -432,6 +484,38 @@ private final class NativeTextViewSliceHost: NSView, NSTextViewDelegate, @precon
 
   func ensureVisibleLayout() {
     layoutManager.ensureLayout(for: layoutManager.documentRange)
+  }
+
+  func waitForReplan(timeout: TimeInterval = 20) -> Bool {
+    let deadline = Date(timeIntervalSinceNow: timeout)
+    lastWaitRunLoopCycles = 0
+    while lastPlanningError == nil,
+      (sourceRevision != planRevision || debounceTask != nil || replanInFlight)
+    {
+      guard Date() < deadline else { return false }
+      _ = RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.01))
+      lastWaitRunLoopCycles += 1
+    }
+    return lastPlanningError == nil
+  }
+
+  func waitForReplanStart(timeout: TimeInterval = 5) -> Bool {
+    let deadline = Date(timeIntervalSinceNow: timeout)
+    while !replanInFlight, lastPlanningError == nil {
+      guard Date() < deadline else { return false }
+      _ = RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.005))
+    }
+    return replanInFlight
+  }
+
+  func indexMatches(_ expected: LinePlan) -> Bool {
+    plan.lines.count == expected.lines.count
+      && plan.segmentStarts == expected.segmentStarts
+      && zip(plan.lines, expected.lines).allSatisfy { actual, expected in
+        actual.range == expected.range
+          && abs(actual.y - expected.y) < 0.01
+          && abs(actual.height - expected.height) < 0.01
+      }
   }
 
   func textDidChange(_ notification: Notification) {
@@ -463,8 +547,120 @@ private final class NativeTextViewSliceHost: NSView, NSTextViewDelegate, @precon
     _ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions,
     range: NSRange, changeInLength delta: Int
   ) {
-    guard !isReplacingSlice else { return }
+    guard !isReplacingSlice, editedMask.contains(.editedCharacters) else { return }
+    let globalEditOffset = displayedRange.lowerBound + range.location
     synchronizeSource()
+    sourceRevision &+= 1
+    pendingEditOffset = min(pendingEditOffset ?? globalEditOffset, globalEditOffset)
+    lastPlanningError = nil
+    debounceTask?.cancel()
+    guard !replanInFlight else { return }
+    let expectedRevision = sourceRevision
+    debounceTask = Task { [weak self] in
+      do {
+        try await Task.sleep(for: .milliseconds(80))
+        guard let self, !Task.isCancelled, self.sourceRevision == expectedRevision else { return }
+        self.debounceTask = nil
+        self.beginSuffixReplan()
+      } catch {
+        guard let self else { return }
+        if self.sourceRevision == expectedRevision { self.debounceTask = nil }
+      }
+    }
+  }
+
+  private func beginSuffixReplan() {
+    guard !replanInFlight, let editOffset = pendingEditOffset,
+      !plan.lines.isEmpty, !plan.segmentStarts.isEmpty
+    else { return }
+
+    let editSegmentIndex = plan.segmentStarts.lastIndex(where: { $0 <= editOffset }) ?? 0
+    let stableSegmentIndex = max(0, editSegmentIndex - 1)
+    let suffixStart = plan.segmentStarts[stableSegmentIndex]
+    let retainedPrefixCount = plan.lines.firstIndex(where: { $0.range.lowerBound >= suffixStart }) ?? 0
+    guard suffixStart >= 0, suffixStart <= source.length else {
+      lastPlanningError = NSError(domain: "line-index", code: 71)
+      return
+    }
+    let revision = sourceRevision
+    let sourceSnapshot = source.string
+    let fontName = editor.font?.fontName ?? "Menlo"
+    let width = max(1, viewportWidth - 32)
+    // The full generated paragraph begins with neutral digits followed by Arabic,
+    // so its natural paragraph direction is RTL. A suffix must retain that
+    // document-level direction instead of resolving from its first character.
+    let writingDirection = CTWritingDirection.rightToLeft
+    let previousPlan = plan
+    replanInFlight = true
+    replanStartedAt = ContinuousClock.now
+    let worker = Task.detached(priority: .userInitiated) {
+      let suffix = (sourceSnapshot as NSString).substring(from: suffixStart)
+      return try makeStringPlan(
+        text: suffix, fontName: fontName, width: width, window: 65_536,
+        writingDirection: writingDirection)
+    }
+    replanTask = Task { [weak self] in
+      let result = await worker.result
+      guard let self else { return }
+      self.replanInFlight = false
+      self.replanTask = nil
+      if let started = self.replanStartedAt {
+        self.lastReplanDuration = started.duration(to: .now)
+      }
+      self.replanStartedAt = nil
+      guard self.sourceRevision == revision else {
+        self.schedulePendingReplan()
+        return
+      }
+      switch result {
+      case .failure(let error):
+        self.lastPlanningError = error
+      case .success(let suffixPlan):
+        let suffixY = retainedPrefixCount == 0
+          ? 0
+          : previousPlan.lines[retainedPrefixCount - 1].y
+            + previousPlan.lines[retainedPrefixCount - 1].height
+        let suffixLines = suffixPlan.lines.map { line in
+          IndexedLine(
+            range: (line.range.lowerBound + suffixStart)..<(line.range.upperBound + suffixStart),
+            y: suffixY + line.y, height: line.height, width: line.width)
+        }
+        let combined = Array(previousPlan.lines.prefix(retainedPrefixCount)) + suffixLines
+        guard combined.first?.range.lowerBound == 0,
+          combined.last?.range.upperBound == self.source.length,
+          zip(combined, combined.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
+        else {
+          self.lastPlanningError = NSError(domain: "line-index", code: 72)
+          return
+        }
+        let nextSegmentStarts = plan.segmentStarts.filter { $0 < suffixStart }
+          + suffixPlan.segmentStarts.map { $0 + suffixStart }
+        let nextPlan = LinePlan(
+          lines: combined, height: suffixY + suffixPlan.height,
+          segmentStarts: nextSegmentStarts)
+        self.plan = nextPlan
+        self.pendingEditOffset = nil
+        self.planRevision = revision
+        self.setFrameSize(NSSize(width: self.viewportWidth, height: nextPlan.height))
+      }
+    }
+  }
+
+  private func schedulePendingReplan() {
+    guard sourceRevision != planRevision, !replanInFlight else { return }
+    debounceTask?.cancel()
+    let expectedRevision = sourceRevision
+    debounceTask = Task { [weak self] in
+      do {
+        try await Task.sleep(for: .milliseconds(80))
+        guard let self, !Task.isCancelled, self.sourceRevision == expectedRevision else { return }
+        self.debounceTask = nil
+        self.beginSuffixReplan()
+      } catch {
+        guard let self else { return }
+        if self.sourceRevision == expectedRevision { self.debounceTask = nil }
+      }
+    }
   }
 }
 
@@ -696,6 +892,7 @@ private func makePlan(
 ) throws -> LinePlan {
   let textWidth = max(1, width - 10) // Match NSTextContainer's default 5 point padding on each side.
   var spans: [Range<Int>] = []
+  var segmentStarts: [Int] = []
   var heightByRange: [Range<Int>: CGFloat] = [:]
   var widthByRange: [Range<Int>: Double] = [:]
   let baseFont = (source.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
@@ -704,6 +901,7 @@ private func makePlan(
     + CTFontGetDescent(baseFont).rounded() + CTFontGetLeading(baseFont).rounded()
   var start = 0
   while start < source.length {
+    segmentStarts.append(start)
     let count = min(window, source.length - start)
     let candidate = source.attributedSubstring(from: NSRange(location: start, length: count))
     let typesetter = CTTypesetterCreateWithAttributedString(candidate as CFAttributedString)
@@ -754,14 +952,28 @@ private func makePlan(
     lines.last?.range.upperBound == source.length,
     zip(lines, lines.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
   else { throw NSError(domain: "line-index", code: 3) }
-  return LinePlan(lines: lines, height: y)
+  return LinePlan(lines: lines, height: y, segmentStarts: segmentStarts)
 }
 
-private func makeStringPlan(text: String, fontName: String, width: CGFloat, window: Int) throws
+private func makeStringPlan(
+  text: String, fontName: String, width: CGFloat, window: Int,
+  writingDirection: CTWritingDirection = .natural
+) throws
   -> LinePlan
 {
   let font = CTFontCreateWithName(fontName as CFString, 14, nil)
-  let attributes = [kCTFontAttributeName: font] as CFDictionary
+  var direction = writingDirection
+  let paragraphStyle = withUnsafePointer(to: &direction) { directionPointer in
+    let directionSetting = CTParagraphStyleSetting(
+      spec: .baseWritingDirection,
+      valueSize: MemoryLayout<CTWritingDirection>.size,
+      value: UnsafeRawPointer(directionPointer))
+    return CTParagraphStyleCreate([directionSetting], 1)
+  }
+  let attributes = [
+    kCTFontAttributeName: font,
+    kCTParagraphStyleAttributeName: paragraphStyle,
+  ] as CFDictionary
   guard let source = CFAttributedStringCreate(nil, text as CFString, attributes) else {
     throw NSError(domain: "line-index", code: 33)
   }
@@ -770,10 +982,12 @@ private func makeStringPlan(text: String, fontName: String, width: CGFloat, wind
   let nativeLineHeight = CTFontGetAscent(font).rounded()
     + CTFontGetDescent(font).rounded() + CTFontGetLeading(font).rounded()
   var spans: [Range<Int>] = []
+  var segmentStarts: [Int] = []
   var heights: [Range<Int>: CGFloat] = [:]
   var widths: [Range<Int>: Double] = [:]
   var start = 0
   while start < sourceLength {
+    segmentStarts.append(start)
     let count = min(window, sourceLength - start)
     guard
       let candidate = CFAttributedStringCreateWithSubstring(
@@ -820,7 +1034,7 @@ private func makeStringPlan(text: String, fontName: String, width: CGFloat, wind
     lines.last?.range.upperBound == sourceLength,
     zip(lines, lines.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
   else { throw NSError(domain: "line-index", code: 38) }
-  return LinePlan(lines: lines, height: y)
+  return LinePlan(lines: lines, height: y, segmentStarts: segmentStarts)
 }
 
 @MainActor
@@ -829,9 +1043,11 @@ private func makeFramePlan(_ source: NSAttributedString, width: CGFloat, window:
 {
   let textWidth = max(1, width - 10)
   var spans: [Range<Int>] = []
+  var segmentStarts: [Int] = []
   var heights: [Range<Int>: CGFloat] = [:]
   var start = 0
   while start < source.length {
+    segmentStarts.append(start)
     let count = min(window, source.length - start)
     let candidate = source.attributedSubstring(from: NSRange(location: start, length: count))
     let framesetter = CTFramesetterCreateWithAttributedString(candidate as CFAttributedString)
@@ -876,7 +1092,7 @@ private func makeFramePlan(_ source: NSAttributedString, width: CGFloat, window:
   else {
     throw NSError(domain: "line-index", code: 18, userInfo: [NSLocalizedDescriptionKey: "frame plan coverage length=\(source.length) lines=\(lines.count) first=\(String(describing: lines.first?.range)) last=\(String(describing: lines.last?.range))"])
   }
-  return LinePlan(lines: lines, height: y)
+  return LinePlan(lines: lines, height: y, segmentStarts: segmentStarts)
 }
 
 @MainActor
