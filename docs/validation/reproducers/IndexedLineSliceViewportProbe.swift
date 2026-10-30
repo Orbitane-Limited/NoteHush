@@ -888,14 +888,24 @@ private func benchmarkPlan(
 
 @MainActor
 private func measureEditReplan(
-  _ source: NSAttributedString, plan: LinePlan, width: CGFloat, window: Int
-) throws -> (Duration, Int, Int, Int) {
+  _ source: NSAttributedString, plan: LinePlan, editOffset: Int, operation: String,
+  width: CGFloat, window: Int
+) throws -> (Duration, Int, Int, Int, Int, Duration, Bool, Bool) {
   let text = source.string as NSString
-  let composed = text.rangeOfComposedCharacterSequence(at: source.length / 2)
+  let composed = text.rangeOfComposedCharacterSequence(at: min(editOffset, source.length - 1))
   let insertionPoint = NSMaxRange(composed)
   let attributes = source.attributes(at: max(0, insertionPoint - 1), effectiveRange: nil)
   let edited = NSMutableAttributedString(attributedString: source)
-  edited.insert(NSAttributedString(string: "x", attributes: attributes), at: insertionPoint)
+  switch operation {
+  case "insert":
+    edited.insert(NSAttributedString(string: "x", attributes: attributes), at: insertionPoint)
+  case "delete":
+    edited.deleteCharacters(in: composed)
+  case "replace":
+    edited.replaceCharacters(in: composed, with: NSAttributedString(string: "x", attributes: attributes))
+  default:
+    throw NSError(domain: "line-index", code: 39)
+  }
   let started = ContinuousClock.now
   let updated = try makePlan(edited, width: width, window: window)
   let duration = started.duration(to: .now)
@@ -903,9 +913,43 @@ private func measureEditReplan(
   while unchangedPrefix < min(plan.lines.count, updated.lines.count) {
     let oldLine = plan.lines[unchangedPrefix]
     let newLine = updated.lines[unchangedPrefix]
-    guard oldLine.range == newLine.range else { break }
+    guard oldLine.range == newLine.range,
+      abs(oldLine.y - newLine.y) < 0.01,
+      abs(oldLine.height - newLine.height) < 0.01,
+      abs(oldLine.width - newLine.width) < 0.01
+    else { break }
     unchangedPrefix += 1
   }
+  let suffixStart = updated.lines[unchangedPrefix].range.lowerBound
+  let suffixStarted = ContinuousClock.now
+  let suffixSource = edited.attributedSubstring(
+    from: NSRange(location: suffixStart, length: edited.length - suffixStart))
+  let suffixPlan = try makePlan(suffixSource, width: width, window: window)
+  let suffixDuration = suffixStarted.duration(to: .now)
+  let expectedSuffix = updated.lines.dropFirst(unchangedPrefix).map(\.range)
+  let actualSuffix = suffixPlan.lines.map { ($0.range.lowerBound + suffixStart)..<($0.range.upperBound + suffixStart) }
+  let expectedRows = Array(updated.lines.dropFirst(unchangedPrefix))
+  let suffixOriginY = expectedRows.first?.y ?? 0
+  let suffixGeometryExact = expectedSuffix.elementsEqual(actualSuffix)
+    && expectedRows.count == suffixPlan.lines.count
+    && zip(expectedRows, suffixPlan.lines).allSatisfy { expected, actual in
+      abs(expected.height - actual.height) < 0.01
+        && abs(expected.width - actual.width) < 0.01
+        && abs(expected.y - (suffixOriginY + actual.y)) < 0.01
+    }
+  let rebuiltSuffix = suffixPlan.lines.map { line in
+    IndexedLine(
+      range: (line.range.lowerBound + suffixStart)..<(line.range.upperBound + suffixStart),
+      y: line.y + suffixOriginY, height: line.height, width: line.width)
+  }
+  let combinedLines = Array(plan.lines.prefix(unchangedPrefix)) + rebuiltSuffix
+  let combinedPlanExact = combinedLines.count == updated.lines.count
+    && zip(updated.lines, combinedLines).allSatisfy { expected, actual in
+      expected.range == actual.range
+        && abs(expected.y - actual.y) < 0.01
+        && abs(expected.height - actual.height) < 0.01
+        && abs(expected.width - actual.width) < 0.01
+    }
   var shiftedSuffix = 0
   while shiftedSuffix < min(plan.lines.count, updated.lines.count) {
     let oldLine = plan.lines[plan.lines.count - shiftedSuffix - 1]
@@ -916,7 +960,8 @@ private func measureEditReplan(
     shiftedSuffix += 1
   }
   let invalidated = max(0, plan.lines.count - unchangedPrefix - shiftedSuffix)
-  return (duration, updated.lines.count - plan.lines.count, invalidated, shiftedSuffix)
+  return (duration, updated.lines.count - plan.lines.count, invalidated, shiftedSuffix,
+    unchangedPrefix, suffixDuration, suffixGeometryExact, combinedPlanExact)
 }
 
 @MainActor
@@ -1308,8 +1353,15 @@ private enum IndexedLineSliceViewportProbe {
     print("directInputCallbacks=passed samples=20 p50=\(sortedInputSamples[9]) p95=\(sortedInputSamples[18]) max=\(sortedInputSamples[19]) utf16=\(inputView.text.utf16.count) markedCommit=passed undo=exact backgroundIndex=concurrent")
 
     print("planBytes=\(text.utf8.count) utf16=\(source.length) lines=\(plan.lines.count) height=\(plan.height) plan=\(planDuration)")
-    let editReplan = try measureEditReplan(source, plan: plan, width: 858, window: 65_536)
-    print("fullReplanAfterOneUnitInsert=duration:\(editReplan.0) lineCountDelta:\(editReplan.1) middleLinesInvalidated:\(editReplan.2) shiftedSuffixLines:\(editReplan.3)")
+    for operation in ["insert", "delete"] {
+      for fraction in [0.25, 0.5, 0.75] {
+        let offset = Int(Double(source.length) * fraction)
+        let editReplan = try measureEditReplan(
+          source, plan: plan, editOffset: offset, operation: operation, width: 858, window: 65_536)
+        print("fullReplanAfterEdit=operation:\(operation) offset:\(offset) duration:\(editReplan.0) lineCountDelta:\(editReplan.1) middleLinesInvalidated:\(editReplan.2) shiftedSuffixLines:\(editReplan.3)")
+        print("suffixReplanAfterEdit=operation:\(operation) offset:\(offset) prefixLines:\(editReplan.4) durationIncludingSubstring:\(editReplan.5) exactSuffixGeometry:\(editReplan.6) exactCombinedPlan:\(editReplan.7)")
+      }
+    }
     for renderedLineCount in [28, 32, 64] {
       var samples: [Duration] = []
       for _ in 0..<20 {
