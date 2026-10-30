@@ -227,6 +227,27 @@ private func checkNativeTextViewScrollSlice(
     }
     results.append((name, targetY, actualY, glyphPixels, host.displayedRange))
   }
+  var rebindSamples: [Duration] = []
+  for step in 0..<20 {
+    let targetY = min(
+      max(0, documentHeight / 3 + CGFloat(step) * viewportHeight * 0.75),
+      max(0, documentHeight - viewportHeight))
+    let started = ContinuousClock.now
+    try host.updateViewport(at: targetY, viewportHeight: viewportHeight, lineCount: lineCount)
+    scroll.contentView.scroll(to: NSPoint(x: 0, y: targetY))
+    scroll.reflectScrolledClipView(scroll.contentView)
+    rebindSamples.append(started.duration(to: .now))
+    guard abs(scroll.contentView.bounds.origin.y - targetY) <= 0.5,
+      host.editor.string == source.attributedSubstring(
+        from: NSRange(location: host.displayedRange.lowerBound, length: host.displayedRange.count)).string
+    else {
+      throw NSError(
+        domain: "line-index", code: 59,
+        userInfo: [NSLocalizedDescriptionKey: "native NSTextView rebind failed at scroll step \(step)"])
+    }
+  }
+  let sortedRebindSamples = rebindSamples.sorted()
+  print("nativeTextViewScrollRebind=passed samples=\(rebindSamples.count) p50=\(sortedRebindSamples[9]) p95=\(sortedRebindSamples[18]) max=\(sortedRebindSamples[19]) lineCount=\(lineCount) result=exact")
   window.close()
   return results
 }
