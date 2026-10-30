@@ -63,7 +63,13 @@ private func checkSmallGeometry() throws {
   for (name, text, width, window) in fixtures {
     let source = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: style])
     let plan = try makePlan(source, width: width, window: window)
+    let framePlan = try makeFramePlan(source, width: width, window: window)
     let expected = try nativeGeometry(source, width: width)
+    guard framePlan.lines.map(\.range) == plan.lines.map(\.range),
+      framePlan.lines.map(\.height) == plan.lines.map(\.height)
+    else {
+      throw NSError(domain: "line-index", code: 19, userInfo: [NSLocalizedDescriptionKey: "\(name): framesetter geometry differs from typesetter plan"])
+    }
     guard plan.lines.count == expected.count else {
       throw NSError(domain: "line-index", code: 9, userInfo: [NSLocalizedDescriptionKey: "\(name): CoreText lines \(plan.lines.count), native TextKit lines \(expected.count)"])
     }
@@ -125,11 +131,16 @@ private func visibleGlyphPixelCount(_ view: NSView, y: CGFloat, height: CGFloat)
 }
 
 @MainActor
-private func makePlan(_ source: NSAttributedString, width: CGFloat, window: Int) throws -> LinePlan {
+private func makePlan(
+  _ source: NSAttributedString, width: CGFloat, window: Int, metricStride: Int? = 1
+) throws -> LinePlan {
   let textWidth = max(1, width - 10) // Match NSTextContainer's default 5 point padding on each side.
   var spans: [Range<Int>] = []
   var heightByRange: [Range<Int>: CGFloat] = [:]
   var widthByRange: [Range<Int>: Double] = [:]
+  let baseFont = (source.attribute(.font, at: 0, effectiveRange: nil) as? NSFont)
+    .map { $0 as CTFont } ?? CTFontCreateWithName("Menlo" as CFString, 14, nil)
+  let baseLineHeight = ceil(CTFontGetAscent(baseFont) + CTFontGetDescent(baseFont) + CTFontGetLeading(baseFont))
   var start = 0
   while start < source.length {
     let count = min(window, source.length - start)
@@ -137,19 +148,28 @@ private func makePlan(_ source: NSAttributedString, width: CGFloat, window: Int)
     let typesetter = CTTypesetterCreateWithAttributedString(candidate as CFAttributedString)
     var local: [Range<Int>] = []
     var offset = 0
+    var localLineIndex = 0
+    var sampledHeight = baseLineHeight
     while offset < candidate.length {
       let length = CTTypesetterSuggestLineBreak(typesetter, offset, Double(textWidth))
       guard length > 0 else { throw NSError(domain: "line-index", code: 1) }
       let range = (start + offset)..<(start + offset + length)
       local.append(range)
-      let line = CTTypesetterCreateLine(typesetter, CFRange(location: offset, length: length))
-      var ascent: CGFloat = 0
-      var descent: CGFloat = 0
-      var leading: CGFloat = 0
-      let width = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
-      heightByRange[range] = max(1, ceil(ascent + descent + leading))
-      widthByRange[range] = width
+      if let metricStride, localLineIndex.isMultiple(of: metricStride) {
+        let line = CTTypesetterCreateLine(typesetter, CFRange(location: offset, length: length))
+        var ascent: CGFloat = 0
+        var descent: CGFloat = 0
+        var leading: CGFloat = 0
+        let width = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
+        sampledHeight = max(1, ceil(ascent + descent + leading))
+        heightByRange[range] = sampledHeight
+        widthByRange[range] = width
+      } else {
+        heightByRange[range] = max(1, sampledHeight)
+        widthByRange[range] = 0
+      }
       offset += length
+      localLineIndex += 1
     }
     guard !local.isEmpty else { throw NSError(domain: "line-index", code: 2) }
     if start + count < source.length, local.count > 1 {
@@ -177,9 +197,67 @@ private func makePlan(_ source: NSAttributedString, width: CGFloat, window: Int)
 }
 
 @MainActor
-private func benchmarkPlan(_ source: NSAttributedString, width: CGFloat, window: Int) throws -> (Duration, Int, CGFloat) {
+private func makeFramePlan(_ source: NSAttributedString, width: CGFloat, window: Int) throws
+  -> LinePlan
+{
+  let textWidth = max(1, width - 10)
+  var spans: [Range<Int>] = []
+  var heights: [Range<Int>: CGFloat] = [:]
+  var start = 0
+  while start < source.length {
+    let count = min(window, source.length - start)
+    let candidate = source.attributedSubstring(from: NSRange(location: start, length: count))
+    let framesetter = CTFramesetterCreateWithAttributedString(candidate as CFAttributedString)
+    let path = CGMutablePath()
+    path.addRect(CGRect(x: 0, y: 0, width: textWidth, height: 10_000_000))
+    let frame = CTFramesetterCreateFrame(
+      framesetter, CFRange(location: 0, length: candidate.length), path, nil)
+    guard let localLines = CTFrameGetLines(frame) as? [CTLine] else {
+      throw NSError(domain: "line-index", code: 21)
+    }
+    var local: [Range<Int>] = []
+    for line in localLines {
+      let range = CTLineGetStringRange(line)
+      guard range.location >= 0, range.length > 0 else { continue }
+      let span = (start + range.location)..<(start + range.location + range.length)
+      local.append(span)
+      var ascent: CGFloat = 0
+      var descent: CGFloat = 0
+      var leading: CGFloat = 0
+      _ = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
+      heights[span] = max(1, ceil(ascent + descent + leading))
+    }
+    guard !local.isEmpty else { throw NSError(domain: "line-index", code: 16) }
+    if start + count < source.length, local.count > 1 {
+      spans.append(contentsOf: local.dropLast())
+      start = local[local.count - 2].upperBound
+    } else {
+      spans.append(contentsOf: local)
+      start += count
+    }
+  }
+  var lines: [IndexedLine] = []
+  var y: CGFloat = 0
+  for range in spans {
+    guard let height = heights[range] else { throw NSError(domain: "line-index", code: 17) }
+    lines.append(IndexedLine(range: range, y: y, height: height, width: 0))
+    y += height
+  }
+  guard lines.first?.range.lowerBound == 0,
+    lines.last?.range.upperBound == source.length,
+    zip(lines, lines.dropFirst()).allSatisfy({ $0.range.upperBound == $1.range.lowerBound })
+  else {
+    throw NSError(domain: "line-index", code: 18, userInfo: [NSLocalizedDescriptionKey: "frame plan coverage length=\(source.length) lines=\(lines.count) first=\(String(describing: lines.first?.range)) last=\(String(describing: lines.last?.range))"])
+  }
+  return LinePlan(lines: lines, height: y)
+}
+
+@MainActor
+private func benchmarkPlan(
+  _ source: NSAttributedString, width: CGFloat, window: Int, metricStride: Int? = 1
+) throws -> (Duration, Int, CGFloat) {
   let started = ContinuousClock.now
-  let plan = try makePlan(source, width: width, window: window)
+  let plan = try makePlan(source, width: width, window: window, metricStride: metricStride)
   return (started.duration(to: .now), plan.lines.count, plan.height)
 }
 
@@ -291,6 +369,19 @@ private enum IndexedLineSliceViewportProbe {
       }
       print("planWindow=\(windowSize) lines=\(lineCount) height=\(height) duration=\(duration)")
     }
+    let (breakOnlyDuration, breakOnlyLines, breakOnlyHeight) = try benchmarkPlan(
+      source, width: 858, window: 65_536, metricStride: nil)
+    print("planMode=font-height lines=\(breakOnlyLines) height=\(breakOnlyHeight) duration=\(breakOnlyDuration)")
+    let (sampledDuration, sampledLines, sampledHeight) = try benchmarkPlan(
+      source, width: 858, window: 65_536, metricStride: 64)
+    print("planMode=sampled-height stride=64 lines=\(sampledLines) height=\(sampledHeight) duration=\(sampledDuration)")
+    let frameStart = ContinuousClock.now
+    let framePlan = try makeFramePlan(source, width: 858, window: 65_536)
+    let frameDuration = frameStart.duration(to: .now)
+    guard framePlan.lines.map(\.range) == plan.lines.map(\.range),
+      framePlan.lines.map(\.height) == plan.lines.map(\.height)
+    else { throw NSError(domain: "line-index", code: 20, userInfo: [NSLocalizedDescriptionKey: "large framesetter plan differs from typesetter plan"]) }
+    print("planMode=framesetter lines=\(framePlan.lines.count) height=\(framePlan.height) duration=\(frameDuration)")
 
     let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 900, height: 500))
     scroll.hasVerticalScroller = true

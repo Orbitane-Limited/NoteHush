@@ -21,11 +21,17 @@ The optimized Swift 6 build with warnings treated as errors succeeded on an Appl
 
 The width difference is between Core Text's typographic width and TextKit's line-fragment width; line boundaries and heights matched, and visible glyphs were drawn by TextKit. It remains a reason to avoid using Core Text widths as TextKit drawing geometry.
 
-The generated 10 MiB document had 5,242,888 UTF-16 units and 56,989 indexed lines. Index construction with a 65,536-unit window took 1.72 seconds. Increasing the window to 262,144, 524,288, and 1,048,576 units took 1.85, 1.89, and 2.02 seconds, respectively; each produced the same line count and total height. At start, middle, and end, the scroll view reached the requested vertical offset, the corresponding source range was selected, native local layout took 9.7–36.3 ms in the final run, and the captured viewport contained 39,090–40,842 dark glyph pixels.
+The generated 10 MiB document had 5,242,888 UTF-16 units and 56,989 indexed lines. Index construction with a 65,536-unit window took 1.75 seconds in the final run. Increasing the window to 262,144, 524,288, and 1,048,576 units took 1.87, 1.89, and 2.08 seconds, respectively; each produced the same line count and total height. At start, middle, and end, the scroll view reached the requested vertical offset, the corresponding source range was selected, native local layout took 10.0–61.2 ms in the final run, and the captured viewport contained 39,090–40,842 dark glyph pixels.
+
+## Planning speed follow-ups
+
+The retained source compares the same input with a Core Text framesetter, which returns many line ranges per bounded slice rather than asking the typesetter for each break. It matched the per-line typesetter's line ranges and heights on all four Unicode controls and the 10 MiB generated document, but took 1.96 seconds. Increasing the slice window did not help and took 1.87–2.08 seconds.
+
+Two height shortcuts were also measured on the repeated 10 MiB fixture. Measuring a font height once and assigning it to every line took 1.36 seconds but underestimated the document height by 56,988 points (968,813 vs. 1,025,801). Sampling a real line height every 64 lines took 1.37 seconds and was 63 points shorter than the measured plan. The sampled shortcut has not been validated across document styles and still exceeds the one-second target. None of these controls is a safe or sufficient correction.
 
 ## Limits
 
-This result demonstrates a promising scroll-and-render primitive, not a shippable editor. It misses the PRD's one-second 10 MiB opening target because index construction alone took 1.70 seconds. The probe does not test incremental index updates after edits, typing, IME, selection, undo, accessibility, find, save, recovery, memory limits, arbitrary document styles, or integration with NoteHush's editor. The generated case is one RTL/emoji paragraph. Do not treat this probe as closing issue #75 or as acceptance evidence for v1.
+This result demonstrates a promising scroll-and-render primitive, not a shippable editor. It misses the PRD's one-second 10 MiB opening target because index construction alone took 1.75 seconds. The probe does not test incremental index updates after edits, typing, IME, selection, undo, accessibility, find, save, recovery, memory limits, arbitrary document styles, or integration with NoteHush's editor. The generated case is one RTL/emoji paragraph. Do not treat this probe as closing issue #75 or as acceptance evidence for v1.
 
 Reproduce with:
 
