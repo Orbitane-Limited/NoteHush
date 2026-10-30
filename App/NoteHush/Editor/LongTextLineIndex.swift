@@ -79,7 +79,9 @@ enum LongTextLineIndexer {
     let font = CTFontCreateWithName(fontName as CFString, fontSize, nil)
     let lineHeight = max(
       1,
-      ceil(CTFontGetAscent(font) + CTFontGetDescent(font) + CTFontGetLeading(font)))
+      CTFontGetAscent(font).rounded()
+        + CTFontGetDescent(font).rounded()
+        + CTFontGetLeading(font).rounded())
     var spans: [Range<Int>] = []
     var segmentStart = 0
 

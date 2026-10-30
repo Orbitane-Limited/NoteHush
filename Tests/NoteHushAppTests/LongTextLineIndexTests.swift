@@ -11,7 +11,10 @@ final class LongTextLineIndexTests: XCTestCase {
       String(repeating: "first\rsecond\u{0085}third\u{2028}fourth\u{2029}", count: 150),
     ]
     for (fixtureIndex, text) in fixtures.enumerated() {
-      let expected = try nativeLines(for: text, width: 280)
+      let expected = try nativeLineGeometry(
+        for: text, width: 280,
+        font: .monospacedSystemFont(ofSize: 14, weight: .regular)
+      ).map(\.range)
       let index = try LongTextLineIndexer.makeIndex(
         text: text, fontName: NSFont.monospacedSystemFont(ofSize: 14, weight: .regular).fontName,
         fontSize: 14, textWidth: 270, windowSize: 8_192)
@@ -30,6 +33,37 @@ final class LongTextLineIndexTests: XCTestCase {
       XCTAssertEqual(index.lines.last?.range.upperBound, text.utf16.count)
       XCTAssertEqual(index.lineIndex(atUTF16Offset: 0), 0)
       XCTAssertEqual(index.lineIndex(atY: 0), 0)
+    }
+  }
+
+  func testIndexVerticalGeometryMatchesNativeTextKitFontMetrics() throws {
+    let fonts = [
+      NSFont.monospacedSystemFont(ofSize: 9, weight: .regular),
+      NSFont.monospacedSystemFont(ofSize: 12, weight: .regular),
+      NSFont.monospacedSystemFont(ofSize: 14, weight: .regular),
+      NSFont.monospacedSystemFont(ofSize: 18, weight: .regular),
+      NSFont.monospacedSystemFont(ofSize: 24, weight: .regular),
+      NSFont.systemFont(ofSize: 36),
+      try XCTUnwrap(NSFont(name: "Menlo", size: 14)),
+    ]
+    let text = String(repeating: "Mixed العربية 🧑🏽‍💻 tabs e\u{301} ", count: 120)
+
+    for font in fonts {
+      let expected = try nativeLineGeometry(for: text, width: 420, font: font)
+      let index = try LongTextLineIndexer.makeIndex(
+        text: text, fontName: font.fontName, fontSize: font.pointSize, textWidth: 410,
+        windowSize: 4_096)
+
+      XCTAssertEqual(index.lines.count, expected.count, "line count for \(font.fontName)")
+      for (lineIndex, pair) in zip(index.lines, expected).enumerated() {
+        XCTAssertEqual(pair.0.range, pair.1.range, "line range for \(font.fontName)")
+        XCTAssertEqual(
+          pair.0.y, pair.1.y, accuracy: 0.01,
+          "vertical position for \(font.fontName), line \(lineIndex)")
+        XCTAssertEqual(
+          pair.0.height, pair.1.height, accuracy: 0.01,
+          "line height for \(font.fontName), line \(lineIndex)")
+      }
     }
   }
 
@@ -58,14 +92,15 @@ final class LongTextLineIndexTests: XCTestCase {
     }
   }
 
-  private func nativeLines(for text: String, width: CGFloat) throws -> [Range<Int>] {
+  private func nativeLineGeometry(for text: String, width: CGFloat, font: NSFont) throws
+    -> [(range: Range<Int>, y: CGFloat, height: CGFloat)]
+  {
     let editor = NSTextView(usingTextLayoutManager: true)
     guard let storage = editor.textStorage,
       let manager = editor.textLayoutManager,
       let container = editor.textContainer,
       let content = manager.textContentManager as? NSTextContentStorage
     else { throw XCTSkip("TextKit 2 unavailable") }
-    let font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
     editor.font = font
     editor.textContainerInset = .zero
     container.lineFragmentPadding = 5
@@ -74,7 +109,7 @@ final class LongTextLineIndexTests: XCTestCase {
     storage.setAttributedString(NSAttributedString(string: text, attributes: [.font: font]))
     let documentRange = manager.documentRange
     manager.ensureLayout(for: documentRange)
-    var ranges: [Range<Int>] = []
+    var lines: [(range: Range<Int>, y: CGFloat, height: CGFloat)] = []
     _ = manager.enumerateTextLayoutFragments(
       from: documentRange.location, options: [.ensuresLayout]
     ) {
@@ -84,10 +119,15 @@ final class LongTextLineIndexTests: XCTestCase {
       guard base != NSNotFound, base >= 0 else { return true }
       for line in fragment.textLineFragments {
         let start = base + line.characterRange.location
-        ranges.append(start..<(start + line.characterRange.length))
+        lines.append(
+          (
+            start..<(start + line.characterRange.length),
+            fragment.layoutFragmentFrame.minY + line.typographicBounds.minY,
+            line.typographicBounds.height
+          ))
       }
       return true
     }
-    return ranges
+    return lines
   }
 }
