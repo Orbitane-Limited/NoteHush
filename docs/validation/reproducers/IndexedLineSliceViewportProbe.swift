@@ -53,12 +53,16 @@ private func nativeGeometry(_ source: NSAttributedString, width: CGFloat) throws
   manager.ensureLayout(for: range)
   var rows: [GeometryRow] = []
   _ = manager.enumerateTextLayoutFragments(from: range.location, options: [.ensuresLayout]) { fragment in
+    guard let elementRange = fragment.textElement?.elementRange else { return true }
+    let base = content.offset(from: range.location, to: elementRange.location)
+    guard base != NSNotFound, base >= 0 else { return true }
     for line in fragment.textLineFragments {
-      rows.append(GeometryRow(
-        start: line.characterRange.location,
-        length: line.characterRange.length,
-        width: Double(line.typographicBounds.width),
-        height: Double(line.typographicBounds.height)))
+      rows.append(
+        GeometryRow(
+          start: base + line.characterRange.location,
+          length: line.characterRange.length,
+          width: Double(line.typographicBounds.width),
+          height: Double(line.typographicBounds.height)))
     }
     return true
   }
@@ -70,11 +74,21 @@ private func checkSmallGeometry() throws {
   let font = NSFont.monospacedSystemFont(ofSize: 14, weight: .regular)
   let style = NSMutableParagraphStyle()
   style.baseWritingDirection = .natural
+  let hardSeparatorSample = [
+    "עברית 12 e\u{301}\n",
+    "العربية🙂 3\r\n",
+    "abc\r\u{0085}NEL\u{2028}LS\u{2029}PS ",
+  ].joined()
   let fixtures = [
     ("rtl-emoji", String(repeating: "خط📝", count: 2_000), 320.0, 65_536),
     ("mixed-bidi", String(repeating: "abc اردو 123 — שלום🙂 ", count: 600), 420.0, 65_536),
     ("combining", String(repeating: "e\u{301} العربية אבג 🧑🏽‍💻 ", count: 600), 420.0, 8_192),
     ("punctuation", String(repeating: "(rtl: العربية 42) [עברית, 7] — 🙂 ", count: 600), 420.0, 65_536),
+    (
+      "hard-separators",
+      String(repeating: hardSeparatorSample, count: 200),
+      360.0, 8_192
+    ),
   ]
   for (name, text, width, window) in fixtures {
     let source = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: style])
@@ -108,9 +122,17 @@ private func checkSmallGeometry() throws {
       let sliceStart = plan.lines[first].range.lowerBound
       let sliceEnd = plan.lines[last - 1].range.upperBound
       let slice = source.attributedSubstring(from: NSRange(location: sliceStart, length: sliceEnd - sliceStart))
-      let localRows = try nativeGeometry(slice, width: width)
+      var localRows = try nativeGeometry(slice, width: width)
+      // A slice ending exactly at a hard separator can expose a terminal empty
+      // TextKit line that is not present at this point in the complete source.
+      while localRows.last?.start == slice.length, localRows.last?.length == 0 {
+        localRows.removeLast()
+      }
       guard localRows.count == last - first else {
-        throw NSError(domain: "line-index", code: 13, userInfo: [NSLocalizedDescriptionKey: "\(name): slice at line \(first) has \(localRows.count), expected \(last - first) lines"])
+        let detail =
+          "\(name): slice at line \(first), source \(sliceStart)..<\(sliceEnd), has \(localRows.count) lines, expected \(last - first)"
+        throw NSError(
+          domain: "line-index", code: 13, userInfo: [NSLocalizedDescriptionKey: detail])
       }
       for (offset, localRow) in localRows.enumerated() {
         let expectedRow = expected[first + offset]
