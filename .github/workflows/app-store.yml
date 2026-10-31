@@ -36,7 +36,7 @@ jobs:
         run: python3 scripts/store_preflight.py
       - name: Retain capacity reports
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: NoteHush-store-preflight-storage-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/logs/runner-storage-*.json
@@ -78,14 +78,14 @@ jobs:
         run: python3 scripts/store_delivery.py --cleanup
       - name: Retain capacity reports
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: NoteHush-store-native-storage-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/logs/runner-storage-*.json
           if-no-files-found: error
           retention-days: 14
       - name: Retain only verified candidate and report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: NoteHush-APP-STORE-${{ github.sha }}-${{ github.run_number }}
           path: build/store-delivery/${{ github.run_id }}-${{ github.run_attempt }}/Verified/
