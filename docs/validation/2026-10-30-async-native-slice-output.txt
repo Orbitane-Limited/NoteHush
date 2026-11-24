@@ -1,0 +1,98 @@
+nativeTextViewDiagnostic viewFirst=[(0, 32, 0.0, 17.0), (32, 32, 17.0, 17.0), (64, 32, 34.0, 17.0)] storageFirst=[(0, 32, 0.0, 18.0), (32, 32, 18.0, 18.0), (64, 32, 36.0, 18.0)] padding=5.0 containerWidth=320.0
+geometryFixture=rtl-emoji utf16=8000 lines=250 maxCoreTextWidthDelta=0.0 maxHeightDelta=0.0 nativeEditorLines=exact yStep=17.0...17.0 fontHeightStride=17.0 result=match
+nativeTextViewDiagnostic viewFirst=[(0, 48, 0.0, 17.0), (48, 44, 17.0, 17.0), (92, 44, 34.0, 17.0)] storageFirst=[(0, 48, 0.0, 18.0), (48, 44, 18.0, 18.0), (92, 44, 36.0, 18.0)] padding=5.0 containerWidth=420.0
+geometryFixture=mixed-bidi utf16=13200 lines=300 maxCoreTextWidthDelta=6.7421875 maxHeightDelta=0.0 nativeEditorLines=exact yStep=17.0...17.0 fontHeightStride=17.0 result=match
+nativeTextViewDiagnostic viewFirst=[(0, 61, 0.0, 17.0), (61, 65, 17.0, 17.0), (126, 61, 34.0, 17.0)] storageFirst=[(0, 61, 0.0, 18.0), (61, 65, 18.0, 18.0), (126, 61, 36.0, 18.0)] padding=5.0 containerWidth=420.0
+geometryFixture=combining utf16=13800 lines=225 maxCoreTextWidthDelta=3.201171875 maxHeightDelta=0.0 nativeEditorLines=exact yStep=17.0...17.0 fontHeightStride=17.0 result=match
+nativeTextViewDiagnostic viewFirst=[(0, 48, 0.0, 17.0), (48, 46, 17.0, 17.0), (94, 48, 34.0, 17.0)] storageFirst=[(0, 48, 0.0, 18.0), (48, 46, 18.0, 18.0), (94, 48, 36.0, 18.0)] padding=5.0 containerWidth=420.0
+geometryFixture=punctuation utf16=20400 lines=450 maxCoreTextWidthDelta=7.75390625 maxHeightDelta=0.0 nativeEditorLines=exact yStep=17.0...17.0 fontHeightStride=17.0 result=match
+nativeTextViewDiagnostic viewFirst=[(0, 12, 0.0, 17.0), (12, 13, 17.0, 17.0), (25, 4, 34.0, 17.0)] storageFirst=[(0, 12, 0.0, 18.0), (12, 13, 18.0, 18.0), (25, 4, 36.0, 17.0)] padding=5.0 containerWidth=360.0
+geometryFixture=hard-separators utf16=8000 lines=1201 maxCoreTextWidthDelta=0.0 maxHeightDelta=0.0 nativeEditorLines=exact yStep=17.0...17.0 fontHeightStride=17.0 result=match
+nativeTextViewDiagnostic viewFirst=[(0, 85, 0.0, 11.0), (85, 78, 11.0, 11.0), (163, 84, 22.0, 11.0)] storageFirst=[(0, 85, 0.0, 12.0), (85, 78, 12.0, 12.0), (163, 84, 24.0, 12.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-mono-9 lines=54 roundedMetricStep=11.0 ceilSum=11.0 actualStep=11.0 ctMetrics=10.599609375 indexedHeight=594.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 66, 0.0, 15.0), (66, 53, 15.0, 15.0), (119, 63, 30.0, 15.0)] storageFirst=[(0, 66, 0.0, 16.0), (66, 53, 16.0, 16.0), (119, 63, 32.0, 16.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-mono-12 lines=72 roundedMetricStep=15.0 ceilSum=15.0 actualStep=15.0 ctMetrics=14.1328125 indexedHeight=1080.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 50, 0.0, 17.0), (50, 52, 17.0, 17.0), (102, 57, 34.0, 17.0)] storageFirst=[(0, 50, 0.0, 18.0), (50, 52, 18.0, 18.0), (102, 57, 36.0, 18.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-mono-14 lines=84 roundedMetricStep=17.0 ceilSum=17.0 actualStep=17.0 ctMetrics=16.48828125 indexedHeight=1428.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 41, 0.0, 21.0), (41, 34, 21.0, 21.0), (75, 40, 42.0, 21.0)] storageFirst=[(0, 41, 0.0, 22.0), (41, 34, 22.0, 22.0), (75, 40, 44.0, 22.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-mono-18 lines=117 roundedMetricStep=21.0 ceilSum=22.0 actualStep=21.0 ctMetrics=21.19921875 indexedHeight=2457.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 31, 0.0, 28.0), (31, 35, 28.0, 28.0), (66, 28, 56.0, 28.0)] storageFirst=[(0, 31, 0.0, 30.0), (31, 35, 30.0, 30.0), (66, 28, 60.0, 28.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-mono-24 lines=150 roundedMetricStep=28.0 ceilSum=29.0 actualStep=28.0 ctMetrics=28.265625 indexedHeight=4200.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 31, 0.0, 43.0), (31, 35, 43.0, 43.0), (66, 22, 86.0, 43.0)] storageFirst=[(0, 31, 0.0, 68.0), (31, 35, 68.0, 68.0), (66, 22, 136.0, 43.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=system-36 lines=150 roundedMetricStep=43.0 ceilSum=43.0 actualStep=43.0 ctMetrics=42.3984375 indexedHeight=6450.0 ranges=exact result=match
+nativeTextViewDiagnostic viewFirst=[(0, 50, 0.0, 16.0), (50, 60, 16.0, 16.0), (110, 53, 32.0, 16.0)] storageFirst=[(0, 50, 0.0, 23.0), (50, 60, 23.0, 23.0), (110, 53, 46.0, 23.0)] padding=5.0 containerWidth=420.0
+nativeFontStride=menlo-14 lines=81 roundedMetricStep=16.0 ceilSum=17.0 actualStep=16.0 ctMetrics=16.296875 indexedHeight=1296.0 ranges=exact result=match
+prefixViewport=utf16=8192 lines=64 glyphPixels=40144 prefixLayout=0.273578959 seconds sourcePreparation=0.021740166 seconds sourceToFirstViewport=0.295327458 seconds
+nativeSliceEditLines=28 p50=0.010447958 seconds p95=0.014168042 seconds samples=20 min=0.009854709 seconds max=0.014422208 seconds sourceRestored=true
+planWindow=262144 lines=56989 height=968813.0 duration=1.545587083 seconds
+planWindow=524288 lines=56989 height=968813.0 duration=1.605180583 seconds
+planWindow=1048576 lines=56989 height=968813.0 duration=1.657635083 seconds
+planMode=font-height lines=56989 height=968813.0 duration=1.3896355 seconds
+planMode=sampled-height stride=64 lines=56989 height=1025738.0 duration=1.383797541 seconds
+planMode=framesetter lines=56989 height=1025801.0 duration=2.063422792 seconds
+2026-10-30 22:53:45.821 IndexedLineSliceViewportProbe-public-draft[87867:15130143] Connection Invalid error for service com.apple.hiservices-xpcservice.
+2026-10-30 22:53:45.821 IndexedLineSliceViewportProbe-public-draft[87867:15129579] Error received in message reply handler: Connection invalid
+backgroundIndex=passed duration=1.942449625 seconds mainRunLoopCycles=78 geometry=exact
+directInputCallbacks=passed samples=20 p50=0.01309825 seconds p95=0.013724916 seconds max=0.01445225 seconds utf16=5242910 markedCommit=passed undo=exact backgroundIndex=concurrent
+planBytes=10485760 utf16=5242888 lines=56989 height=968813.0 plan=1.408694916 seconds
+fullReplanAfterEdit=operation:insert offset:0 duration:1.453206458 seconds lineCountDelta:0 middleLinesInvalidated:1 shiftedSuffixLines:56988
+suffixReplanAfterEdit=operation:insert offset:0 prefixLines:0 durationIncludingSubstring:1.384137667 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:insert offset:1310722 duration:1.413827208 seconds lineCountDelta:0 middleLinesInvalidated:42742 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:insert offset:1310722 prefixLines:14246 durationIncludingSubstring:1.06897975 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:insert offset:2621444 duration:1.453086584 seconds lineCountDelta:0 middleLinesInvalidated:28495 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:insert offset:2621444 prefixLines:28493 durationIncludingSubstring:0.727889125 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:insert offset:3932166 duration:1.42243925 seconds lineCountDelta:0 middleLinesInvalidated:14248 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:insert offset:3932166 prefixLines:42740 durationIncludingSubstring:0.347733208 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:insert offset:5242882 duration:1.43529675 seconds lineCountDelta:0 middleLinesInvalidated:1 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:insert offset:5242882 prefixLines:56987 durationIncludingSubstring:0.000198459 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:delete offset:0 duration:1.463361083 seconds lineCountDelta:0 middleLinesInvalidated:56989 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:delete offset:0 prefixLines:0 durationIncludingSubstring:1.481611375 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:delete offset:1310722 duration:1.529722625 seconds lineCountDelta:0 middleLinesInvalidated:1 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:delete offset:1310722 prefixLines:14246 durationIncludingSubstring:1.14927575 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:delete offset:2621444 duration:1.438752208 seconds lineCountDelta:0 middleLinesInvalidated:28495 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:delete offset:2621444 prefixLines:28493 durationIncludingSubstring:0.709693167 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:delete offset:3932166 duration:1.452965875 seconds lineCountDelta:0 middleLinesInvalidated:1 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:delete offset:3932166 prefixLines:42740 durationIncludingSubstring:0.354064875 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:delete offset:5242882 duration:1.469809291 seconds lineCountDelta:0 middleLinesInvalidated:1 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:delete offset:5242882 prefixLines:56987 durationIncludingSubstring:0.00019825 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:replace offset:1310722 duration:1.51276725 seconds lineCountDelta:0 middleLinesInvalidated:42742 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:replace offset:1310722 prefixLines:14246 durationIncludingSubstring:1.113867 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:replace offset:2621444 duration:1.507451334 seconds lineCountDelta:0 middleLinesInvalidated:0 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:replace offset:2621444 prefixLines:28493 durationIncludingSubstring:0.727554375 seconds exactSuffixGeometry:true exactCombinedPlan:true
+fullReplanAfterEdit=operation:replace offset:3932166 duration:1.494550041 seconds lineCountDelta:0 middleLinesInvalidated:14248 shiftedSuffixLines:0
+suffixReplanAfterEdit=operation:replace offset:3932166 prefixLines:42740 durationIncludingSubstring:0.369927625 seconds exactSuffixGeometry:true exactCombinedPlan:true
+middleSliceLines=28 p50=0.010160208 seconds p95=0.010424292 seconds min=0.009764666 seconds max=0.01044175 seconds glyphPixels=39182
+middleSliceLines=32 p50=0.012156083 seconds p95=0.012454209 seconds min=0.011842292 seconds max=0.012546083 seconds glyphPixels=39182
+middleSliceLines=64 p50=0.037117042 seconds p95=0.038292125 seconds min=0.036486 seconds max=0.038556375 seconds glyphPixels=39182
+target=start requestedY=0.0 actualY=0.0 range=0..<5812 lines=64 firstLineY=0.0 layout=0.037085584 seconds glyphPixels=40144
+nativeTextViewDiagnostic viewFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 17.0), (108, 92, 34.0, 17.0)] storageFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 18.0), (108, 92, 35.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=start requestedLines=28 lines=28 layout=0.016186666 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewInsert=passed samples=20 cold=0.034281167 seconds p95=0.022603459 seconds max=0.034281167 seconds undo=exact
+nativeTextViewDiagnostic viewFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 17.0), (108, 92, 34.0, 17.0)] storageFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 18.0), (108, 92, 35.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=start requestedLines=32 lines=32 layout=0.018407 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewDiagnostic viewFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 17.0), (108, 92, 34.0, 17.0)] storageFirst=[(0, 16, 0.0, 17.0), (16, 92, 17.0, 18.0), (108, 92, 35.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=start requestedLines=64 lines=64 layout=0.055953917 seconds yStep=17.0...17.0 lineRanges=match
+target=middle requestedY=484406.5 actualY=484406.5 range=2621372..<2627260 lines=64 firstLineY=484398.0 layout=0.036528167 seconds glyphPixels=39182
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=middle requestedLines=28 lines=28 layout=0.016846166 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=middle requestedLines=32 lines=32 layout=0.021029375 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=middle requestedLines=64 lines=64 layout=0.058131708 seconds yStep=17.0...17.0 lineRanges=match
+target=end requestedY=968313.0 actualY=968313.0 range=5240152..<5242888 lines=30 firstLineY=968303.0 layout=0.010819833 seconds glyphPixels=40953
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=end requestedLines=28 lines=28 layout=0.016334209 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=end requestedLines=32 lines=30 layout=0.017728042 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewDiagnostic viewFirst=[(0, 92, 0.0, 17.0), (92, 92, 17.0, 17.0), (184, 92, 34.0, 17.0)] storageFirst=[(0, 92, 0.0, 18.0), (92, 92, 18.0, 18.0), (184, 92, 36.0, 18.0)] padding=5.0 containerWidth=858.0
+nativeTextViewSlice=end requestedLines=64 lines=30 layout=0.017990667 seconds yStep=17.0...17.0 lineRanges=match
+nativeTextViewEditRebind=passed sameUTF16Length=true source=exact undo=exact redo=exact globalCaret=restored
+nativeTextViewGlobalTyping=passed samples=20 p50=0.007316417 seconds p95=0.007446666 seconds max=0.007582791 seconds sourceSync=exact
+nativeAsyncSuffixReplan=passed duration=Optional(0.934903292 seconds) waitRunLoopCycles=169 concurrentInput=0.008178875 seconds staleResultDiscarded=exact latestPlan=exact
+nativeTextViewScrollRebind=passed samples=20 p50=0.006616375 seconds p95=0.006898792 seconds max=0.007199375 seconds lineCount=32 result=exact
+nativeTextViewScrollSlice=start requestedY=0.0 actualY=0.0 range=0..<2868 glyphPixels=41801 result=passed
+nativeTextViewScrollSlice=middle requestedY=484406.5 actualY=484406.5 range=2619900..<2622844 glyphPixels=234530 result=passed
+nativeTextViewScrollSlice=end requestedY=968313.0 actualY=968313.0 range=5238680..<5241624 glyphPixels=237477 result=passed
+2026-10-30 22:54:28.069 IndexedLineSliceViewportProbe-public-draft[87867:15129579] +[NSXPCSharedListener endpointForReply:withListenerName:replyErrorCode:]: an error occurred while attempting to obtain endpoint for listener 'ClientCallsAuxiliary': Connection invalid
+2026-10-30 22:54:28.070 IndexedLineSliceViewportProbe-public-draft[87867:15130795] +[NSXPCSharedListener endpointForReply:withListenerName:replyErrorCode:]: an error occurred while attempting to obtain endpoint for listener 'com.apple.view-bridge': Connection invalid
+syntheticKeyDown=passed inputContext=inserted

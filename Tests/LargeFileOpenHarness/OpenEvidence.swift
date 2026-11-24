@@ -34,11 +34,17 @@ struct OpenHeader: Encodable {
   let schema = 1
   let unit = "nanoseconds"
   let boundary = "fileOpenRequestToCompleteDurableCheckpoint"
-  let observationsPerWorkload = LargeOpenWorkload.observations
-  let bytesPerFile = LargeOpenWorkload.byteCount
+  let observationsPerWorkload: Int
+  let bytesPerFile: Int
   let observationBoundNanoseconds: UInt64 = 10_000_000_000
   let normalQuitBoundSeconds = 20
-  let workloads = LargeOpenWorkload.allCases
+  let workloads: [LargeOpenWorkload]
+
+  init(observationsPerWorkload: Int, bytesPerFile: Int, workloads: [LargeOpenWorkload]) {
+    self.observationsPerWorkload = observationsPerWorkload
+    self.bytesPerFile = bytesPerFile
+    self.workloads = workloads
+  }
 }
 
 struct OpenAttempt: Encodable {
@@ -65,6 +71,27 @@ struct OpenObservation: Encodable {
   let withinObservationBound: Bool
 }
 
+struct OpenTimeout: Encodable {
+  let kind = "timeout"
+  let workload: LargeOpenWorkload
+  let index: Int
+  let elapsedNanoseconds: UInt64
+  let observationBoundNanoseconds: UInt64 = 10_000_000_000
+  let recoveryVerified = false
+}
+
+struct OpenProfile: Encodable {
+  let kind = "profile"
+  let workload: LargeOpenWorkload
+  let index: Int
+  let pid: Int32
+  let sampleDurationSeconds = 2
+  let status: String
+  let exitCode: Int32?
+  let outputBytes: Int?
+  let outputSHA256: String?
+}
+
 struct OpenVerification: Encodable {
   let kind = "verification"
   let workload: LargeOpenWorkload
@@ -80,7 +107,9 @@ struct OpenVerification: Encodable {
 
 struct OpenFinish: Encodable {
   let kind = "finish"
-  let verifiedObservations = 2 * LargeOpenWorkload.observations
+  let verifiedObservations: Int
+
+  init(verifiedObservations: Int) { self.verifiedObservations = verifiedObservations }
 }
 
 struct OpenRunFailure: Encodable {
@@ -92,7 +121,7 @@ struct OpenManifest: Encodable {
   let version = 1
   let applicationURL: URL
   let environment: OpenEnvironment
-  let fixtures = LargeOpenWorkload.allCases.map { OpenFixture(name: $0.rawValue) }
+  let fixtures: [OpenFixture]
 }
 
 struct OpenFixture: Encodable { let name: String }

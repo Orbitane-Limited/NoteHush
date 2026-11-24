@@ -29,6 +29,17 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private var textCaptureInvalidated = false
   private var contentNotificationPending = false
 
+  var text: String { editor.string }
+  var textSelection: NSRange { editor.selectedRange() }
+
+  func selectText(_ range: NSRange, reveal: Bool = false) {
+    let clamped = TextSelection(location: range.location, length: range.length)
+      .clamped(toUTF16Length: editor.textStorage?.length ?? 0)
+    let nativeRange = NSRange(location: clamped.location, length: clamped.length)
+    editor.setSelectedRange(nativeRange)
+    if reveal { editor.scrollRangeToVisible(nativeRange) }
+  }
+
   init(
     snapshot: TabSnapshot, preferences: EditorPreferences = EditorPreferences(),
     scrollerStyle: NSScroller.Style? = nil,
@@ -182,9 +193,9 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     guard contentNotificationPending else { return }
     contentNotificationPending = false
     contentRevision &+= 1
-    isDirty = file != nil || !editor.string.isEmpty
+    isDirty = file != nil || !text.isEmpty
     refreshDirtyState()
-    metrics = editor.string.isEmpty ? .empty : nil
+    metrics = text.isEmpty ? .empty : nil
     if statusActive { scheduleAnalysis() }
     onStatusChange?()
     onChange?()
@@ -226,8 +237,8 @@ final class EditorTab: NSObject, NSTextViewDelegate {
         guard let self, statusActive else { return }
         // Take the immutable text snapshot only after the typing debounce.
         let revision = contentRevision
-        let text = editor.string
-        let result = try await analyzer.analyze(text)
+        let textSnapshot = text
+        let result = try await analyzer.analyze(textSnapshot)
         try Task.checkCancellation()
         guard statusActive, revision == contentRevision else { return }
         metrics = result
@@ -238,12 +249,12 @@ final class EditorTab: NSObject, NSTextViewDelegate {
 
   func snapshot(isVisible: Bool) -> TabSnapshot {
     if isVisible && observingScroll { captureScroll() }
-    let range = editor.selectedRange()
+    let range = textSelection
     // A caller can capture inside beginEditing/endEditing before the storage
     // notification is delivered. Its pending character mask must invalidate too.
     if textCaptureInvalidated || editor.textStorage?.editedMask.contains(.editedCharacters) == true
     {
-      capturedSnapshot.text = editor.string
+      capturedSnapshot.text = text
       textCaptureInvalidated = false
     }
     capturedSnapshot.title = title
@@ -280,7 +291,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.breakUndoCoalescing()
     history.beginUndoGrouping()
     editor.insertText(
-      opened.text, replacementRange: NSRange(location: 0, length: editor.string.utf16.count))
+      opened.text, replacementRange: NSRange(location: 0, length: text.utf16.count))
     history.setActionName(String(localized: "Reload File"))
     history.endUndoGrouping()
     editor.breakUndoCoalescing()
@@ -292,10 +303,10 @@ final class EditorTab: NSObject, NSTextViewDelegate {
   private func refreshDirtyState(immediate: Bool = false) {
     dirtyCheck?.cancel()
     guard let file else {
-      isDirty = !editor.string.isEmpty
+      isDirty = !text.isEmpty
       return
     }
-    let text = editor.string
+    let text = self.text
     let revision = contentRevision
     dirtyCheck = Task { [weak self] in
       do {
@@ -320,7 +331,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     editor.minSize = NSSize(width: 0, height: scrollView.contentSize.height)
     configureWrapping()
     guard let layout = editor.textLayoutManager, let content = layout.textContentManager,
-      !editor.string.isEmpty
+      !text.isEmpty
     else {
       editor.setFrameOrigin(.zero)
       scrollView.contentView.scroll(to: .zero)
@@ -329,7 +340,7 @@ final class EditorTab: NSObject, NSTextViewDelegate {
     let position =
       savedScroll.flatMap { $0.offset.isFinite ? $0 : nil }
       ?? TextScrollPosition(anchor: 0, offset: -editor.textContainerInset.height)
-    let anchor = min(max(position.anchor, 0), editor.string.utf16.count - 1)
+    let anchor = min(max(position.anchor, 0), text.utf16.count - 1)
     // Native scrolling lays out the anchor's visible area and updates its
     // estimated geometry before we apply the saved offset. A single-character
     // layout request can leave that offset pointing at a different line.

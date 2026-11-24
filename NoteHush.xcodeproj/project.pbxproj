@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A11111111111111111111111F /* LongTextLineIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11111111111111111111111E /* LongTextLineIndex.swift */; };
+		A11111111111111111111113F /* LongTextLineIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11111111111111111111111E /* LongTextLineIndex.swift */; };
+		A11111111111111111111112F /* LongTextLineIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11111111111111111111112E /* LongTextLineIndexTests.swift */; };
 		052C547D0DDC882A2A04A291 /* UndoDiagnosticProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA331A72D8C4ECA967D8C91 /* UndoDiagnosticProbe.swift */; };
 		C2C6681A6A85420E914D4D07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A1B4E26829C490D8327D2AF /* Assets.xcassets */; };
 		018C0EF905AEAB427FDA1819 /* EditorPreferences+AppKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64806345D19229EAF0DF9FFF /* EditorPreferences+AppKit.swift */; };
@@ -85,6 +88,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A11111111111111111111111E /* LongTextLineIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongTextLineIndex.swift; sourceTree = "<group>"; };
+		A11111111111111111111112E /* LongTextLineIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongTextLineIndexTests.swift; sourceTree = "<group>"; };
 		7AA331A72D8C4ECA967D8C91 /* UndoDiagnosticProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoDiagnosticProbe.swift; sourceTree = "<group>"; };
 		9A1B4E26829C490D8327D2AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0F7EF74D0EC9AD8C79B81A40 /* FileWorkspaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWorkspaceTests.swift; sourceTree = "<group>"; };
@@ -160,6 +165,7 @@
 				8C620622CB0DE79507944B40 /* EditorTab.swift */,
 				74EAD7381D6FA34EDDB14578 /* GoToLineSheet.swift */,
 				20132610D160DA7F11F7ACAA /* ParagraphDirectionPresenter.swift */,
+				A11111111111111111111111E /* LongTextLineIndex.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -205,6 +211,7 @@
 				CBA6E1F1BCDAEEA5B00E3542 /* FileResolutionTests.swift */,
 				0F7EF74D0EC9AD8C79B81A40 /* FileWorkspaceTests.swift */,
 				FCB66A335D9C723B3D429810 /* ParagraphDirectionTests.swift */,
+				A11111111111111111111112E /* LongTextLineIndexTests.swift */,
 				916A239972126C756C35492B /* PreferencesTests.swift */,
 				3BEB0E2BF035778A8C501FC1 /* RecoveryWorkspaceTests.swift */,
 				18D5314EB6298D1503943F21 /* SettingsControlTests.swift */,
@@ -477,6 +484,7 @@
 				77115BA524205C342C854222 /* GoToLineSheet.swift in Sources */,
 				09C901BAE6CE224A99A395CB /* NoteHushMain.swift in Sources */,
 				A6D1C86116FE6882D85B0899 /* ParagraphDirectionPresenter.swift in Sources */,
+				A11111111111111111111111F /* LongTextLineIndex.swift in Sources */,
 				052C547D0DDC882A2A04A291 /* UndoDiagnosticProbe.swift in Sources */,
 				F6EDDEC6E8BCA15F92DEF6E6 /* PrivacyWindowController.swift in Sources */,
 				1332617B60C216A5A3CF1218 /* PerformanceApplication.swift in Sources */,
@@ -528,7 +536,9 @@
 				6682B02B46D1B537BA9361DD /* FileWorkspaceTests.swift in Sources */,
 				AD4BE3EE2B314A4F28E28263 /* GoToLineSheet.swift in Sources */,
 				1485D416A90C6F18696AE4BD /* ParagraphDirectionPresenter.swift in Sources */,
+				A11111111111111111111113F /* LongTextLineIndex.swift in Sources */,
 				8E8B4565798E9165BD4652C9 /* ParagraphDirectionTests.swift in Sources */,
+				A11111111111111111111112F /* LongTextLineIndexTests.swift in Sources */,
 				39614A325A870E212AAA66CD /* PerformanceApplication.swift in Sources */,
 				640C2E9E9AC1D5EFA3D40D6D /* PreferencesTests.swift in Sources */,
 				9E44BB993385A9511041182F /* PreferencesWindowController.swift in Sources */,

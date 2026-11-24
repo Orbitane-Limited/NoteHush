@@ -1,0 +1,257 @@
+{
+  "artifactDirectory": "build/VirtualParagraphViewportProbe-dd3af55b-0c58-4b52-82ff-6978d16e4645",
+  "binarySHA256": "67220baa21bf2cced49ce134d20a8fbd2976817795f15d17f57316d86ceeece7",
+  "cases": [
+    {
+      "chunkUTF16": 384,
+      "elapsedSeconds": 1.012705,
+      "elementsEnumerated": 3,
+      "exitCode": 0,
+      "lineCountReturned": 1,
+      "mode": "viewport-header",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "22f37c3676d7612e03b15a90dbe050dfaea8a453628f3869a0731b0558c259fa",
+      "targetRangeUTF16": [
+        0,
+        16
+      ]
+    },
+    {
+      "chunkUTF16": 384,
+      "elapsedSeconds": 0.038452,
+      "elementsEnumerated": 9,
+      "exitCode": 0,
+      "lineCountReturned": 12,
+      "mode": "viewport-start",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "f4399e977573054b06df702c7969e0423c9d84ecaeb2954a3b97c57d3e659840",
+      "targetRangeUTF16": [
+        16,
+        1040
+      ]
+    },
+    {
+      "chunkUTF16": 384,
+      "elapsedSeconds": 0.039568,
+      "elementsEnumerated": 25,
+      "exitCode": 0,
+      "lineCountReturned": 16,
+      "mode": "viewport-middle",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "9a63dd2cb88df857bcbe0ec85bd5a1401f46567725c74876ef5c3a403af66f39",
+      "targetRangeUTF16": [
+        2621444,
+        2622468
+      ]
+    },
+    {
+      "chunkUTF16": 384,
+      "elapsedSeconds": 0.035766,
+      "elementsEnumerated": 20,
+      "exitCode": 0,
+      "lineCountReturned": 6,
+      "mode": "viewport-end",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "7c202b8135d54500c8dc79335f57bce3a6af30cf0f0de1ca1ceafdaf7b4e1818",
+      "targetRangeUTF16": [
+        5242760,
+        5242888
+      ]
+    },
+    {
+      "chunkUTF16": 768,
+      "elapsedSeconds": 0.035949,
+      "elementsEnumerated": 3,
+      "exitCode": 0,
+      "lineCountReturned": 1,
+      "mode": "viewport-header",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "22f37c3676d7612e03b15a90dbe050dfaea8a453628f3869a0731b0558c259fa",
+      "targetRangeUTF16": [
+        0,
+        16
+      ]
+    },
+    {
+      "chunkUTF16": 768,
+      "elapsedSeconds": 0.039556,
+      "elementsEnumerated": 7,
+      "exitCode": 0,
+      "lineCountReturned": 16,
+      "mode": "viewport-start",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "f4399e977573054b06df702c7969e0423c9d84ecaeb2954a3b97c57d3e659840",
+      "targetRangeUTF16": [
+        16,
+        1040
+      ]
+    },
+    {
+      "chunkUTF16": 768,
+      "elapsedSeconds": 0.039254,
+      "elementsEnumerated": 21,
+      "exitCode": 0,
+      "lineCountReturned": 16,
+      "mode": "viewport-middle",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "9a63dd2cb88df857bcbe0ec85bd5a1401f46567725c74876ef5c3a403af66f39",
+      "targetRangeUTF16": [
+        2621444,
+        2622468
+      ]
+    },
+    {
+      "chunkUTF16": 768,
+      "elapsedSeconds": 0.036857,
+      "elementsEnumerated": 18,
+      "exitCode": 0,
+      "lineCountReturned": 6,
+      "mode": "viewport-end",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "7c202b8135d54500c8dc79335f57bce3a6af30cf0f0de1ca1ceafdaf7b4e1818",
+      "targetRangeUTF16": [
+        5242760,
+        5242888
+      ]
+    },
+    {
+      "chunkUTF16": 1536,
+      "elapsedSeconds": 0.037565,
+      "elementsEnumerated": 3,
+      "exitCode": 0,
+      "lineCountReturned": 1,
+      "mode": "viewport-header",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "22f37c3676d7612e03b15a90dbe050dfaea8a453628f3869a0731b0558c259fa",
+      "targetRangeUTF16": [
+        0,
+        16
+      ]
+    },
+    {
+      "chunkUTF16": 1536,
+      "elapsedSeconds": 0.041793,
+      "elementsEnumerated": 5,
+      "exitCode": 0,
+      "lineCountReturned": 16,
+      "mode": "viewport-start",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "f4399e977573054b06df702c7969e0423c9d84ecaeb2954a3b97c57d3e659840",
+      "targetRangeUTF16": [
+        16,
+        1040
+      ]
+    },
+    {
+      "chunkUTF16": 1536,
+      "elapsedSeconds": 0.046284,
+      "elementsEnumerated": 21,
+      "exitCode": 0,
+      "lineCountReturned": 32,
+      "mode": "viewport-middle",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "9a63dd2cb88df857bcbe0ec85bd5a1401f46567725c74876ef5c3a403af66f39",
+      "targetRangeUTF16": [
+        2621444,
+        2622468
+      ]
+    },
+    {
+      "chunkUTF16": 1536,
+      "elapsedSeconds": 0.036393,
+      "elementsEnumerated": 18,
+      "exitCode": 0,
+      "lineCountReturned": 6,
+      "mode": "viewport-end",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "7c202b8135d54500c8dc79335f57bce3a6af30cf0f0de1ca1ceafdaf7b4e1818",
+      "targetRangeUTF16": [
+        5242760,
+        5242888
+      ]
+    },
+    {
+      "chunkUTF16": 4032,
+      "elapsedSeconds": 0.044105,
+      "elementsEnumerated": 3,
+      "exitCode": 0,
+      "lineCountReturned": 1,
+      "mode": "viewport-header",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "22f37c3676d7612e03b15a90dbe050dfaea8a453628f3869a0731b0558c259fa",
+      "targetRangeUTF16": [
+        0,
+        16
+      ]
+    },
+    {
+      "chunkUTF16": 4032,
+      "elapsedSeconds": 0.064262,
+      "elementsEnumerated": 5,
+      "exitCode": 0,
+      "lineCountReturned": 42,
+      "mode": "viewport-start",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "f4399e977573054b06df702c7969e0423c9d84ecaeb2954a3b97c57d3e659840",
+      "targetRangeUTF16": [
+        16,
+        1040
+      ]
+    },
+    {
+      "chunkUTF16": 4032,
+      "elapsedSeconds": 0.064076,
+      "elementsEnumerated": 19,
+      "exitCode": 0,
+      "lineCountReturned": 42,
+      "mode": "viewport-middle",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "9a63dd2cb88df857bcbe0ec85bd5a1401f46567725c74876ef5c3a403af66f39",
+      "targetRangeUTF16": [
+        2621444,
+        2622468
+      ]
+    },
+    {
+      "chunkUTF16": 4032,
+      "elapsedSeconds": 0.038312,
+      "elementsEnumerated": 18,
+      "exitCode": 0,
+      "lineCountReturned": 14,
+      "mode": "viewport-end",
+      "sourceBytesExact": true,
+      "targetCoveredByLaidOutLines": true,
+      "targetGeometrySHA256": "7c202b8135d54500c8dc79335f57bce3a6af30cf0f0de1ca1ceafdaf7b4e1818",
+      "targetRangeUTF16": [
+        5242760,
+        5242888
+      ]
+    }
+  ],
+  "compileExitCode": 0,
+  "driverSHA256": "f3d30a869116a0a19479731e348b3d0009d6fae0b735121956b59cb31b294840",
+  "sourceSHA256": "9800b38f3d336b2283d19ca2e4e023823b0171d83706480cbba3087fe117eb31",
+  "textViewIntegrationAttempt": {
+    "artifactID": "VirtualParagraphViewportProbe-dd3af55b-0c58-4b52-82ff-6978d16e4645",
+    "binarySHA256": "7e97a7eec347bf7b8a49c570ccb811073eaa2d8eff66240ad24a8d5abd7965a1",
+    "exitCode": -6,
+    "failure": "NSTextContentStorage offsetFromLocation rejected null locations during view integration",
+    "sourceSHA256": "223ab2d6e8cf8ca7bad24e740a7ad760595ead9d8a008d4b6bc1cf86f4a24471",
+    "status": "exited"
+  }
+}

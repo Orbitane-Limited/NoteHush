@@ -115,7 +115,7 @@ extension WorkspaceWindowController {
     expected: FileBinding? = nil
   ) async throws {
     guard canEditFiles else { throw CancellationError() }
-    let text = tab.editor.string
+    let text = tab.text
     let protectedFiles = tabs.filter { $0.id != tab.id }.compactMap(\.file)
     let binding = try await fileService.save(
       text, encoding: encoding, to: url, expected: expected ?? tab.file,

@@ -1,0 +1,2521 @@
+{
+  "schema": 1,
+  "issue": 75,
+  "status": "Unresolved; no production fix adopted",
+  "artifacts": {
+    "candidate": {
+      "directory": "build/LongParagraphStudy-D9EB8750-5334-485C-891E-3D044E115FB2",
+      "hashes": {
+        "plan.json": "b4eb90a45ff54b3c0b92561f4f270f84a3e6c6f3ab14afe8b9ffe43a78943b4b",
+        "long-verification.json": "ac26695bbb026fefc0e130d63152aaf939d6d75f1882f29c6f46239626cd7c23",
+        "retention-clarification.json": "a2058501f60a0d4f15292a12ed0030b1c1720ad11ab308bf008909b3f53a161e",
+        "cold-verification.json": "208c4dc9021862c2ad3cfb25a3faac192e5813072d7348574237fabd073d07ff"
+      },
+      "journalSHA256": "3e47befce7705c9f7ca7acc0a517a43fa037b003c399992c8c8cd9bc25988c6a",
+      "records": [
+        {
+          "normalQuitBoundSeconds": 20,
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic",
+          "bytesPerFile": 10485760,
+          "schema": 1,
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "observationsPerWorkload": 1,
+          "unit": "nanoseconds",
+          "observationBoundNanoseconds": 10000000000,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "kind": "header"
+        },
+        {
+          "workload": "ascii",
+          "index": 0,
+          "withinObservationBound": true,
+          "requestToCheckpointNanoseconds": 3034922917,
+          "kind": "observation",
+          "launchServicesReturnNanoseconds": 35137709
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "workload": "ascii",
+          "kind": "verification",
+          "selectionAndViewport": true,
+          "tabOrderAndWindow": true,
+          "completeRecovery": true,
+          "index": 0,
+          "activeDuringObservation": true,
+          "unchangedSourceBytes": true,
+          "normalQuit": true
+        },
+        {
+          "code": "checkpointTimeout",
+          "kind": "failure"
+        }
+      ]
+    },
+    "profile": {
+      "directory": "build/LongParagraphProfile-C6E74D53-72E1-40A7-B407-6ECD6B8E2463",
+      "hashes": {
+        "plan.json": "0288c24508349e84cca44d5e1b070ca754401d02792a519f1ad51454cd9314a5",
+        "result.json": "c8d4726b7e31f8a6471adb89a256d075d26fc7bd15cc1563ce89c1ebada98096",
+        "run.log": "22d3142db6d5a8be609e4d62ebb7ed1637d1274c71b2686adde80a043822af5b"
+      },
+      "journalSHA256": "c076762fc1f6229f71176694610109ad7ab884e794aa9fc4c0d04875b2ca3200",
+      "records": [
+        {
+          "unit": "nanoseconds",
+          "observationsPerWorkload": 1,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "fixtureShape": "headerThenUnbrokenParagraphProfileAfterFailedDeadline",
+          "bytesPerFile": 10485760,
+          "kind": "header",
+          "normalQuitBoundSeconds": 20,
+          "schema": 1,
+          "observationBoundNanoseconds": 10000000000,
+          "workloads": [
+            "mixed"
+          ]
+        },
+        {
+          "kind": "failure",
+          "code": "checkpointTimeout"
+        }
+      ],
+      "sampleSHA256": "6f305f39967402a3fd2257ed701988e087c8b0a3fcccec33cad31201d073d7b3",
+      "mainThreadSamples": 1453,
+      "samplesAtNextRunRange": 1451,
+      "sampleAfterFailedObservation": true
+    },
+    "main": {
+      "directory": "build/LegacyLongParagraph-F756D318-D8C1-4AA8-B518-14683105980D",
+      "hashes": {
+        "plan.json": "edcfecd44b563a2cb7ca46f99a283b6b2b467af55d6d0184794eb6ddda5688a4",
+        "result.json": "3093860bac298e8793117a2a626d54899ade27b241087a6c49d756c02c780da6",
+        "run.log": "b57c3f880fd51715976696b67d52bf22da9ad51f18495b618c364de1f9b00ef1"
+      },
+      "journalSHA256": "e0c296ba0d01d327a0bc0a5318df6b30d93ada1cd660797fdb019d2ae9a1bb1e",
+      "records": [
+        {
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "normalQuitBoundSeconds": 20,
+          "kind": "header",
+          "bytesPerFile": 10485760,
+          "observationsPerWorkload": 1,
+          "unit": "nanoseconds",
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic",
+          "schema": 1,
+          "observationBoundNanoseconds": 10000000000
+        },
+        {
+          "withinObservationBound": true,
+          "launchServicesReturnNanoseconds": 43702916,
+          "requestToCheckpointNanoseconds": 1693466625,
+          "kind": "observation",
+          "workload": "ascii",
+          "index": 0
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "kind": "verification",
+          "index": 0,
+          "selectionAndViewport": true,
+          "normalQuit": true,
+          "tabOrderAndWindow": true,
+          "unchangedSourceBytes": true,
+          "activeDuringObservation": true,
+          "workload": "ascii",
+          "completeRecovery": true
+        },
+        {
+          "code": "checkpointTimeout",
+          "kind": "failure"
+        }
+      ]
+    },
+    "coreText": {
+      "directory": "build/CoreTextLongProbe-9BA3FAAC-8553-402B-AB70-F857264E9686",
+      "hashes": {
+        "plan.json": "6538b5f1be5209ca31df9de4bf9f34d3a20bc7dd4e06eb8fe49847f3635eca7b",
+        "result.json": "cd9a29548576555733ed1d2f141f4112159512434f1fad1e0eff17328ec4677d"
+      },
+      "results": [
+        {
+          "bytes": 262144,
+          "variant": "native",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "variant": "native",
+              "bytes": 262144,
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "rtl",
+          "timeout": true,
+          "records": [
+            {
+              "bytes": 262144,
+              "variant": "rtl",
+              "kind": "begin",
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "noLigatures",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "bytes": 262144,
+              "variant": "noLigatures",
+              "utf16": 131072
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "forcedRTL",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "variant": "forcedRTL",
+              "utf16": 131072,
+              "bytes": 262144
+            }
+          ]
+        },
+        {
+          "bytes": 262144,
+          "variant": "bounded",
+          "exitCode": 0,
+          "records": [
+            {
+              "utf16": 131072,
+              "variant": "bounded",
+              "bytes": 262144,
+              "kind": "begin"
+            },
+            {
+              "kind": "result",
+              "nanoseconds": 191206000,
+              "variant": "bounded",
+              "createdTypesetter": false,
+              "bytes": 262144
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "native",
+          "timeout": true,
+          "records": [
+            {
+              "bytes": 1048576,
+              "kind": "begin",
+              "utf16": 524288,
+              "variant": "native"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "rtl",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "rtl"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "noLigatures",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "noLigatures"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "forcedRTL",
+          "timeout": true,
+          "records": [
+            {
+              "kind": "begin",
+              "utf16": 524288,
+              "bytes": 1048576,
+              "variant": "forcedRTL"
+            }
+          ]
+        },
+        {
+          "bytes": 1048576,
+          "variant": "bounded",
+          "exitCode": 0,
+          "records": [
+            {
+              "utf16": 524288,
+              "kind": "begin",
+              "variant": "bounded",
+              "bytes": 1048576
+            },
+            {
+              "bytes": 1048576,
+              "nanoseconds": 236128000,
+              "variant": "bounded",
+              "kind": "result",
+              "createdTypesetter": false
+            }
+          ]
+        }
+      ]
+    },
+    "asyncWindow": {
+      "directory": "build/AsyncLayoutProbe-CC53AE8C-3832-4754-B807-DE44D7A7D290",
+      "hashes": {
+        "plan.json": "8aa1f0215e96912a189ad750d61b8152427964075384a52b63fe044e6ab6d53e",
+        "result.json": "7608b390497ed88cccb9dfa072aa557c5c71d16048577f1738dc0b7250e93737"
+      },
+      "results": [
+        {
+          "variant": "manager",
+          "workspace": "6F96D34A-23D9-473B-A39A-8ADAF68B9FAB",
+          "timeout": true,
+          "records": [
+            {
+              "utf8Bytes": 262144,
+              "variant": "manager",
+              "phase": "beforeText"
+            },
+            {
+              "phase": "beforeLayout"
+            }
+          ]
+        },
+        {
+          "variant": "fragment",
+          "workspace": "9131C1FD-9ACF-4E28-8A51-B79AF8E389EA",
+          "exitCode": 0,
+          "records": [
+            {
+              "phase": "beforeText",
+              "variant": "fragment",
+              "utf8Bytes": 262144
+            },
+            {
+              "phase": "beforeLayout"
+            },
+            {
+              "operations": 8,
+              "exactText": true,
+              "phase": "layoutReturned"
+            },
+            {
+              "index": 0,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 1,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 2,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 3,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "index": 4,
+              "phase": "mainActorTick",
+              "operations": 8
+            },
+            {
+              "phase": "beforeNormalTerminate"
+            }
+          ]
+        }
+      ]
+    },
+    "asyncRealApp": {
+      "directory": "build/AsyncParagraphNative-E389D5FE-3A35-4A90-A5E2-B2A093CC1694",
+      "hashes": {
+        "plan.json": "80c0af873e04c0155ffdda4831c9f4dfc8b050cea48b1466e87c8b9e07d08bab",
+        "result.json": "80c02c62377272cf7f916f7b174a606ef65971815901d2ce2500f4da2a9b6421",
+        "storage.json": "f9e4ce65f4bef64ba5e198559be1d2eedf77dcdce220f5b0afac030e6d37c41e",
+        "run.log": "edc6c01f14ad90e0192f5be7fa225916da00717be974a651217d0a99040416d7"
+      },
+      "journalSHA256": "492f2953636f066cbb6fb587eaf60bf7005161ba77dc9af4c7daacfb35cd619d",
+      "result": {
+        "kind": "Private real-app asynchronous-fragment prototype; unchanged two-case diagnostic, no complete-rendering claim",
+        "sourceRevision": "0b8d3b49f85b0132b339440ca09981182a9893af",
+        "sourceClean": true,
+        "buildEvidence": "AsyncParagraphApp-FDD0D2A9-E429-4CC1-83C6-72198ABB1C6E",
+        "observationBoundSeconds": 10,
+        "normalQuitBoundSeconds": 20,
+        "outerBoundSeconds": 150,
+        "allFixturesRetained": true,
+        "startedAt": "2026-09-09T03:03:07.830467+00:00",
+        "appWorkloadStarted": true,
+        "appSHA256": "96491f1cd13a05af5dce5dcaf7a2e1a2fa9aa2a533377d32cb06363804f36129",
+        "hostSHA256": "d6468de92f65e4d6494388fac048d52ca6f6e77cb2072ece2c6abb7c5abadac4",
+        "signatureBeforeExitCode": 0,
+        "appWorkloadExitCode": 0,
+        "signatureAfterExitCode": 0,
+        "unchangedBinary": true,
+        "sourceAfter": "0b8d3b49f85b0132b339440ca09981182a9893af",
+        "workingTreeCleanAfter": true,
+        "finishedAt": "2026-09-09T03:03:11.008192+00:00"
+      },
+      "records": [
+        {
+          "normalQuitBoundSeconds": 20,
+          "workloads": [
+            "ascii",
+            "mixed"
+          ],
+          "kind": "header",
+          "observationsPerWorkload": 1,
+          "boundary": "fileOpenRequestToCompleteDurableCheckpoint",
+          "bytesPerFile": 10485760,
+          "observationBoundNanoseconds": 10000000000,
+          "unit": "nanoseconds",
+          "schema": 1,
+          "fixtureShape": "headerThenUnbrokenParagraphDiagnostic"
+        },
+        {
+          "withinObservationBound": true,
+          "workload": "ascii",
+          "launchServicesReturnNanoseconds": 37379750,
+          "requestToCheckpointNanoseconds": 233130083,
+          "kind": "observation",
+          "index": 0
+        },
+        {
+          "fileBindingAndIdentity": true,
+          "selectionAndViewport": true,
+          "activeDuringObservation": true,
+          "completeRecovery": true,
+          "kind": "verification",
+          "unchangedSourceBytes": true,
+          "index": 0,
+          "tabOrderAndWindow": true,
+          "workload": "ascii",
+          "normalQuit": true
+        },
+        {
+          "withinObservationBound": true,
+          "workload": "mixed",
+          "launchServicesReturnNanoseconds": 18276875,
+          "requestToCheckpointNanoseconds": 299804458,
+          "kind": "observation",
+          "index": 0
+        },
+        {
+          "normalQuit": true,
+          "kind": "verification",
+          "fileBindingAndIdentity": true,
+          "selectionAndViewport": true,
+          "unchangedSourceBytes": true,
+          "tabOrderAndWindow": true,
+          "activeDuringObservation": true,
+          "completeRecovery": true,
+          "index": 0,
+          "workload": "mixed"
+        },
+        {
+          "verifiedObservations": 2,
+          "kind": "finish"
+        }
+      ],
+      "renderingCompletionVerified": false,
+      "readinessEvidence": "build/AsyncParagraphReadiness-D87BF9B8-33AB-4EE3-81E4-4739F5F59F47"
+    },
+    "asyncCompletionInterrupted": {
+      "directory": "build/AsyncLayoutCompletionProbe-EC8D6DE1-F527-4730-871A-7B0C1582E9B7",
+      "hashes": {
+        "plan.json": "19d19c4f7a5dda5151b47fefba5d4f28c52eca3474512ee4a84c95deb2fce8dd",
+        "interruption.json": "7fbcfe02cd150ac4dca70c2b0ecebed8e75a103557ac5096c7801fbdd7768157",
+        "ascii-262144.log": "3a7088304e983c55cf921dec10cab7e33c3702421783ba34e8638f3fa09979f2",
+        "AsyncLayoutCompletionProbe.swift": "83df0f5e073f5e6efb4deec85bb567857e7499b3d48fb6d54d86f014c0b0dd39"
+      },
+      "outcome": "Operator scheduling interruption during first case; incomplete; not a normal-termination pass; not retried"
+    },
+    "asyncCompletionRemaining": {
+      "directory": "build/AsyncCompletionRemaining-37108386-95EB-4341-9474-FAC64770C951",
+      "hashes": {
+        "plan.json": "06fa18ee9c07bf512207056082d60252dfb0ec6f4c74980ba18ddf892a30ebb5",
+        "result.json": "6ece6b2847b75c56aabca4e598cfe263e0802e7cb2ae193b90f4700f72eef44a",
+        "readiness.json": "35b7e45df917992cbc0b7386ee1c836464ceb1fd45da8eac4d7d1ccf8c131679"
+      },
+      "result": {
+        "kind": "Only the three previously unlaunched fragment-completion cases; original interrupted first case retained separately",
+        "priorArtifact": "AsyncLayoutCompletionProbe-EC8D6DE1-F527-4730-871A-7B0C1582E9B7",
+        "cases": [
+          [
+            "mixed",
+            262144
+          ],
+          [
+            "ascii",
+            10485760
+          ],
+          [
+            "mixed",
+            10485760
+          ]
+        ],
+        "caseBoundSeconds": 10,
+        "originalMatrixComplete": false,
+        "nativeCasesRetried": false,
+        "sourceSHA256": "83df0f5e073f5e6efb4deec85bb567857e7499b3d48fb6d54d86f014c0b0dd39",
+        "binarySHA256": "be2931317040f35458bd9f60e96a2955e3a868d888f6d4cf74a7615a8e3e0f5e",
+        "startedAt": "2026-09-09T03:16:54.075030+00:00",
+        "signatureBefore": true,
+        "results": [
+          {
+            "variant": "mixed",
+            "bytes": 262144,
+            "workspace": "DC822CDE-A456-4442-A49E-8187C7AAD597",
+            "ownedPID": 43609,
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeText",
+                "utf8Bytes": 262144,
+                "variant": "mixed"
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "exactText": true,
+                "operations": 8,
+                "phase": "layoutReturned"
+              },
+              {
+                "index": 0,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 1,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 2,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 3,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 4,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 5,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 6,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 7,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 8,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 9,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 10,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 11,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 12,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 13,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 14,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 15,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 16,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 17,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 18,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 19,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 20,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 21,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 22,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 23,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 24,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 25,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 26,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 27,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 28,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 29,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 30,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 31,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 32,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 33,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 34,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 35,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 36,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 37,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 38,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "index": 39,
+                "phase": "mainActorTick",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              },
+              {
+                "exactText": true,
+                "phase": "beforeNormalTerminate",
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 131072,
+                    "state": 1,
+                    "id": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "variant": "ascii",
+            "bytes": 10485760,
+            "workspace": "49B9DB6B-A979-4EB9-8995-B35FD3257F20",
+            "ownedPID": 44527,
+            "exitCode": 0,
+            "records": [
+              {
+                "utf8Bytes": 10485760,
+                "phase": "beforeText",
+                "variant": "ascii"
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "phase": "layoutReturned",
+                "operations": 8,
+                "exactText": true
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "index": 0,
+                "phase": "mainActorTick",
+                "operations": 8
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "index": 1,
+                "phase": "mainActorTick",
+                "operations": 8
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 2
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 3,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 4
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 5,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 6
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 7,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 8
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 9,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 10
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 11,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 12
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 13,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 14
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 15,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 16
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 17,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 18
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 19,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 20
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 21,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 22
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 23,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 24
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 25,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 26
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 27,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 28
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 29,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 30
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 31,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 32
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 33,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 34
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 35,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 36
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 37,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "mainActorTick",
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0,
+                "index": 38
+              },
+              {
+                "fragments": [
+                  {
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true,
+                    "lineCount": 105917,
+                    "id": 1,
+                    "state": 3
+                  }
+                ],
+                "index": 39,
+                "phase": "mainActorTick",
+                "operations": 0
+              },
+              {
+                "phase": "beforeNormalTerminate",
+                "exactText": true,
+                "fragments": [
+                  {
+                    "id": 1,
+                    "state": 3,
+                    "lineCount": 105917,
+                    "utf16": 10485760,
+                    "coveredUTF16": 10485760,
+                    "completeContiguousCoverage": true
+                  }
+                ],
+                "operations": 0
+              }
+            ]
+          },
+          {
+            "variant": "mixed",
+            "bytes": 10485760,
+            "workspace": "AC1DE21D-2C9A-431C-AA19-F8ADEB06F2B6",
+            "ownedPID": 46151,
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "mixed",
+                "phase": "beforeText",
+                "utf8Bytes": 10485760
+              },
+              {
+                "phase": "beforeLayout"
+              },
+              {
+                "exactText": true,
+                "phase": "layoutReturned",
+                "operations": 8
+              },
+              {
+                "index": 0,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 1,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 2,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 3,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 4,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 5,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 6,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 7,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 8,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 9,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 10,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 11,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 12,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 13,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 14,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 15,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 16,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 17,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 18,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 19,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 20,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 21,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 22,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 23,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 24,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 25,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 26,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 27,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 28,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 29,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 30,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 31,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 32,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 33,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 34,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 35,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 36,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 37,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 38,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "index": 39,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "mainActorTick"
+              },
+              {
+                "exactText": true,
+                "operations": 8,
+                "fragments": [
+                  {
+                    "utf16": 5242880,
+                    "id": 1,
+                    "state": 1
+                  }
+                ],
+                "phase": "beforeNormalTerminate"
+              }
+            ]
+          }
+        ],
+        "signatureAfter": true,
+        "unchangedBinaryAndSource": true,
+        "finishedAt": "2026-09-09T03:17:21.046979+00:00"
+      },
+      "observation": "Mixed paragraphs retained estimated usage state and 8 pending operations after 40 main-actor ticks; full layout completion not established. ASCII 10 MiB reached layoutAvailable with exact contiguous line coverage."
+    },
+    "fallbackRunMatrix": {
+      "directory": "build/CoreTextFallbackProbe-C0E3F35D-A12B-4007-B085-6208E6C69B90",
+      "hashes": {
+        "plan.json": "53e4e1c0e1e77d7388880959ba53e6eff6e9fea998edb627ebfb87784d5a6095",
+        "result.json": "075b7be27c7b271644fc38428dabd5cf8cfdae6fe4dc7a7d4deb0278dba77331",
+        "CoreTextFallbackProbe.swift": "de681a054a12c884bc5a7652373cd0b9b3959d3e551610302d1aecb4d43eeba5",
+        "Probe": "979eb29edf188913fe129453f4a145cd69383e05220107e9669888d52ba7fc21"
+      },
+      "result": {
+        "kind": "Standalone generated fallback-font/attributed-run hypothesis matrix; no app window or product behavior change",
+        "sourceSHA256": "de681a054a12c884bc5a7652373cd0b9b3959d3e551610302d1aecb4d43eeba5",
+        "sizes": [
+          16384,
+          262144,
+          1048576
+        ],
+        "variants": [
+          "native",
+          "explicitFallback",
+          "separateAttributes",
+          "chunkedAttributes"
+        ],
+        "oneObservationPerCell": true,
+        "timeoutPerCellSeconds": 10,
+        "notPerformanceAcceptance": true,
+        "startedAt": "2026-09-09T03:42:25.276231+00:00",
+        "results": [
+          {
+            "bytes": 16384,
+            "variant": "native",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "phase": "beforeAttributes",
+                "variant": "native"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "coveredUTF16": 86,
+                "wholeParagraphRenderingVerified": false,
+                "exactText": true,
+                "phase": "firstLineAvailable"
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "explicitFallback",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "phase": "beforeAttributes",
+                "variant": "explicitFallback"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "exactText": true,
+                "coveredUTF16": 86,
+                "wholeParagraphRenderingVerified": false,
+                "phase": "firstLineAvailable"
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "separateAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "bytes": 16384,
+                "variant": "separateAttributes",
+                "phase": "beforeAttributes"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "coveredUTF16": 86,
+                "phase": "firstLineAvailable",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 16384,
+            "variant": "chunkedAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "phase": "beforeAttributes",
+                "bytes": 16384
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "exactText": true,
+                "phase": "firstLineAvailable",
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "native",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "native"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "wholeParagraphRenderingVerified": false,
+                "phase": "firstLineAvailable",
+                "exactText": true,
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "explicitFallback",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "explicitFallback"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "exactText": true,
+                "coveredUTF16": 86,
+                "phase": "firstLineAvailable",
+                "wholeParagraphRenderingVerified": false
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "separateAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "phase": "beforeAttributes",
+                "bytes": 262144,
+                "variant": "separateAttributes"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              },
+              {
+                "exactText": true,
+                "phase": "firstLineAvailable",
+                "wholeParagraphRenderingVerified": false,
+                "coveredUTF16": 86
+              }
+            ]
+          },
+          {
+            "bytes": 262144,
+            "variant": "chunkedAttributes",
+            "exitCode": 0,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "phase": "beforeAttributes",
+                "bytes": 262144
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              },
+              {
+                "phase": "firstLineAvailable",
+                "coveredUTF16": 86,
+                "exactText": true,
+                "wholeParagraphRenderingVerified": false
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "native",
+            "timeout": true,
+            "records": [
+              {
+                "variant": "native",
+                "phase": "beforeAttributes",
+                "bytes": 1048576
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "explicitFallback",
+            "timeout": true,
+            "records": [
+              {
+                "bytes": 1048576,
+                "phase": "beforeAttributes",
+                "variant": "explicitFallback"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "separateAttributes",
+            "timeout": true,
+            "records": [
+              {
+                "bytes": 1048576,
+                "variant": "separateAttributes",
+                "phase": "beforeAttributes"
+              },
+              {
+                "exactText": true,
+                "phase": "beforeTypesetter"
+              }
+            ]
+          },
+          {
+            "bytes": 1048576,
+            "variant": "chunkedAttributes",
+            "timeout": true,
+            "records": [
+              {
+                "variant": "chunkedAttributes",
+                "bytes": 1048576,
+                "phase": "beforeAttributes"
+              },
+              {
+                "phase": "beforeTypesetter",
+                "exactText": true
+              }
+            ]
+          }
+        ],
+        "binarySHA256": "979eb29edf188913fe129453f4a145cd69383e05220107e9669888d52ba7fc21",
+        "finishedAt": "2026-09-09T03:43:37.786874+00:00"
+      },
+      "attributeDifference": "Only font; no explicit paragraphStyle unlike original CoreTextLongProbe. Not a rerun or pooled comparison.",
+      "conclusion": "No variant demonstrates correction; first line only, all1MiB timed out."
+    }
+  },
+  "privatePrototype": {
+    "branch": "validation/issue75-async-layout",
+    "source": "0b8d3b49f85b0132b339440ca09981182a9893af",
+    "built": true,
+    "nativeAppTestStarted": false,
+    "note": "Host path preparation error retained; corrected attempt then stopped at disk preflight. Compiler activity also blocked cache reclamation before deletion."
+  },
+  "preparationStatus": {
+    "prototypeSource": "0b8d3b49f85b0132b339440ca09981182a9893af",
+    "optimizedBuildPassed": true,
+    "nativePrototypeWorkloadStarted": true,
+    "shippingPolicyAdopted": false,
+    "cacheReclamation": {
+      "evidence": "build/issue75-cache-reclamation-result.json",
+      "sha256": "4dd2d7f8fe3314af6060825ea559f49ede2f2e2002381455545a746f84413018",
+      "unusedDirectories": 10,
+      "productsFixturesOrEvidenceRemoved": false
+    },
+    "laterNativeRunsPaused": "The real-app diagnosis resumed after storage recovered and two quiet preflight samples; later standalone work continues to check changing conditions",
+    "renderingCompletionRequired": "Fragment state layoutAvailable and verified line/glyph coverage; checkpoint/main-actor progress alone are insufficient",
+    "nativePrototypeWorkloadPassed": true
+  },
+  "reproducer": {
+    "sourcePath": "docs/validation/reproducers/CoreTextLongProbe.swift",
+    "sourceSHA256": "f95846721e71de03eb173e85ff458e835c2b4282f3212a1a88e3b35d8fb45cb8",
+    "exactOriginalMatrixSource": true,
+    "newHostWrapperNativeCaseCompleted": false,
+    "hostFaultChecks": 8,
+    "hostCheckEvidence": "build/issue75-reproducer-host-verification.json"
+  },
+  "pendingDiagnostics": {
+    "notCompiledOrRun": true,
+    "fontPolicy": {
+      "sizesUTF8Bytes": [
+        262144,
+        1048576
+      ],
+      "variants": [
+        "fixFonts",
+        "arabicBase",
+        "arabicOnly",
+        "emojiOnly"
+      ],
+      "sourceSHA256": "f11316620d6e49158424755d63da96bc09db1d0bfd87ea8f4965862e9e3ac38e",
+      "boundary": "typesetter creation and first native line, not complete rendering"
+    },
+    "fragmentRange": {
+      "sizesUTF8Bytes": [
+        16384,
+        262144,
+        1048576
+      ],
+      "variants": [
+        "native",
+        "partial"
+      ],
+      "sourceSHA256": "8a0065fee9e6bd9898358e95306846bf9a50933e21c949306eda33770664b97e",
+      "boundary": "full native UTF-16 line coverage and geometry with unchanged source; not whole-app acceptance"
+    },
+    "readiness": {
+      "artifact": "CoreTextFontPolicyReadiness-EE721002-C25A-4630-AF04-5973B6F6B5A6",
+      "samples": 193,
+      "maximumAvailableBytes": 48665387008,
+      "minimumRequiredBytes": 49438479565,
+      "lastSample": {
+        "time": "2026-09-09T05:23:31.908055+00:00",
+        "freeBytes": 41538887680,
+        "requiredBytes": 49438479565,
+        "nativeProcessCount": 0,
+        "consecutiveReady": 0
+      },
+      "rawSHA256": "c76bb45fafcc03977b1aa202e91edd18c5b6bf18c87191fed8d58294b040eec7",
+      "driverStarted": false,
+      "nativeCaseStarted": false,
+      "stoppedBeforeOriginalDeadline": true,
+      "boundedReserveUnchanged": true,
+      "safePauseEvidence": "FontPolicyPause-C25528D3-3762-4FBC-8829-BDF8128D0205"
+    }
+  }
+}

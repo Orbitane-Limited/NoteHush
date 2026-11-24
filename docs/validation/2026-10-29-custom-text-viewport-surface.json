@@ -1,0 +1,264 @@
+{
+  "binarySHA256": "5563a7092fb9ddd292fedf01f72bb20a754fe65f9940050020eaa24567239d08",
+  "environment": {
+    "architecture": "arm64",
+    "chip": "Apple M4 Pro",
+    "macOS": "26.6.2",
+    "memoryGiB": 24,
+    "model": "MacBook Pro 16,8",
+    "swift": "6.3.3",
+    "xcode": "26.6 (17F113)"
+  },
+  "rangeAndScrollRuns": [
+    {
+      "case": "top",
+      "exitCode": 0,
+      "result": {
+        "actualUTF8Bytes": 10485760,
+        "bounds": [
+          0,
+          0,
+          868,
+          1200000
+        ],
+        "chunkUTF16": 4048,
+        "coveredUTF16UnitsByFragments": 8112,
+        "drawElapsed": "0.01490975 seconds",
+        "elapsed": "0.05626825 seconds",
+        "emittedElements": 7,
+        "firstFragmentY": 0,
+        "fragmentRangeCount": 3,
+        "fragmentRangeSamples": [
+          [
+            0,
+            16,
+            1
+          ],
+          [
+            16,
+            4064,
+            44
+          ],
+          [
+            4064,
+            8112,
+            44
+          ]
+        ],
+        "fragments": 3,
+        "lastFragmentY": 765,
+        "nonWhitePixels": 200586,
+        "relocatedY": 0,
+        "renderOriginY": 0,
+        "renderedBitmapSHA256": "f70914daf0c41b3638ebaefaab1c9e0ba8bec8c611c67bc8dafec006a9fafcc5",
+        "requestedScrollY": 0,
+        "requestedUTF8Bytes": 10485760,
+        "sourceUTF16": 5242888,
+        "targetOffsetUTF16": 0,
+        "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+        "visibleRect": [
+          0,
+          0,
+          868,
+          500
+        ]
+      },
+      "stderr": "",
+      "wallSeconds": 0.131342
+    },
+    {
+      "case": "middle",
+      "exitCode": 0,
+      "result": {
+        "actualUTF8Bytes": 10485760,
+        "bounds": [
+          0,
+          0,
+          868,
+          1200000
+        ],
+        "chunkUTF16": 4048,
+        "coveredUTF16UnitsByFragments": 12144,
+        "drawElapsed": "0.020135917 seconds",
+        "elapsed": "0.078327375 seconds",
+        "emittedElements": 47,
+        "firstFragmentY": 506456.93874862784,
+        "fragmentRangeCount": 3,
+        "fragmentRangeSamples": [
+          [
+            2619072,
+            2623120,
+            44
+          ],
+          [
+            2623120,
+            2627168,
+            44
+          ],
+          [
+            2627168,
+            2631216,
+            44
+          ]
+        ],
+        "fragments": 3,
+        "lastFragmentY": 507952.93874862784,
+        "nonWhitePixels": 206849,
+        "relocatedY": 0,
+        "renderOriginY": 506456.93874862784,
+        "renderedBitmapSHA256": "9fd434e8a2ebca85e8b1533e85ffedc29fdc0584b64f278ffc694e5152c76bd7",
+        "requestedScrollY": 0,
+        "requestedUTF8Bytes": 10485760,
+        "sourceUTF16": 5242888,
+        "targetOffsetUTF16": 2621440,
+        "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+        "visibleRect": [
+          0,
+          0,
+          868,
+          500
+        ]
+      },
+      "stderr": "",
+      "wallSeconds": 0.159315
+    },
+    {
+      "case": "end",
+      "exitCode": 0,
+      "result": {
+        "actualUTF8Bytes": 10485760,
+        "bounds": [
+          0,
+          0,
+          868,
+          1200000
+        ],
+        "chunkUTF16": 4048,
+        "coveredUTF16UnitsByFragments": 712,
+        "drawElapsed": "0.002841541 seconds",
+        "elapsed": "0.00410975 seconds",
+        "emittedElements": 42,
+        "firstFragmentY": 1013693.5560922065,
+        "fragmentRangeCount": 1,
+        "fragmentRangeSamples": [
+          [
+            5242176,
+            5242888,
+            8
+          ]
+        ],
+        "fragments": 1,
+        "lastFragmentY": 1013693.5560922065,
+        "nonWhitePixels": 56241,
+        "relocatedY": 0,
+        "renderOriginY": 1013693.5560922065,
+        "renderedBitmapSHA256": "5825973e2371f93cede884f1da746bb697b61f2dbcccde59604fd2643ed51f1d",
+        "requestedScrollY": 0,
+        "requestedUTF8Bytes": 10485760,
+        "sourceUTF16": 5242888,
+        "targetOffsetUTF16": 5242700,
+        "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+        "visibleRect": [
+          0,
+          0,
+          868,
+          500
+        ]
+      },
+      "stderr": "",
+      "wallSeconds": 0.065606
+    },
+    {
+      "case": "scroll-y-500000",
+      "exitCode": 0,
+      "result": {
+        "actualUTF8Bytes": 10485760,
+        "bounds": [
+          0,
+          0,
+          868,
+          1200000
+        ],
+        "chunkUTF16": 4048,
+        "coveredUTF16UnitsByFragments": 5242888,
+        "drawElapsed": "9.137693417 seconds",
+        "elapsed": "16.347264416999998 seconds",
+        "emittedElements": 1298,
+        "firstFragmentY": 0,
+        "fragmentRangeCount": 1297,
+        "fragmentRangeSamples": [
+          [
+            0,
+            16,
+            1
+          ],
+          [
+            16,
+            4064,
+            44
+          ],
+          [
+            4064,
+            8112,
+            44
+          ],
+          [
+            5234080,
+            5238128,
+            44
+          ],
+          [
+            5238128,
+            5242176,
+            44
+          ],
+          [
+            5242176,
+            5242888,
+            8
+          ]
+        ],
+        "fragments": 1297,
+        "lastFragmentY": 968677,
+        "nonWhitePixels": 200586,
+        "relocatedY": 500000,
+        "renderOriginY": 0,
+        "renderedBitmapSHA256": "f70914daf0c41b3638ebaefaab1c9e0ba8bec8c611c67bc8dafec006a9fafcc5",
+        "requestedScrollY": 500000,
+        "requestedUTF8Bytes": 10485760,
+        "sourceUTF16": 5242888,
+        "targetOffsetUTF16": -1,
+        "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+        "visibleRect": [
+          0,
+          500000,
+          868,
+          500
+        ]
+      },
+      "stderr": "",
+      "wallSeconds": 25.608144
+    }
+  ],
+  "relocationProbeBinarySHA256": "d1c1ab7649f9375c9b53dff3c834fbbd223fda8f5377b589df920d06bb4a83a9",
+  "relocationProbeSourceSHA256": "0c516d1b07b35106ec20fe00a1a4294c4d413d2205480c481bf77362960b1de0",
+  "relocationRuns": [
+    {
+      "case": "middle",
+      "stderr": "before-relocate offset=2621440\nafter-relocate y=505971.0\n",
+      "stdout": "None",
+      "targetOffsetUTF16": 2621440,
+      "timeoutSeconds": 20,
+      "wallSeconds": 20.042288
+    },
+    {
+      "case": "end",
+      "stderr": "before-relocate offset=5242700\nafter-relocate y=1012707.0\n",
+      "stdout": "None",
+      "targetOffsetUTF16": 5242700,
+      "timeoutSeconds": 20,
+      "wallSeconds": 20.036601
+    }
+  ],
+  "sourceSHA256": "14dd7d0f9f1c6683e36060392b33077194d5b6522cda626c0ce6072067a7b0df"
+}

@@ -1,0 +1,207 @@
+[
+  {
+    "case": "top",
+    "exitCode": 0,
+    "result": {
+      "bitmapDigest": "f70914daf0c41b3638ebaefaab1c9e0ba8bec8c611c67bc8dafec006a9fafcc5",
+      "chunkUnits": 4048,
+      "coveredThroughUTF16": 20256,
+      "drawElapsed": "0.008418916 seconds",
+      "emittedElements": 13,
+      "estimatedContentHeight": 1010503.0502929688,
+      "firstFragmentY": 0,
+      "fragmentRanges": [
+        [
+          0,
+          16,
+          1
+        ],
+        [
+          16,
+          4064,
+          44
+        ],
+        [
+          4064,
+          8112,
+          44
+        ],
+        [
+          8112,
+          12160,
+          44
+        ],
+        [
+          12160,
+          16208,
+          44
+        ],
+        [
+          16208,
+          20256,
+          44
+        ]
+      ],
+      "fragments": 6,
+      "indexElapsed": "1.650619375 seconds",
+      "inputBytes": 10485760,
+      "lastFragmentY": 3009,
+      "layoutElapsed": "0.112650334 seconds",
+      "lineCount": 56989,
+      "mappedLine": 0,
+      "mappedLineY": 0,
+      "mappedOffsetUTF16": 0,
+      "nonWhitePixels": 200586,
+      "prefetchY": 0,
+      "requestedScrollY": 0,
+      "sourceUTF16": 5242888,
+      "targetEndUTF16": 16576,
+      "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+      "usageBounds": [
+        5,
+        0,
+        848,
+        4505
+      ],
+      "visibleFragments": 2,
+      "width": 858
+    },
+    "stderr": "",
+    "wallSeconds": 1.832338
+  },
+  {
+    "case": "middle",
+    "exitCode": 0,
+    "result": {
+      "bitmapDigest": "d88f985f2b8764924439b3e3c5ad858a5ef5901ac65ca44404e3c3cc7280fd55",
+      "chunkUnits": 4048,
+      "coveredThroughUTF16": 2598832,
+      "drawElapsed": "0.014284208 seconds",
+      "emittedElements": 51,
+      "estimatedContentHeight": 1010503.0502929688,
+      "firstFragmentY": 498629.2131723381,
+      "fragmentRanges": [
+        [
+          2578592,
+          2582640,
+          44
+        ],
+        [
+          2582640,
+          2586688,
+          44
+        ],
+        [
+          2586688,
+          2590736,
+          44
+        ],
+        [
+          2590736,
+          2594784,
+          44
+        ],
+        [
+          2594784,
+          2598832,
+          44
+        ]
+      ],
+      "fragments": 5,
+      "indexElapsed": "1.674085959 seconds",
+      "inputBytes": 10485760,
+      "lastFragmentY": 501621.2131723381,
+      "layoutElapsed": "0.113666417 seconds",
+      "lineCount": 56989,
+      "mappedLine": 28040,
+      "mappedLineY": 497191.9061279297,
+      "mappedOffsetUTF16": 2579604,
+      "nonWhitePixels": 208585,
+      "prefetchY": 497200,
+      "requestedScrollY": 500000,
+      "sourceUTF16": 5242888,
+      "targetEndUTF16": 2596256,
+      "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+      "usageBounds": [
+        6.537109375,
+        0,
+        846.462890625,
+        503117.2131723381
+      ],
+      "visibleFragments": 2,
+      "width": 858
+    },
+    "stderr": "",
+    "wallSeconds": 1.860976
+  },
+  {
+    "case": "end",
+    "exitCode": 0,
+    "result": {
+      "bitmapDigest": "0e92235135ceefcb571b3a0e3d5a380bc02660647f6782f4388288e813f1cb35",
+      "chunkUnits": 4048,
+      "coveredThroughUTF16": 5242888,
+      "drawElapsed": "0.008487167 seconds",
+      "emittedElements": 52,
+      "estimatedContentHeight": 1010503.0502929688,
+      "firstFragmentY": 1009779.6933040614,
+      "fragmentRanges": [
+        [
+          5221936,
+          5225984,
+          44
+        ],
+        [
+          5225984,
+          5230032,
+          44
+        ],
+        [
+          5230032,
+          5234080,
+          44
+        ],
+        [
+          5234080,
+          5238128,
+          44
+        ],
+        [
+          5238128,
+          5242176,
+          44
+        ],
+        [
+          5242176,
+          5242888,
+          8
+        ]
+      ],
+      "fragments": 6,
+      "indexElapsed": "1.822758375 seconds",
+      "inputBytes": 10485760,
+      "lastFragmentY": 1013519.6933040614,
+      "layoutElapsed": "0.106332584 seconds",
+      "lineCount": 56989,
+      "mappedLine": 56802,
+      "mappedLineY": 1007187.2471923828,
+      "mappedOffsetUTF16": 5225708,
+      "nonWhitePixels": 207861,
+      "prefetchY": 1007200,
+      "requestedScrollY": 1010000,
+      "sourceUTF16": 5242888,
+      "targetEndUTF16": 5242360,
+      "textDigest": "e4e0a3ac39ad74b9b5d4b0b6c85e46ba7d1ea2f6c7ddd4c287f0e1e07effdd63",
+      "usageBounds": [
+        6.537109375,
+        0,
+        846.462890625,
+        1013655.6933040614
+      ],
+      "visibleFragments": 1,
+      "width": 858
+    },
+    "stderr": "",
+    "wallSeconds": 1.997267
+  }
+]

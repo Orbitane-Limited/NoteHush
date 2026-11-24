@@ -1,0 +1,2 @@
+sharedNativeAndGlobalUndo=failed exactSource=false
+globalUndoAcrossRebind=passed utf16=300000 globalEdit=150040 undo=true redo=true selectionExact=true
