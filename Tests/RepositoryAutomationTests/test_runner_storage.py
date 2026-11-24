@@ -19,13 +19,13 @@ SPEC.loader.exec_module(STORAGE)
 
 
 class RunnerStorageTests(unittest.TestCase):
-    def test_fixed_and_proportional_boundaries_require_actual_free_bytes(self):
-        for total, required in [(100 * STORAGE.GIB, 20 * STORAGE.GIB),
-                                (1000 * STORAGE.GIB + 1, 100 * STORAGE.GIB + 1)]:
+    def test_fixed_reserve_boundaries_do_not_scale_with_volume_size(self):
+        for total in [100 * STORAGE.GIB, 1000 * STORAGE.GIB + 1]:
             for difference, status in [(-1, "insufficient"), (0, "pass"), (1, "pass")]:
                 with self.subTest(total=total, difference=difference):
-                    result = STORAGE.assess_capacity("workspace", total, required + difference)
-                    self.assertEqual(result["requiredBytes"], required)
+                    result = STORAGE.assess_capacity(
+                        "workspace", total, STORAGE.MINIMUM_FREE_BYTES + difference)
+                    self.assertEqual(result["requiredBytes"], STORAGE.MINIMUM_FREE_BYTES)
                     self.assertEqual(result["status"], status)
 
     def test_invalid_capacity_cannot_pass(self):

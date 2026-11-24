@@ -48,6 +48,7 @@ No production release has been published.
 
 ### Validation
 
+- Use a fixed 20 GiB available-space reserve for native runner preflight on every filesystem size.
 - Require disk headroom before self-hosted native checks and performance work, with retained capacity reports and failure-path tests after confirmed macOS cache-cleanup kills of the UI runner.
 
 - Optimized, isolated first-frame/editor-readiness measurements with a complete 20-sample baseline and app-only profiling; product performance budgets remain open.

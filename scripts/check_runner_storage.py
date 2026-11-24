@@ -17,8 +17,8 @@ def assess_capacity(label, total, free):
     if (type(total) is not int or type(free) is not int
             or total <= 0 or free < 0 or free > total):
         return result
-    # Engineering headroom policy, not a claim about macOS's purge threshold.
-    required = max(MINIMUM_FREE_BYTES, (total + 9) // 10)
+    # Fixed engineering reserve, not a claim about macOS's purge threshold.
+    required = MINIMUM_FREE_BYTES
     result.update(totalBytes=total, availableBytes=free, requiredBytes=required,
                   status="pass" if free >= required else "insufficient")
     return result
@@ -40,7 +40,7 @@ def run_preflight(workspace, temporary):
     report = {
         "schema": 1,
         "recordedAt": datetime.now(timezone.utc).isoformat(),
-        "policy": {"minimumFreeBytes": MINIMUM_FREE_BYTES, "minimumFreePercent": 10},
+        "policy": {"minimumFreeBytes": MINIMUM_FREE_BYTES},
         "status": "pass" if passed else "fail",
         "volumes": volumes,
     }
