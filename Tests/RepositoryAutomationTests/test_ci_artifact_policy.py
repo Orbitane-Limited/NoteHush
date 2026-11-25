@@ -49,7 +49,8 @@ class CIArtifactPolicyTests(unittest.TestCase):
 
     def test_ci_uses_public_hosted_macos_with_xcode_26_6(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
-        self.assertIn("runs-on: macos-26", workflow)
+        self.assertIn("runner: [macos-26, macos-26-intel]", workflow)
+        self.assertIn("runs-on: ${{ matrix.runner }}", workflow)
         self.assertIn(
             "DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer",
             workflow,
@@ -61,6 +62,7 @@ class CIArtifactPolicyTests(unittest.TestCase):
         step = steps["Upload verification logs after failure or cancellation"]
         self.assertIn("if: failure() || cancelled()", step)
         self.assertIn("path: build/logs/", step)
+        self.assertIn("validation-${{ github.sha }}-${{ matrix.runner }}", step)
         self.assertIn("retention-days: 7", step)
         self.assertNotIn("continue-on-error", step)
         fallback = steps["Preserve verification logs locally if upload fails"]
@@ -73,9 +75,11 @@ class CIArtifactPolicyTests(unittest.TestCase):
         package = steps["Package unsigned engineering archive"]
         self.assertIn("github.ref == 'refs/heads/main'", package)
         self.assertIn("github.event_name != 'pull_request'", package)
+        self.assertIn("matrix.runner == 'macos-26'", package)
         step = steps["Upload unsigned archive"]
         self.assertIn("if: success() && github.ref == 'refs/heads/main'", step)
         self.assertIn("github.event_name != 'pull_request'", step)
+        self.assertIn("matrix.runner == 'macos-26'", step)
         self.assertIn("retention-days: 7", step)
         self.assertNotIn("continue-on-error", step)
         self.assertLess(
