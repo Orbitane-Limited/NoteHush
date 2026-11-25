@@ -16,7 +16,7 @@ The repository already contains focused tests for these behaviors:
 | Appearance and settings | `PreferencesUITests.testSettingsFontAppearanceWrapSpellingZoomAndQuitPersistence` and `testZoomShortcutsAndAppearanceUpdatesKeepText` | Exercises the app's System/Light/Dark appearance settings and text preservation through UI automation. It does not assess contrast or reduced-motion behavior with macOS accessibility settings. |
 | Window frame / display removal | `WorkspaceIntegrationTests.testRestoresScrollSelectionAndClampsDisconnectedDisplayFrame` and `WorkspaceLifecycleTests.testRedWindowCloseRestoresLatestDraftAndWindowFrame` | Tests persisted geometry and clamping when a saved display frame is unavailable. It does not test a physical multi-display setup or interactive resizing across displays. |
 
-Execution of these tests on the issue branch remains pending its exact-head CI result. A passing CI result will establish only the tests and runner configuration that actually ran.
+The exact issue-branch head `ba9a85d0f55258cc9af2cbe9a731eaa8c9b6abd3` passed the complete hosted `bash scripts/check.sh` workflow in [CI run 45518783711](https://github.com/Orbitane-Limited/NoteHush/actions/runs/45518783711), using `macos-26` and Xcode 26.6. This validates the automated suites included by that workflow on its hosted runner; it does not establish manual accessibility, real IME, macOS 14, Intel, or physical multi-display coverage.
 
 ## Observed environment and outstanding validation
 
