@@ -16,9 +16,13 @@ concurrency:
 
 jobs:
   build-and-test:
-    name: Build and test
+    name: Build and test (${{ matrix.runner }})
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, macos-26-intel]
+    runs-on: ${{ matrix.runner }}
     # Public standard runners do not consume the organization's private-repo
     # minute allowance. Keep the pinned toolchain check in scripts/check.sh.
     timeout-minutes: 30
@@ -34,10 +38,10 @@ jobs:
       - name: Validate, test, build and archive
         run: bash scripts/check.sh
       - name: Package unsigned engineering archive
-        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && matrix.runner == 'macos-26'
         run: tar -czf build/NoteHush-UNSIGNED.xcarchive.tar.gz -C build NoteHush-unsigned.xcarchive
       - name: Upload unsigned archive
-        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: success() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && matrix.runner == 'macos-26'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: NoteHush-UNSIGNED-${{ github.sha }}
@@ -49,7 +53,7 @@ jobs:
         if: failure() || cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: validation-${{ github.sha }}
+          name: validation-${{ github.sha }}-${{ matrix.runner }}
           path: build/logs/
           retention-days: 7
           if-no-files-found: warn
