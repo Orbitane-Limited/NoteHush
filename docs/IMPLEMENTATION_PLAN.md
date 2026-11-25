@@ -51,7 +51,7 @@ Squash-only merges, branch deletion, templates, ownership, labels, pinned Action
 
 **Enforcement status, 2026-09-06:** GitHub returned HTTP 403 for main branch protection: the current plan does not support this feature for the private repository. Squash-only merge settings and automatic branch deletion are enabled. CI status reporting works independently, but required checks/PRs and blocked force pushes are procedural until a suitable plan enables enforcement. Repository visibility was not changed. Reapply protection after a plan change.
 
-Rechecked under Orbitane-Limited on 2026-09-07: the same HTTP 403 restriction remains. The transferred repository's existing self-hosted runner is online; see [transfer verification](validation/2026-09-07-repository-transfer.md).
+Rechecked under Orbitane-Limited on 2026-09-07: the same HTTP 403 restriction remained and the transferred repository's self-hosted runner was online at that time; see [transfer verification](validation/2026-09-07-repository-transfer.md). As of 2026-11-25, the repository is public, all workflows target GitHub-hosted macOS, and the formerly registered runner has been deregistered.
 
 ## Release scope changes
 

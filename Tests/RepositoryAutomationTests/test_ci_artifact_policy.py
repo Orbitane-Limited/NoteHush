@@ -25,6 +25,28 @@ def workflow_steps(path):
 
 
 class CIArtifactPolicyTests(unittest.TestCase):
+    def test_no_workflow_targets_a_self_hosted_runner(self):
+        workflows = ROOT / ".github/workflows"
+        for path in workflows.glob("*.yml"):
+            with self.subTest(workflow=path.name):
+                lines = path.read_text().splitlines()
+                runner_lines = [line.strip() for line in lines if line.strip().startswith("runs-on:")]
+                self.assertTrue(runner_lines, f"{path.name} has no explicit runner")
+                self.assertTrue(
+                    all("self-hosted" not in line for line in runner_lines),
+                    f"{path.name} still depends on a self-hosted runner",
+                )
+
+    def test_manual_native_workflows_pin_the_hosted_xcode_toolchain(self):
+        for name in ("delivery.yml", "app-store.yml", "performance.yml"):
+            with self.subTest(workflow=name):
+                workflow = (ROOT / ".github/workflows" / name).read_text()
+                self.assertIn("runs-on: macos-26", workflow)
+                self.assertIn(
+                    "DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer",
+                    workflow,
+                )
+
     def test_ci_uses_public_hosted_macos_with_xcode_26_6(self):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
         self.assertIn("runner: [macos-26, macos-26-intel]", workflow)

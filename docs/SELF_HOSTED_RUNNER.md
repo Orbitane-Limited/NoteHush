@@ -1,6 +1,8 @@
-# Self-hosted runner operations
+# CI runner policy and historical self-hosted setup
 
-The owner requested this Mac as NoteHush's CI host on 2026-09-06. After PR #78 merges, required pull-request and main-branch CI uses GitHub-hosted `macos-26`; this Mac remains scoped to NoteHush's manually dispatched performance and engineering-delivery workflows. Repository: **Orbitane-Limited/NoteHush**, transferred from CodeHubdotPk and made public by the owner on 2026-10-23. Name: `NoteHush-Mac-arm64`. Labels: `self-hosted`, `macOS`, `ARM64`, `notehush`, `xcode-26.6`.
+**Current policy, 2026-11-25:** NoteHush uses GitHub-hosted `macos-26` for all Actions workflows. The offline `NoteHush-Mac-arm64` repository runner was deregistered after the repository became public. Do not install a persistent runner or route workflows to its former labels. The remaining sections retain the setup history and the current native-test, storage and artifact policies; any former runner service commands and cache paths are historical only.
+
+Historically, the owner requested this Mac as NoteHush's CI host on 2026-09-06. Required pull-request and main-branch CI moved to GitHub-hosted `macos-26` after the repository became public. The repository is **Orbitane-Limited/NoteHush**, transferred from CodeHubdotPk and made public on 2026-10-23. The former runner was named `NoteHush-Mac-arm64` and used labels `self-hosted`, `macOS`, `ARM64`, `notehush`, and `xcode-26.6`.
 
 Installation directory: `~/Library/NoteHushActionsRunner` (user-only access). Job checkouts live under its `_work` directory, separate from the development checkout. The official GitHub runner 2.337.0 arm64 package was selected through GitHub's runner download API; verify its published SHA-256 before extraction. Runner auto-update remains enabled. Registration tokens are short-lived and must never be committed or pasted into issues.
 
@@ -12,26 +14,19 @@ Before unattended XCTest UI work, run `python3 scripts/check_ui_automation.py` i
 
 The installed Apple `automationmodetool(1)` manual describes its unattended CI configuration. The Mac owner may run `sudo /usr/bin/automationmodetool enable-automationmode-without-authentication` to permit UI-testing Automation Mode without repeated administrator authentication; the inverse command is `sudo /usr/bin/automationmodetool disable-automationmode-without-authentication`. These are security-policy choices for the owner, never commands run by this preflight or CI. They do not replace the separate accessibility permission described in [Apple's UI automation documentation](https://developer.apple.com/documentation/xcuiautomation/recording-ui-automation-for-testing), an unlocked desktop or exclusive input. Do not edit TCC databases or dismiss unidentified authorization dialogs.
 
-If Terminal and the agent shell report different states, use **Actions → Self-hosted Automation Mode status → Run workflow** on `main`. This status-only job runs `/usr/bin/automationmodetool` directly in the registered runner context; it does not check out source, change authorization, open apps or synthesize input. Use that output to distinguish the interactive Terminal context from the runner service context before starting GUI tests.
+The manually dispatched **Hosted Automation Mode status** workflow reports the ephemeral `macos-26` job's setting only. It does not query this Mac and cannot resolve differences between Terminal and another local shell. Run `python3 scripts/check_ui_automation.py` in the same local context that will start tests; neither result changes authorization or substitutes for an awake, unlocked desktop and exclusive input.
 
-The [2026-09-08 startup failure](validation/2026-09-08-automation-startup.md) records the observed disabled/authentication-required state separately from older unexplained input changes. Resume held jobs after the prerequisite is satisfied; retain each failed run. A missing `notehush` label is an explicit routing hold, so an online idle runner will leave matching jobs queued. Document the reason whenever applying such a hold and restore only that custom label when work can resume.
+The [2026-09-08 startup failure](validation/2026-09-08-automation-startup.md) records the former local runner's disabled/authentication-required state separately from older unexplained input changes. Historic queued runs and the removed `notehush` label do not describe current runner availability. Current Actions jobs use GitHub-hosted `macos-26`; a local Automation Mode failure only prevents local native UI tests.
 
-## Service commands
+## Former runner decommissioning
 
-```sh
-cd "$HOME/Library/NoteHushActionsRunner"
-./svc.sh status
-./svc.sh stop
-./svc.sh start
-```
-
-To remove later, stop/uninstall the service, remove the runner registration through repository Settings > Actions > Runners, and only then remove its dedicated directory. Do not delete the development checkout. Logs are under `_diag`; treat them and `.credentials*` as private.
+On 2026-11-25, GitHub reported zero repository runners. The former launch agent was unloaded after `launchctl` reported it was not running; the dedicated `~/Library/NoteHushActionsRunner` installation, its launch-agent plist and its runner-only log directory were then removed. The development checkout and personal files were preserved. No NoteHush runner service remains to start or stop.
 
 ## Tooling and isolation
 
-Xcode: `/Applications/Xcode.app`, initially 26.6 (17F113). `scripts/check.sh` verifies the selected version. Python 3, Bash and the Xcode tools are required; the committed project avoids a runtime XcodeGen dependency. Keep macOS/Xcode and runner patched, and update the documented toolchain through an issue/PR.
+Current hosted image: Xcode 26.6 at `/Applications/Xcode_26.6.app/Contents/Developer`; `scripts/check.sh` verifies the selected version. Python 3, Bash and the Xcode tools are required; the committed project avoids a runtime XcodeGen dependency. Update the documented toolchain through an issue/PR.
 
-This is a persistent runner executing as the logged-in Mac user, not a disposable VM. The repository is public; CI skips pull requests from forks. That guard is not a security boundary against someone permitted to edit workflow files. Do not run untrusted code on this persistent runner or use `pull_request_target` to execute PR code. Signed delivery gets a separate environment in M6; current jobs receive no signing secrets. Checkout does not persist GitHub credentials.
+While configured, the former runner executed as the logged-in Mac user rather than a disposable VM. The repository is public; CI skips pull requests from forks. That guard is not a security boundary against someone permitted to edit workflow files. Current workflows use GitHub-hosted VMs. Only the main-only signed delivery job can receive Store credentials after its protected environment gate; pull-request workflows receive none. Checkout does not persist GitHub credentials.
 
 The repository is now public, so verify which free-plan branch protection options are available and configure required pull-request checks before relying on them. Until configured, observe checks and review workflow changes procedurally. Monitor disk use in `_work` and artifact retention. Do not remove a work directory while the runner reports `busy: true`.
 
@@ -55,7 +50,7 @@ Cleanup is never automatic. Completed NoteHush checkouts' ignored compiler cache
 
 ## Actions artifact storage
 
-Successful pull-request validation streams its output to the Actions job log and does not upload the full `build/logs/` directory. A failed or cancelled CI run uploads that complete directory for seven days so reviewers can inspect the original `.xcresult` bundles and logs. CI runs on an ephemeral GitHub-hosted VM, so its local fallback is not durable if upload fails. The unsigned archive is uploaded for seven days only from a successful `main` CI run or the guarded delivery workflow. The opt-in performance workflow retains its raw measurement bundles for seven days on all outcomes because those bundles are the primary measurement evidence. Failed or cancelled self-hosted delivery/performance runs also copy logs and the generated fixture manifest to a mode-`0700` per-run directory under `~/Library/NoteHushActionsRunner/_failure-evidence/Orbitane-Limited/NoteHush`, even if the GitHub upload succeeds. The manifest keeps isolated recovery workspaces locatable in the app container; it and the logs are not printed or uploaded from the private fallback. The fallback reports only file count and bytes. Treat this directory as private runner data, and remove a run only after its result has been reviewed or otherwise retained. Upload and fallback errors remain failures; no tests or assertions are skipped to accommodate storage limits.
+Successful pull-request validation streams its output to the Actions job log and does not upload the full `build/logs/` directory. A failed or cancelled CI run uploads that complete directory for seven days so reviewers can inspect the original `.xcresult` bundles and logs. CI runs on an ephemeral GitHub-hosted VM, so its local fallback is not durable if upload fails. The unsigned archive is uploaded for seven days only from a successful `main` CI run or the guarded delivery workflow. The opt-in performance workflow retains its raw measurement bundles for seven days on all outcomes because those bundles are the primary measurement evidence. Earlier self-hosted runs copied logs and generated fixture manifests to a private per-run fallback under the former runner directory. That path is historical; all current Actions jobs use ephemeral GitHub-hosted VMs. Upload and fallback errors remain failures; no tests or assertions are skipped to accommodate storage limits.
 
 The largest observed verification-log artifact was 158,981,471 bytes. At that size, twelve failed pull-request runs retained for seven days would accrue about 299 GiB-hours, compared with GitHub Free for organizations’ 500 MB Actions/Packages shared allowance converted to about 372 GiB-hours per 31-day cycle ([GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)). This is a planning scenario, not a hard storage guarantee: repeated runs, larger result bundles or Packages usage can exceed the allowance. Check billing usage and budgets before a release-validation batch; public standard runners are free, but confirm artifact upload behavior after the repository visibility change.
 
