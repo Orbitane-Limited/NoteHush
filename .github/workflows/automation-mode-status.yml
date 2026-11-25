@@ -1,4 +1,4 @@
-name: Self-hosted Automation Mode status
+name: Hosted Automation Mode status
 
 on:
   workflow_dispatch:
@@ -11,8 +11,8 @@ concurrency:
 
 jobs:
   status:
-    name: Read runner Automation Mode status
-    runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]
+    name: Read hosted runner Automation Mode status
+    runs-on: macos-26
     timeout-minutes: 2
     steps:
       - name: Read status without changing authorization
