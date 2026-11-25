@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "workflowRun": "45512598573",
+  "sourceRevision": "d0b5ba4288923315cb0927d351ea387202d3805c",
+  "binarySHA256": "8a92fd0ffcf2fd642223bb4718df1bde6101665fdf51768edd88237c24f58890",
+  "environment": {
+    "hardwareModel": "VirtualMac2,1",
+    "architecture": "arm64",
+    "memoryBytes": 7516192768,
+    "logicalCPUs": 3,
+    "macOS": "26.7.2",
+    "macOSBuild": "25G332",
+    "xcode": "26.6",
+    "swift": "6.3.3"
+  },
+  "measurement": {
+    "tool": "Xcode Instruments Allocations",
+    "durationSecondsPerWorkspace": 60,
+    "mallocStackLogging": "lite",
+    "fixturesGenerated": true,
+    "recoveryVerified": true,
+    "normalTerminationVerified": true,
+    "interpretation": "Instrumented diagnostic allocations; not RSS or physical footprint."
+  },
+  "workspaces": [
+    {
+      "name": "empty",
+      "liveAllocationRows": 52380,
+      "allHeapAndAnonymousVMPersistentBytes": 255142752,
+      "allHeapAllocationsPersistentBytes": 9677664,
+      "allAnonymousVMPersistentBytes": 245465088
+    },
+    {
+      "name": "20-tabs-5-MiB",
+      "liveAllocationRows": 94790,
+      "allHeapAndAnonymousVMPersistentBytes": 501016592,
+      "allHeapAllocationsPersistentBytes": 28092432,
+      "allAnonymousVMPersistentBytes": 472924160
+    }
+  ],
+  "largestSampledDirectNoteHushAllocationsBytes": [
+    { "responsibleCaller": "TabBarView.reveal(_:)" , "bytes": 20480 },
+    { "responsibleCaller": "PerformanceApplication.sendEvent(_:)" , "bytes": 2560 },
+    { "responsibleCaller": "NSScrollView.__allocating_init()", "bytes": 1280 },
+    { "responsibleCaller": "NSScrollView.__allocating_init(frame:)", "bytes": 1280 },
+    { "responsibleCaller": "NSTextView.__allocating_init(usingTextLayoutManager:)", "bytes": 1024 },
+    { "responsibleCaller": "NSView.__allocating_init()", "bytes": 768 },
+    { "responsibleCaller": "NSButton.__allocating_init()", "bytes": 768 },
+    { "responsibleCaller": "NSStackView.__allocating_init()", "bytes": 768 }
+  ],
+  "limitation": "Only eight largest live allocations directly attributed to the generated app are sampled; this does not identify total ownership or support a production memory claim."
+}
