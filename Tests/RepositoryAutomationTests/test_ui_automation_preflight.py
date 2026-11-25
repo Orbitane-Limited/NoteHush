@@ -28,7 +28,7 @@ class UIAutomationPreflightTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/automation-mode-status.yml").read_text()
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("permissions: {}", workflow)
-        self.assertIn("runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]", workflow)
+        self.assertIn("runs-on: macos-26", workflow)
         self.assertIn("run: /usr/bin/automationmodetool", workflow)
         self.assertNotIn("actions/checkout", workflow)
         self.assertNotIn("secrets.", workflow)

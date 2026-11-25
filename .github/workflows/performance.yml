@@ -20,12 +20,11 @@ concurrency:
 jobs:
   measure:
     name: Isolated app measurements
-    # A single self-hosted runner serializes this with functional CI jobs.
-    # The host still needs exclusive human/other-project GUI input availability.
-    runs-on: [self-hosted, macOS, ARM64, notehush, xcode-26.6]
+    # Each hosted job uses an isolated VM; the protocol still records its actual GUI/runtime environment.
+    runs-on: macos-26
     timeout-minutes: 45
     env:
-      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
