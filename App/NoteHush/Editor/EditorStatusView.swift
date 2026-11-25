@@ -18,6 +18,14 @@ final class EditorStatusView: NSStackView {
     row.spacing = 16
     row.alignment = .centerY
     row.edgeInsets = NSEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+    // Make the status labels explicit children. NSStackView's automatic
+    // accessibility traversal did not expose these labels to XCTest on the
+    // hosted Intel runner, even though they were visibly rendered.
+    setAccessibilityElement(true)
+    setAccessibilityRole(.group)
+    setAccessibilityLabel(String(localized: "Document status"))
+    setAccessibilityChildren([position, counts, format])
+    row.setAccessibilityElement(false)
     addArrangedSubview(row)
     separator.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
     row.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
