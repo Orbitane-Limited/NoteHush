@@ -47,11 +47,11 @@ Local `docs/GITHUB_ROADMAP.md` is regenerated only when explicitly requested and
 
 ## GitHub enforcement
 
-Squash-only merges, branch deletion, templates, ownership, labels, pinned Actions and update automation. Configure main protection with required CI, resolved conversations, blocked force pushes/deletions and linear history when the private repository plan supports it. This is a solo-owner repository initially: automated checks plus documented self-review do not equal an independent approval. Do not create an impossible self-approval requirement. Record a GitHub plan restriction if enforcement is unavailable.
+Squash-only merges, branch deletion, templates, ownership, labels, pinned Actions and update automation. Require PRs, passing CI, resolved conversations, blocked force pushes/deletions and linear history. The publisher requires no human approval gate; do not invent self-approval or make unavailable reviewers a release blocker.
 
-**Enforcement status, 2026-09-06:** GitHub returned HTTP 403 for main branch protection: the current plan does not support this feature for the private repository. Squash-only merge settings and automatic branch deletion are enabled. CI status reporting works independently, but required checks/PRs and blocked force pushes are procedural until a suitable plan enables enforcement. Repository visibility was not changed. Reapply protection after a plan change.
+**Historical status, 2026-09-06:** GitHub returned HTTP 403 for main branch protection while the repository was private. Squash-only merge settings and automatic branch deletion were enabled; required checks/PRs and blocked force pushes were procedural at that time. Repository visibility was not changed then.
 
-Rechecked under Orbitane-Limited on 2026-09-07: the same HTTP 403 restriction remained and the transferred repository's self-hosted runner was online at that time; see [transfer verification](validation/2026-09-07-repository-transfer.md). As of 2026-11-25, the repository is public, all workflows target GitHub-hosted macOS, and the formerly registered runner has been deregistered.
+Rechecked under Orbitane-Limited on 2026-09-07: the same HTTP 403 restriction remained and the transferred repository's self-hosted runner was online at that time; see [transfer verification](validation/2026-09-07-repository-transfer.md). As of 2026-11-25, the repository is public, all workflows target GitHub-hosted macOS, the formerly registered runner has been deregistered, and `main` protection now requires PRs, strict matrix CI, conversation resolution and linear history while requiring zero approvals.
 
 ## Release scope changes
 

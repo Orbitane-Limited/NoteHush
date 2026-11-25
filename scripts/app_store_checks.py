@@ -53,16 +53,21 @@ def validate_ci(run, revision, repository):
             "The complete CI run, including artifact transfer, must pass")
 
 
-def validate_environment(environment):
+def validate_environment(environment, branch_policy):
     require(environment.get("name") == "app-store", "Missing App Store environment")
-    reviewers = [rule for rule in environment.get("protection_rules", [])
-                 if rule.get("type") == "required_reviewers"]
-    require(len(reviewers) == 1 and reviewers[0].get("reviewers"),
-            "App Store environment requires a configured human approval rule")
-    require(reviewers[0].get("prevent_self_review") is True,
-            "The signing environment must prevent self-review")
-    # The documented environment REST response does not expose administrator
-    # bypass configuration. Its UI setting remains an explicit setup check.
+    deployment = environment.get("deployment_branch_policy") or {}
+    require(deployment.get("custom_branch_policies") is True
+            and deployment.get("protected_branches") is False,
+            "App Store deployments must use an explicit branch allowlist")
+    rules = environment.get("protection_rules", [])
+    require(any(rule.get("type") == "branch_policy" for rule in rules),
+            "App Store environment requires its main-only branch policy")
+    require(not any(rule.get("type") == "required_reviewers" for rule in rules),
+            "Human approval must not block App Store delivery")
+    branches = branch_policy.get("branch_policies", [])
+    require(len(branches) == 1 and branches[0].get("type") == "branch"
+            and branches[0].get("name") == "main",
+            "App Store environment must allow only main")
 
 
 def validate_build_numbers(candidate, builds):

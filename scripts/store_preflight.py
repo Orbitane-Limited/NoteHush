@@ -44,7 +44,10 @@ def verify():
     run_id = os.environ.get("NOTEHUSH_CI_RUN_ID", "")
     require(re.fullmatch(r"[1-9]\d*", run_id), "Select a completed main CI run")
     validate_ci(github(f"actions/runs/{run_id}"), revision, REPOSITORY)
-    validate_environment(github("environments/app-store"))
+    validate_environment(
+        github("environments/app-store"),
+        github("environments/app-store/deployment-branch-policies"),
+    )
     return revision
 
 
