@@ -29,7 +29,7 @@ Read `docs/PRD.md`, `docs/TECHNICAL_DESIGN.md`, and `TESTING.md` before changing
 - Branch `issue-<number>/<short-description>` from current main. One issue per PR. Include `Closes #<number>` and actual validation results.
 - Do not bundle unrelated fixes. Update docs/changelog when behavior changes.
 - Run the required checks. Inspect failures; never bypass failing checks or weaken assertions to get green CI.
-- Squash merge only after checks pass and review is resolved. Use a human reviewer when available; do not invent independent review or self-approve. The empty initial main commit is the only bootstrap exception to PR-based changes.
+- Squash merge only after required checks pass and conversations are resolved. Do not require or wait for human review; the publisher has explicitly chosen automated CI as the merge gate. The empty initial main commit is the only bootstrap exception to PR-based changes.
 - Do not force push main, publish a release with unresolved release gates, or commit signing credentials.
 - Do not spawn sub-agents unless the user explicitly requests delegation.
 

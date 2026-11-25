@@ -250,17 +250,34 @@ class AppStoreChecksTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 checks.validate_ci({**run, key: value}, revision, "Orbitane-Limited/NoteHush")
 
-    def testMissingOrSelfApprovedEnvironmentCannotAuthorizeSigning(self):
-        environment = {"name": "app-store", "protection_rules": [{"type": "required_reviewers",
-                       "prevent_self_review": True, "reviewers": [{"type": "User"}]}]}
-        checks.validate_environment(environment)
-        for field, value in [("reviewers", []), ("prevent_self_review", False)]:
-            invalid = copy.deepcopy(environment)
-            invalid["protection_rules"][0][field] = value
-            with self.assertRaises(ValueError):
-                checks.validate_environment(invalid)
-        with self.assertRaises(ValueError):
-            checks.validate_environment({"name": "app-store", "protection_rules": []})
+    def testAppStoreEnvironmentIsMainOnlyWithoutHumanApproval(self):
+        environment = {
+            "name": "app-store",
+            "protection_rules": [{"type": "branch_policy"}],
+            "deployment_branch_policy": {"protected_branches": False,
+                                          "custom_branch_policies": True},
+        }
+        branch_policy = {"branch_policies": [{"type": "branch", "name": "main"}]}
+        checks.validate_environment(environment, branch_policy)
+        invalid_environments = [
+            {"name": "app-store", "protection_rules": [],
+             "deployment_branch_policy": environment["deployment_branch_policy"]},
+            {**environment, "protection_rules": [
+                {"type": "branch_policy"}, {"type": "required_reviewers"}]},
+            {**environment, "deployment_branch_policy": {
+                "protected_branches": True, "custom_branch_policies": False}},
+        ]
+        for invalid in invalid_environments:
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                checks.validate_environment(invalid, branch_policy)
+        for invalid_policy in [
+            {"branch_policies": []},
+            {"branch_policies": [{"type": "branch", "name": "develop"}]},
+            {"branch_policies": [{"type": "branch", "name": "main"},
+                                  {"type": "branch", "name": "release"}]},
+        ]:
+            with self.subTest(invalid_policy=invalid_policy), self.assertRaises(ValueError):
+                checks.validate_environment(environment, invalid_policy)
 
     def testJWTSignatureConversionWithPaddedAndShortIntegers(self):
         # Known unsigned values: high-bit R requires a DER sign byte; S is one.
