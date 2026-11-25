@@ -2,26 +2,35 @@ import AppKit
 import NoteHushCore
 
 @MainActor
-final class EditorStatusView: NSStackView {
+final class EditorStatusView: NSView {
   private let position = NSTextField(wrappingLabelWithString: "")
   private let counts = NSTextField(wrappingLabelWithString: "")
   private let format = NSTextField(wrappingLabelWithString: "")
 
   init() {
     super.init(frame: .zero)
-    orientation = .vertical
-    spacing = 0
+    let layout = NSStackView()
+    layout.orientation = .vertical
+    layout.spacing = 0
     let separator = NSBox()
     separator.boxType = .separator
-    addArrangedSubview(separator)
+    layout.addArrangedSubview(separator)
     let row = NSStackView(views: [position, counts, format])
     row.spacing = 16
     row.alignment = .centerY
     row.edgeInsets = NSEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
     row.setAccessibilityElement(false)
-    addArrangedSubview(row)
-    separator.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-    row.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
+    layout.addArrangedSubview(row)
+    addSubview(layout)
+    layout.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+      layout.leadingAnchor.constraint(equalTo: leadingAnchor),
+      layout.trailingAnchor.constraint(equalTo: trailingAnchor),
+      layout.topAnchor.constraint(equalTo: topAnchor),
+      layout.bottomAnchor.constraint(equalTo: bottomAnchor),
+      separator.widthAnchor.constraint(equalTo: layout.widthAnchor),
+      row.widthAnchor.constraint(equalTo: layout.widthAnchor),
+    ])
     for (label, identifier) in [
       (position, "status-position"), (counts, "status-counts"),
       (format, "status-format"),
@@ -35,8 +44,8 @@ final class EditorStatusView: NSStackView {
       label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
     counts.setContentHuggingPriority(.defaultLow, for: .horizontal)
-    // Make the status labels explicit children after building the view tree.
-    // This keeps the container's hierarchy from replacing the supplied list.
+    // Use a plain NSView group to keep NSStackView's accessibility behavior
+    // from replacing this explicit child list on some AppKit versions.
     setAccessibilityElement(true)
     setAccessibilityRole(.group)
     setAccessibilityLabel(String(localized: "Document status"))
