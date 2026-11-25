@@ -25,6 +25,10 @@ final class EditorStatusView: NSStackView {
       (position, "status-position"), (counts, "status-counts"),
       (format, "status-format"),
     ] {
+      // Set these explicitly so the status remains queryable as static text
+      // across AppKit versions and hardware architectures.
+      label.setAccessibilityElement(true)
+      label.setAccessibilityRole(.staticText)
       label.font = .monospacedDigitSystemFont(ofSize: NSFont.smallSystemFontSize, weight: .regular)
       label.setAccessibilityIdentifier(identifier)
       label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
