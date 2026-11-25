@@ -1,6 +1,6 @@
 # NoteHush Apple review readiness
 
-Checked: 2026-10-24 against the linked Apple sources. This is an engineering readiness matrix, not a submission or a claim of approval. Repository evidence describes a candidate until it is verified again on the exact signed build.
+Checked: 2026-11-25 against the linked Apple sources. This is an engineering readiness matrix, not a submission or a claim of approval. Repository evidence describes a candidate until it is verified again on the exact signed build.
 
 ## Current gate matrix
 
@@ -38,3 +38,15 @@ Keep Issue #15 open until the publisher declarations, public pages, final screen
 - [Upcoming App Store Connect requirements](https://developer.apple.com/news/upcoming-requirements/) — Xcode 26 SDK and macOS quarantine-attribute requirements.
 - [Export compliance overview](https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance)
 - [Submit an app](https://developer.apple.com/app-store/submitting/)
+
+## Current Store-page and submission requirements checked 2026-11-25
+
+| Field / step | Current requirement | NoteHush status |
+| --- | --- | --- |
+| macOS screenshots | At least one screenshot is required for a Mac app. Accepted sizes are 1280×800, 1440×900, 2560×1600 or 2880×1800 (16:10). Upload JPEG/JPG/PNG without alpha; screenshots must accurately show the shipped experience. | No final-candidate screenshots are recorded. Create them only from the real app with isolated, generated fixtures. |
+| Description and keywords | App Store Connect currently allows up to 4,000 characters for the description and up to 100 UTF-8 bytes for keywords. Keywords must describe the app; app/company names need not be duplicated, and other apps' names are not allowed. | Draft metadata is in `metadata.en-US.json`; automated length checks exist. Publisher and final copy review remain open. |
+| Support and privacy URLs | A support URL and a publicly accessible privacy policy URL are Store-page fields. App Privacy answers must cover the app and integrated third-party code; macOS privacy policy URL must be entered in App Store Connect. | Both public destinations are unset; the website publisher/hosting fields remain placeholders. |
+| Age rating | App Store Connect requires an age-rating questionnaire; an unrated app cannot be published. Ratings can vary by region and OS generation. | Publisher must complete the live questionnaire against the final feature set; no rating is inferred from the text editor's apparent audience. |
+| Review submission | Provide the required metadata and select the intended build. “Add for Review” prepares a submission; the separate “Submit for Review” action starts review. | No build has been uploaded, selected, or submitted. Review contact and notes need final confirmation. |
+
+Sources: [Apple Mac screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/), [platform metadata limits and fields](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/), [App Privacy fields and URL requirement](https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/), [age-rating questionnaire](https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating), [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/), and [submission steps](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app). Apple may change these requirements, and review decisions remain discretionary; recheck them for the actual submission.
